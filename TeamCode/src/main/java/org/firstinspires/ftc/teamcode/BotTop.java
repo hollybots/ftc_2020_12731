@@ -16,6 +16,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class BotTop {
 
+    static final double STACKING = 1.0;
+    static final double LAUNCHING = 0.0;
+
+    static final double RETRACTED = 0.0;
+    static final double EXTENDED = 0.95;
+
     static final boolean DEBUG                                  = true;
 
 
@@ -30,8 +36,8 @@ public class BotTop {
     /* ************************************
         DC Motors
     */
-    private DcMotor dcMotor                     = null;
-    private DcMotor intakeMotor                 = null;
+    private DcMotor intakeMotor                     = null;
+    private DcMotor launchMotor                     = null;
 
 
     /* ************************************
@@ -43,7 +49,8 @@ public class BotTop {
     /* ************************************
         SERVOS
     */
-    private Servo servo                             = null;
+    private Servo armServo                             = null;
+    private Servo magazineServo                             = null;
 
 
     /* ************************************
@@ -72,18 +79,28 @@ public class BotTop {
         */
         try {
             intakeMotor  = hardwareMap.get(DcMotor.class, "intake_motor");
-            intakeMotor.setDirection(DcMotor.Direction.REVERSE);
+            intakeMotor.setDirection(DcMotor.Direction.FORWARD);
             intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         catch (Exception e) {
-            dbugThis("Cannot initialize dcMotor");
+            dbugThis("Cannot initialize intakeMotor");
             intakeMotor = null;
         }
 
+        try {
+            launchMotor  = hardwareMap.get(DcMotor.class, "launch_motor");
+            launchMotor.setDirection(DcMotor.Direction.FORWARD);
+            launchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
+        catch (Exception e) {
+            dbugThis("Cannot initialize intakeMotor");
+            launchMotor = null;
+        }
 
         /**
          * CR SERVOS
          */
+
         try {
             crServo = hardwareMap.get(CRServo.class, "crservo_motor");
         }
@@ -96,12 +113,21 @@ public class BotTop {
         /**
          * SERVO MECHANISMS
          */
+
         try {
-            servo = hardwareMap.get(Servo.class, "servo");
+            armServo = hardwareMap.get(Servo.class, "arm_servo");
         }
         catch (Exception e) {
-            dbugThis("Cannot initialize servo");
-            servo = null;
+            dbugThis("Cannot initialize armServo");
+            armServo = null;
+        }
+
+        try {
+            magazineServo = hardwareMap.get(Servo.class, "magazine_servo");
+        }
+        catch (Exception e) {
+            dbugThis("Cannot initialize magazineServo");
+            magazineServo = null;
         }
 
         /**
@@ -125,6 +151,46 @@ public class BotTop {
         }
     }
 
+    public void intakeMotorOn(double power)
+    {
+        intakeMotor.setPower(power);
+    }
+
+    public void intakeMotorOff(double power)
+    {
+        intakeMotor.setPower(power);
+    }
+
+    public void launchMotorOff()
+    {
+        launchMotor.setPower(0);
+    }
+
+    public void launchMotorOn()
+    {
+        launchMotor.setPower(.5);
+    }
+
+    public void lowerMagazine()
+    {
+        magazineServo.setPosition(STACKING);
+    }
+
+    public void liftMagazine()
+    {
+        magazineServo.setPosition(LAUNCHING);
+    }
+
+    public void retractArm()
+    {
+        magazineServo.setPosition(RETRACTED);
+    }
+
+    public void extendArm()
+    {
+        magazineServo.setPosition(EXTENDED);
+    }
+
     public void stopAll()
     {
     }
@@ -138,24 +204,10 @@ public class BotTop {
         return true;
     }
 
-
-    /**
-     * SERVO MOVEMENT COMBINATIONS
-     */
-    public void combo1() {
-        if (servo != null) {
-            servo.setPosition(0.5);
-        }
-    }
-
     void dbugThis(String s) {
 
         if ( DEBUG == true ) {
             Log.d("BOTTOP: ", s);
         }
-    }
-
-    public DcMotor getIntakeMotor() {
-        return intakeMotor;
     }
 }
