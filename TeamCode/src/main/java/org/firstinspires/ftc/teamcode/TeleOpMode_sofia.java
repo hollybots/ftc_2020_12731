@@ -209,12 +209,12 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 //                    e.printStackTrace();
 //                }
             // the button is being released
-            if (!isPressedLaunchingButton && wasPressedLaunchingButton) {
+            else if (!isPressedLaunchingButton && wasPressedLaunchingButton) {
                 botTop.retractArm();
                 wasPressedLaunchingButton = false;
             }
 
-            if (isPressedResetButton){
+            else if (isPressedResetButton){
 //                currentState = COLLECTING_STATE;
                 currentState = INITIATE_COLLECTING_STATE;
             }
