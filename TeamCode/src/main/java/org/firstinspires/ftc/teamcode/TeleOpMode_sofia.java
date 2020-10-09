@@ -63,6 +63,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     boolean isFastSpeedMode                             = false;
     boolean waitForSpeedButtonRelease                   = false;
 
+    boolean wasPressedLaunchingButton                   = false;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -142,6 +144,15 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         boolean isPressedSpeedButton        = gamepad1.right_stick_button;
         boolean toggledSpeed                = false;
 
+        /* Other gamepad inputs
+         */
+        // To initiate loaading state
+        boolean isPressedLoadingButton     = gamepad1.x;  // a and b are already used by the Robot Controller to select the gamepad
+        // To initiate collecting state
+        boolean isPressedResetButton       = gamepad1.y;
+        // To launch rings
+        boolean isPressedLaunchingButton   = gamepad1.right_bumper;
+
         /**
          * Input LED trigger
          */
@@ -165,14 +176,16 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
         else if (currentState == COLLECTING_STATE) {
-            if (gamepad1.right_bumper) {
-                botTop.lowerMagazine();
-                botTop.intakeMotorOn(0.5);
-                botTop.launchMotorOff();
-                if (gamepad1.left_bumper) {
+            // not sure what you are trying to do here as motors are already in the state they should be
+//            if (gamepad1.right_bumper) {
+//                botTop.lowerMagazine();
+//                botTop.intakeMotorOn(0.5);
+//                botTop.launchMotorOff();
+                // this way, it is easier to change if the drivers decide that they prefer another button to do this or that...
+                if (isPressedLoadingButton) {
                     currentState = LOAD_STATE;
                 }
-            }
+//            }
         }
         else if (currentState == LOAD_STATE) {
             botTop.intakeMotorOff(0.0);
@@ -180,18 +193,30 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             botTop.liftMagazine();
             currentState = LAUNCHING_STATE;
         }
-        else if (currentState == LAUNCHING_STATE){
-            if (gamepad1.a){
+        else if (currentState == LAUNCHING_STATE) {
+            // Here we are trying to send the servo command ony only once, so we detect one the change on the button state
+
+            // The button is being pressed
+            if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
                 botTop.extendArm();
-                try {
-                    wait(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                botTop.retractArm();
+                wasPressedLaunchingButton = true;
             }
-            if (gamepad1.b){
-                currentState = COLLECTING_STATE;
+                // This will stall the loop, we cannot wait on anything here, otherwise we loose control of the drive train.
+                // Please read Philbot's comment here that sums it up : https://ftcforum.firstinspires.org/forum/ftc-technology/android-studio/6607-best-way-to-have-the-robot-pause-in-loop-opmode
+//                try {
+//                    wait(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+            // the button is being released
+            if (!isPressedLaunchingButton && wasPressedLaunchingButton) {
+                botTop.retractArm();
+                wasPressedLaunchingButton = false;
+            }
+
+            if (isPressedResetButton){
+//                currentState = COLLECTING_STATE;
+                currentState = INITIATE_COLLECTING_STATE;
             }
         }
 
