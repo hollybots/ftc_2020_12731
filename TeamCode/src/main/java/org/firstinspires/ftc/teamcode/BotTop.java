@@ -38,6 +38,7 @@ public class BotTop {
     */
     private DcMotor intakeMotor                     = null;
     private DcMotor launchMotor                     = null;
+    private DcMotor clawMotor                       = null;
 
 
     /* ************************************
@@ -85,6 +86,16 @@ public class BotTop {
         catch (Exception e) {
             dbugThis("Cannot initialize intakeMotor");
             intakeMotor = null;
+        }
+
+        try {
+            clawMotor  = hardwareMap.get(DcMotor.class, "claw_motor");
+            clawMotor.setDirection(DcMotor.Direction.FORWARD);
+            clawMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
+        catch (Exception e) {
+            dbugThis("Cannot initialize clawMotor");
+            clawMotor = null;
         }
 
         try {
@@ -161,6 +172,16 @@ public class BotTop {
         intakeMotor.setPower(power);
     }
 
+    public void clawMotorOn(double power)
+    {
+        intakeMotor.setPower(power);
+    }
+
+    public void clawMotorOff(double power)
+    {
+        clawMotor.setPower(power);
+    }
+
     public void launchMotorOff()
     {
         launchMotor.setPower(0);
@@ -189,6 +210,11 @@ public class BotTop {
     public void extendArm()
     {
         magazineServo.setPosition(EXTENDED);
+    }
+
+    public void clawMotorOff()
+    {
+        launchMotor.setPower(0);
     }
 
     public void stopAll()
