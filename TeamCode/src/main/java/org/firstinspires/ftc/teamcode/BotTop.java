@@ -25,14 +25,6 @@ public class BotTop {
     static final boolean DEBUG                                  = true;
 
 
-    static final double TORQUENADO_COUNTS_PER_MOTOR_REV        = 1440;                 // eg: REV Motor Encoder
-    static final double NEVEREST40_COUNTS_PER_MOTOR_REV        = 1120;                 // eg: REV Motor Encoder
-
-    static final double PROPULSION_DRIVE_GEAR_REDUCTION     = 1.3;                  // This is < 1.0 if geared UP > 1 we are gering down (the small drives the big)
-    static final double WHEEL_CIRCUMFERENCE                 = 4.0 * 3.14159;        // For figuring circumference
-    static final double PROPULSION_ENCODER_COUNTS_PER_INCH  = (TORQUENADO_COUNTS_PER_MOTOR_REV * PROPULSION_DRIVE_GEAR_REDUCTION) / WHEEL_CIRCUMFERENCE;
-
-
     /* ************************************
         DC Motors
     */
@@ -162,35 +154,48 @@ public class BotTop {
         }
     }
 
+    /**
+     * Turn the intake motor on using the power in param
+     * @param power
+     */
     public void intakeMotorOn(double power)
     {
         intakeMotor.setPower(power);
     }
 
-    public void intakeMotorOff(double power)
+    /**
+     *
+     */
+    public void intakeMotorOff()
     {
-        intakeMotor.setPower(power);
+        intakeMotor.setPower(0.0);
     }
 
+    /**
+     *
+     * @param power
+     */
     public void clawMotorOn(double power)
     {
         intakeMotor.setPower(power);
     }
 
-    public void clawMotorOff(double power)
+    public void clawMotorOff()
     {
-        clawMotor.setPower(power);
+        launchMotor.setPower(0);
     }
+
+    public void launchMotorOn(double power)
+    {
+        launchMotor.setPower(power);
+    }
+
 
     public void launchMotorOff()
     {
         launchMotor.setPower(0);
     }
 
-    public void launchMotorOn()
-    {
-        launchMotor.setPower(.5);
-    }
 
     public void lowerMagazine()
     {
@@ -212,13 +217,10 @@ public class BotTop {
         magazineServo.setPosition(EXTENDED);
     }
 
-    public void clawMotorOff()
-    {
-        launchMotor.setPower(0);
-    }
 
     public void stopAll()
     {
+        intakeMotorOff();
     }
 
     /**

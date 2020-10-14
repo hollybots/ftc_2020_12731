@@ -147,7 +147,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 
         double forward                  = -gamepad1.left_stick_y;
         double right                    = gamepad1.left_stick_x;
-        double clockwise                = gamepad2.right_stick_x;
+        double clockwise                = gamepad1.right_stick_x;
+
         double clawextend               = gamepad1.right_stick_y;
         double clawretract              = -gamepad1.right_stick_y;
 
