@@ -52,6 +52,7 @@ import org.firstinspires.ftc.teamcode.Components.ObjectIdentificationInterface;
 import org.firstinspires.ftc.teamcode.Components.TensorFlowObjectIdentification;
 import org.firstinspires.ftc.teamcode.Components.TravelDirection;
 import org.firstinspires.ftc.teamcode.Components.VuMarkIdentification;
+import org.firstinspires.ftc.teamcode.OpenCV.RingDetector;
 
 
 /**
@@ -297,6 +298,33 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         justWait(0.5);
 
+        stopMoving();
+        return;
+    }
+
+
+    protected void moveTo(double targetX, double targetY, double power) {
+        // cannot use this function without Odometry
+        if (!botBase.hasOdometry()) {
+            return;
+        }
+
+        while (opModeIsActive()) {
+
+            autonomousIdleTasks();
+            double x = botBase.odometer.getCurrentXPos();
+            double y = botBase.odometer.getCurrentYPos();
+            double deltaX = targetX - x;
+            double deltaY = targetY - y;
+
+            //recalculate the angle
+            double theta = Math.atan2(deltaY, deltaX);
+            powerPropulsionAtAngle(theta, power);
+
+            if (Math.abs(targetX - x) < CLOSE_ENOUGH_X && Math.abs(targetY - y) < CLOSE_ENOUGH_Y) {
+                break;
+            }
+        }
         stopMoving();
         return;
     }
