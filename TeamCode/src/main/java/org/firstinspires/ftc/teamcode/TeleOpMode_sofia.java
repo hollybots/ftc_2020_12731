@@ -44,6 +44,15 @@ import org.firstinspires.ftc.teamcode.Components.WheelPower;
 public class TeleOpMode_sofia extends TeleOpModesBase
 {
 
+    private void justWait(int milliseconds){
+
+        double currTime = getRuntime();
+        double waitUntil = currTime + (double)(milliseconds/1000);
+        while (getRuntime() < waitUntil){
+        }
+
+    }
+
     static final double  LED_OFF                        = 0.7745;   // off
     static final double  LED_TEAM_COLORS1               = 0.6545;  // Sinelon, Color 1 and 2
     static final double  LED_TEAM_COLORS2               = 0.6295;  // End to End Blend
@@ -64,6 +73,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     boolean waitForSpeedButtonRelease                   = false;
 
     boolean wasPressedLaunchingButton                   = false;
+    boolean wasPressedLoadingButton                     = false;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -132,16 +142,21 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         // push joystick1 forward to go forward
         // push joystick1 to the right to strafe right
         // push joystick2 to the right to rotate clockwise
+        // I'm remapping the joystick2 right stick so we can use it for the claw thingy
+        // couldn't find a way to deactivate "clockwise" without causing an error so i mapped it to gamepad 2
 
         double forward                  = -gamepad1.left_stick_y;
         double right                    = gamepad1.left_stick_x;
-        double clockwise                = gamepad1.right_stick_x;
+        double clockwise                = gamepad2.right_stick_x;
+        double clawextend               = gamepad1.right_stick_y;
+        double clawretract              = -gamepad1.right_stick_y;
 
 
         /**
          * Input speed toggle
          */
-        boolean isPressedSpeedButton        = gamepad1.right_stick_button;
+        float isPressedForwardButton        = gamepad1.right_trigger;
+        float isPressedBackwardButton        = gamepad1.left_trigger;
         boolean toggledSpeed                = false;
 
         /* Other gamepad inputs
@@ -167,26 +182,30 @@ public class TeleOpMode_sofia extends TeleOpModesBase
          *
          */
 
+        //pick up the wobble goal
+        if (clawextend >= 0.1) {
+            botTop.clawMotorOn(0.3);
+        }
+        else if (clawretract >= 0.1) {
+            botTop.clawMotorOn(-0.3);
+        }
+        else if (clawextend == 0.0 && clawretract == 0.0){
+            botTop.clawMotorOff();
+        }
+
+        // I might've messed up a bunch of stuff but there's my progress for today
+
         if (currentState == INITIATE_COLLECTING_STATE) {
             botTop.lowerMagazine();
             botTop.retractArm();
             botTop.intakeMotorOn(0.5);
             botTop.launchMotorOff();
-            currentState = COLLECTING_STATE;
+
+            if (isPressedLoadingButton && !wasPressedLoadingButton) {
+                currentState = LOAD_STATE;
+            }
         }
 
-        else if (currentState == COLLECTING_STATE) {
-            // not sure what you are trying to do here as motors are already in the state they should be
-//            if (gamepad1.right_bumper) {
-//                botTop.lowerMagazine();
-//                botTop.intakeMotorOn(0.5);
-//                botTop.launchMotorOff();
-                // this way, it is easier to change if the drivers decide that they prefer another button to do this or that...
-                if (isPressedLoadingButton) {
-                    currentState = LOAD_STATE;
-                }
-//            }
-        }
         else if (currentState == LOAD_STATE) {
             botTop.intakeMotorOff(0.0);
             botTop.launchMotorOn();
@@ -199,15 +218,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             // The button is being pressed
             if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
                 botTop.extendArm();
+                justWait(1000);
                 wasPressedLaunchingButton = true;
             }
-                // This will stall the loop, we cannot wait on anything here, otherwise we loose control of the drive train.
-                // Please read Philbot's comment here that sums it up : https://ftcforum.firstinspires.org/forum/ftc-technology/android-studio/6607-best-way-to-have-the-robot-pause-in-loop-opmode
-//                try {
-//                    wait(1000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
+            // look coach i fixed it :))))))))
             // the button is being released
             else if (!isPressedLaunchingButton && wasPressedLaunchingButton) {
                 botTop.retractArm();
@@ -215,7 +229,6 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             }
 
             else if (isPressedResetButton){
-//                currentState = COLLECTING_STATE;
                 currentState = INITIATE_COLLECTING_STATE;
             }
         }
@@ -239,8 +252,11 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         /**
          * Power calculation for drivetrain
          */
+
+        // making myself a note to change these
+
         wheels =  calcWheelPower(clockwise, forward, right);
-        if (isPressedSpeedButton) {
+        if (isPressedForwardButton >= 0.2) {
             waitForSpeedButtonRelease = true;
         } else if (waitForSpeedButtonRelease) {
             waitForSpeedButtonRelease = false;
