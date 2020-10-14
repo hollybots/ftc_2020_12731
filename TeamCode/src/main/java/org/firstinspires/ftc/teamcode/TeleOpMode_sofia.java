@@ -39,7 +39,7 @@ import org.firstinspires.ftc.teamcode.Components.WheelPower;
 /**
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@TeleOp(name="TeleOp Rename please", group="1")
+@TeleOp(name="TeleOp sofia lol", group="1")
 @Disabled
 public class TeleOpMode_sofia extends TeleOpModesBase
 {
@@ -64,6 +64,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     static final int COLLECTING_STATE = 3;
     static final int LAUNCHING_STATE = 4;
     private int currentState = INITIATE_COLLECTING_STATE;
+
+    static final double CLAW_POWER = 0.3;
+    static final double LAUNCH_POWER = 0.75;
+    static final double INTAKE_POWER = 1.0;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -142,23 +146,19 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         // push joystick1 forward to go forward
         // push joystick1 to the right to strafe right
         // push joystick2 to the right to rotate clockwise
-        // I'm remapping the joystick2 right stick so we can use it for the claw thingy
-        // couldn't find a way to deactivate "clockwise" without causing an error so i mapped it to gamepad 2
-
         double forward                  = -gamepad1.left_stick_y;
         double right                    = gamepad1.left_stick_x;
         double clockwise                = gamepad1.right_stick_x;
 
-        double clawextend               = gamepad1.right_stick_y;
-        double clawretract              = -gamepad1.right_stick_y;
-
-
         /**
          * Input speed toggle
          */
-        float isPressedForwardButton        = gamepad1.right_trigger;
-        float isPressedBackwardButton        = gamepad1.left_trigger;
+        boolean isPressedSpeedButton        = gamepad1.right_stick_button;
         boolean toggledSpeed                = false;
+
+        // To control the claw
+        boolean isPressedClawExtend        = gamepad1.right_trigger >= 0.2;
+        boolean isPressedClawRetract        = gamepad1.left_trigger >= 0.2;
 
         /* Other gamepad inputs
          */
@@ -168,6 +168,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         boolean isPressedResetButton       = gamepad1.y;
         // To launch rings
         boolean isPressedLaunchingButton   = gamepad1.right_bumper;
+
 
         /**
          * Input LED trigger
@@ -183,23 +184,12 @@ public class TeleOpMode_sofia extends TeleOpModesBase
          *
          */
 
-        //pick up the wobble goal
-        if (clawextend >= 0.1) {
-            botTop.clawMotorOn(0.3);
-        }
-        else if (clawretract >= 0.1) {
-            botTop.clawMotorOn(-0.3);
-        }
-        else if (clawextend == 0.0 && clawretract == 0.0){
-            botTop.clawMotorOff();
-        }
-
         // I might've messed up a bunch of stuff but there's my progress for today
 
         if (currentState == INITIATE_COLLECTING_STATE) {
             botTop.lowerMagazine();
             botTop.retractArm();
-            botTop.intakeMotorOn(0.5);
+            botTop.intakeMotorOn(INTAKE_POWER);
             botTop.launchMotorOff();
 
             if (isPressedLoadingButton && !wasPressedLoadingButton) {
@@ -208,8 +198,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
         else if (currentState == LOAD_STATE) {
-            botTop.intakeMotorOff(0.0);
-            botTop.launchMotorOn();
+            botTop.intakeMotorOff();
+            botTop.launchMotorOn(LAUNCH_POWER);
             botTop.liftMagazine();
             currentState = LAUNCHING_STATE;
         }
@@ -219,7 +209,6 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             // The button is being pressed
             if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
                 botTop.extendArm();
-                justWait(1000);
                 wasPressedLaunchingButton = true;
             }
             // look coach i fixed it :))))))))
@@ -232,6 +221,17 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             else if (isPressedResetButton){
                 currentState = INITIATE_COLLECTING_STATE;
             }
+        }
+
+        //pick up the wobble goal
+        if (isPressedClawExtend) {
+            botTop.clawMotorOn(CLAW_POWER);
+        }
+        else if (isPressedClawRetract) {
+            botTop.clawMotorOn(-CLAW_POWER);
+        }
+        else if (!isPressedClawExtend && !isPressedClawRetract){
+            botTop.clawMotorOff();
         }
 
         /**
@@ -257,7 +257,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         // making myself a note to change these
 
         wheels =  calcWheelPower(clockwise, forward, right);
-        if (isPressedForwardButton >= 0.2) {
+        if (isPressedSpeedButton) {
             waitForSpeedButtonRelease = true;
         } else if (waitForSpeedButtonRelease) {
             waitForSpeedButtonRelease = false;
