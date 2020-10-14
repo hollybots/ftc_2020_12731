@@ -42,6 +42,7 @@ public class TestLauncher extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor launchMotor = null;
     private DcMotor launchMotor2 = null;
+    private DcMotor launchMotor3 = null;
 
     @Override
     public void runOpMode() {
@@ -54,6 +55,9 @@ public class TestLauncher extends LinearOpMode {
         launchMotor2  = hardwareMap.get(DcMotor.class, "launch_motor_2");
         launchMotor2.setDirection(DcMotor.Direction.FORWARD);
 
+        launchMotor3  = hardwareMap.get(DcMotor.class, "launch_motor_3");
+        launchMotor3.setDirection(DcMotor.Direction.FORWARD);
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
@@ -62,6 +66,7 @@ public class TestLauncher extends LinearOpMode {
         while (opModeIsActive()) {
             launchMotor.setPower(1.0);
             launchMotor2.setPower(1.0);
+            launchMotor3.setPower(1.0);
             // Show the elapsed game time and wheel power.
             telemetry.update();
         }

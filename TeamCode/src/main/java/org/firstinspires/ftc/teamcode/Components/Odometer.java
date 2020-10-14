@@ -193,10 +193,17 @@ public class Odometer {
      */
     public double returnOrientation(){ return Math.toDegrees(robotOrientationRadians) % 360; }
 
+    public void reset(double x, double y) {
+        robotGlobalXCoordinatePosition   = x * COUNTS_PER_INCH;
+        robotGlobalYCoordinatePosition   = y * COUNTS_PER_INCH;
+        robotOrientationRadians          = 0;
+        previousVerticalRightEncoderWheelPosition    = robotGlobalYCoordinatePosition;
+        previousVerticalLeftEncoderWheelPosition     = robotGlobalYCoordinatePosition;
+        prevHorizontalEncoderWheelPosition           = robotGlobalXCoordinatePosition;
+    }
+
     public void resetToZero() {
-        horizontalEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        verticalEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        verticalEncoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        reset(0.0, 0.0);
     }
 
     public void reverseLeftEncoder()
