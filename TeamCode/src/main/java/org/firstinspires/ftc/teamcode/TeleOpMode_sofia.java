@@ -59,20 +59,24 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     static final double  LED_TEAM_COLORS3               = 0.6045;  // Sparkle, Color 1 on Color 2
     static final double  LED_TEAM_COLORS4               = 0.6195;  // Beats per Minute, Color 1 and 2
 
-    static final int INITIATE_COLLECTING_STATE = 1;
-    static final int LOAD_STATE = 2;
-    static final int COLLECTING_STATE = 3;
-    static final int LAUNCHING_STATE = 4;
-    private int currentState = INITIATE_COLLECTING_STATE;
+    static final int INITIATE_COLLECTING_STATE          = 1;
+    static final int LOAD_STATE                         = 2;
+    static final int COLLECTING_STATE                   = 3;
+    static final int LAUNCHING_STATE                    = 4;
 
-    static final double CLAW_POWER = 0.3;
-    static final double LAUNCH_POWER = 0.75;
-    static final double INTAKE_POWER = 1.0;
+
+
+    static final double CLAW_POWER                      = 0.4;
+    static final double LAUNCH_POWER                    = 0.75;
+    static final double INTAKE_POWER                    = 1.0;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
 
     // State variables
+
+    private int currentState                            = INITIATE_COLLECTING_STATE;
+
     boolean isFastSpeedMode                             = false;
     boolean waitForSpeedButtonRelease                   = false;
 
@@ -183,16 +187,16 @@ public class TeleOpMode_sofia extends TeleOpModesBase
          * 2) SUBSYSTEMS UPDATES
          *
          */
-
-        // I might've messed up a bunch of stuff but there's my progress for today
-
         if (currentState == INITIATE_COLLECTING_STATE) {
             botTop.lowerMagazine();
             botTop.retractArm();
             botTop.intakeMotorOn(INTAKE_POWER);
             botTop.launchMotorOff();
+            currentState = COLLECTING_STATE;
+        }
 
-            if (isPressedLoadingButton && !wasPressedLoadingButton) {
+        else if (currentState == COLLECTING_STATE) {
+            if (isPressedLoadingButton) {
                 currentState = LOAD_STATE;
             }
         }
@@ -203,15 +207,13 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             botTop.liftMagazine();
             currentState = LAUNCHING_STATE;
         }
-        else if (currentState == LAUNCHING_STATE) {
-            // Here we are trying to send the servo command ony only once, so we detect one the change on the button state
 
+        else if (currentState == LAUNCHING_STATE) {
             // The button is being pressed
             if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
                 botTop.extendArm();
                 wasPressedLaunchingButton = true;
             }
-            // look coach i fixed it :))))))))
             // the button is being released
             else if (!isPressedLaunchingButton && wasPressedLaunchingButton) {
                 botTop.retractArm();
@@ -225,10 +227,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 
         //pick up the wobble goal
         if (isPressedClawExtend) {
-            botTop.clawMotorOn(CLAW_POWER);
+            botTop.clawMotorOn(-CLAW_POWER);
         }
         else if (isPressedClawRetract) {
-            botTop.clawMotorOn(-CLAW_POWER);
+            botTop.clawMotorOn(CLAW_POWER);
         }
         else if (!isPressedClawExtend && !isPressedClawRetract){
             botTop.clawMotorOff();
