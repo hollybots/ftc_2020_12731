@@ -3,11 +3,28 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name="Autonomous Sofia", group="none")
 @Disabled
 
 public class AutonomousOpMode_sofia extends AutonomousOpModesBase {
+
+    // Setting up motors and servos
+
+    DcMotor intakeMotor;
+    DcMotor launchMotor;
+    DcMotor clawMotor;
+
+    Servo magazineServo;
+
+    // Setting up the mecanum wheels
+
+    DcMotor leftFront;
+    DcMotor rightFront;
+    DcMotor leftBack;
+    DcMotor rightBack;
 
     /**
      * All possible states
@@ -103,5 +120,9 @@ public class AutonomousOpMode_sofia extends AutonomousOpModesBase {
         currentState = STATE_done;
         return;
     }
+
+    // 1st step - deliver the wobble goal into a target zone
+        // grab the wobble goal
+
 
 }

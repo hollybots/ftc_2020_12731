@@ -177,12 +177,12 @@ public class BotTop {
      */
     public void clawMotorOn(double power)
     {
-        intakeMotor.setPower(power);
+        clawMotor.setPower(power);
     }
 
     public void clawMotorOff()
     {
-        launchMotor.setPower(0);
+        clawMotor.setPower(0);
     }
 
     public void launchMotorOn(double power)
