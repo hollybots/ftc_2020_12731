@@ -12,6 +12,12 @@ import org.firstinspires.ftc.teamcode.OpenCV.RingPosition;
 
 public class AutonomousOpMode_coach extends AutonomousOpModesBase {
 
+
+    protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.75;
+
+    protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.3;
+    protected static final double TIME_TO_DELIVER                       = 2000;
+
     /**
      * All possible states
      */
@@ -123,7 +129,8 @@ public class AutonomousOpMode_coach extends AutonomousOpModesBase {
     protected void moveToTargetZone() {
         switch (ringPosition) {
             case NONE:
-                // <CODE HERE>
+                moveBackward(48.0, 0.5);
+                gotoHeading(180);
                 break;
             case ONE:
                 // <CODE HERE>
@@ -137,19 +144,26 @@ public class AutonomousOpMode_coach extends AutonomousOpModesBase {
     }
 
     protected void deliverWobbleGoal() {
-        // <CODE HERE>
+        justWait(500);
+        botTop.clawMotorOn(WOBBLE_GOAL_DELIVERY_POWER);
+        justWait(TIME_TO_DELIVER);
+        botTop.clawMotorOff();
         currentState = STATE_TRAVEL_TO_RING_LAUNCHER;
         return;
     }
 
     protected void travelToRingLauncher() {
-        // <CODE HERE>
+        gotoHeading(0);
+        moveLeft(24.0, 0.5);
         currentState = STATE_TOWER_SHOT;
         return;
     }
 
     protected void towerShot() {
-        // <CODE HERE>
+        botTop.launchMotorOn(0.75);
+        botTop.extendArm();
+        justWait(500);
+        botTop.retractArm();
         return;
     }
 

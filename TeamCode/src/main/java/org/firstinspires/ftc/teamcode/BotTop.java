@@ -72,7 +72,7 @@ public class BotTop {
         */
         try {
             intakeMotor  = hardwareMap.get(DcMotor.class, "intake_motor");
-            intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+            intakeMotor.setDirection(DcMotor.Direction.REVERSE);
             intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         catch (Exception e) {
@@ -99,19 +99,6 @@ public class BotTop {
             dbugThis("Cannot initialize launchMotor");
             launchMotor = null;
         }
-
-        /**
-         * CR SERVOS
-         */
-
-        try {
-            crServo = hardwareMap.get(CRServo.class, "crservo_motor");
-        }
-        catch (Exception e) {
-            dbugThis("Cannot initialize crServo");
-            crServo = null;
-        }
-
 
         /**
          * SERVO MECHANISMS
@@ -177,12 +164,12 @@ public class BotTop {
      */
     public void clawMotorOn(double power)
     {
-        intakeMotor.setPower(power);
+        clawMotor.setPower(power);
     }
 
     public void clawMotorOff()
     {
-        launchMotor.setPower(0);
+        clawMotor.setPower(0);
     }
 
     public void launchMotorOn(double power)

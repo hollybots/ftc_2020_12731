@@ -193,7 +193,6 @@ public class TeleOpMode_test extends TeleOpModesBase
          * 4) OUTPUT SECTION
          *
          */
-        botTop.getIntakeMotor().setPower(1.0);
 
 
         /**
