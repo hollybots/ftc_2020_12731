@@ -16,8 +16,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class BotTop {
 
-    static final double STACKING = 1.0;
-    static final double LAUNCHING = 0.0;
+    static final double STACKING = 0.2;
+    static final double LAUNCHING = 0.8;
 
     static final double RETRACTED = 0.0;
     static final double EXTENDED = 0.95;
@@ -43,7 +43,7 @@ public class BotTop {
         SERVOS
     */
     private Servo armServo                             = null;
-    private Servo magazineServo                             = null;
+    private Servo magazineServo                        = null;
 
 
     /* ************************************
@@ -96,7 +96,7 @@ public class BotTop {
             launchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         catch (Exception e) {
-            dbugThis("Cannot initialize intakeMotor");
+            dbugThis("Cannot initialize launchMotor");
             launchMotor = null;
         }
 
@@ -197,30 +197,66 @@ public class BotTop {
     }
 
 
+    /**
+     * Set magazine position so it can stack rings
+     */
     public void lowerMagazine()
     {
         magazineServo.setPosition(STACKING);
     }
 
+    /**
+     * Ramp up magazine position so it can launch rings
+     */
     public void liftMagazine()
     {
         magazineServo.setPosition(LAUNCHING);
     }
 
+    /**
+     * Ramp up magazine position so it can launch rings
+     */
+    public boolean rampUpMagazine()
+    {
+        double currentPosition = magazineServo.getPosition();
+        // it is possible that the servo is in an unknown position, in which case is going to return NaN.
+        // If this is the case, we are going to set its position back to stacking
+        if (Double.isNaN(currentPosition)) {
+            currentPosition = STACKING;
+            magazineServo.setPosition(currentPosition);
+        }
+        currentPosition += 0.1;
+        magazineServo.setPosition(Math.min(currentPosition, LAUNCHING));
+        if (currentPosition >= LAUNCHING) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Set actuator arm position so it is retracted
+     */
     public void retractArm()
     {
-        magazineServo.setPosition(RETRACTED);
+        armServo.setPosition(RETRACTED);
     }
 
+    /**
+     * Set actuator arm position so it is extended where it can launch a ring to the launcher
+     */
     public void extendArm()
     {
-        magazineServo.setPosition(EXTENDED);
+        armServo.setPosition(EXTENDED);
     }
 
-
+    /***
+     * Stop all motor at once
+     */
     public void stopAll()
     {
+        launchMotorOff();
         intakeMotorOff();
+        clawMotorOff();
     }
 
     /**

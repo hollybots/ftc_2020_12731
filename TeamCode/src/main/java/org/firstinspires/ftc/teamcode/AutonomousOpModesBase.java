@@ -1397,7 +1397,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         /**
          * PLEASE NOTE THAT these values are purely experimental and were obtained using a v2 REV Robotic color sensor
          * at a distance no more than 1cm from the target.
-         * If you use a v1 or v3, or if the sensor is further away from the targe, you will have to recalibrate this
+         * If you use a v1 or v3, or if the sensor is further away from the target, you will have to recalibrate this
          * function.
          * @todo:  Use machine learning to predict the color based on RGVH values and distance
          */
