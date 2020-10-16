@@ -14,6 +14,7 @@ public class AutonomousOpMode_coach extends AutonomousOpModesBase {
 
 
     protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.75;
+    protected static final double LAUNCH_POWER                          = 0.75;
 
     protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.3;
     protected static final double TIME_TO_DELIVER                       = 2000;
@@ -129,7 +130,7 @@ public class AutonomousOpMode_coach extends AutonomousOpModesBase {
     protected void moveToTargetZone() {
         switch (ringPosition) {
             case NONE:
-                moveBackward(48.0, 0.5);
+                moveBackward(48.0, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(180);
                 break;
             case ONE:
@@ -154,13 +155,13 @@ public class AutonomousOpMode_coach extends AutonomousOpModesBase {
 
     protected void travelToRingLauncher() {
         gotoHeading(0);
-        moveLeft(24.0, 0.5);
+        moveLeft(24.0, DRIVE_TRAIN_TRAVELING_POWER);
         currentState = STATE_TOWER_SHOT;
         return;
     }
 
     protected void towerShot() {
-        botTop.launchMotorOn(0.75);
+        botTop.launchMotorOn(LAUNCH_POWER);
         botTop.extendArm();
         justWait(500);
         botTop.retractArm();
