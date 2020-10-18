@@ -96,7 +96,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * PROPULSION CONSTANTS
      */
     static final double DRIVE_SPEED                     = 0.8;
-    static final double TURNING_SPEED                   = 0.3;
+    static final double TURNING_SPEED                   = 0.5;
 
 
     static final double     HEADING_THRESHOLD       = 1.0 ;      // As tight as we can make it with an integer gyro
@@ -1434,11 +1434,28 @@ public class AutonomousOpModesBase extends LinearOpMode {
             return Color.BLUE;
         }
 
+        double prb = _percentChange(red,green);
+        double ppg = _percentChange(green,blue);
+        double prg = _percentChange(red,blue);
+
+        if ( prb > 70  && prb < 80 && ppg > 6 && ppg < 11 && prg > 53 && prg < 62 && hsvValues[0] > 160 && hsvValues[0] < 180) {
+            dbugThis("Valid color is white");
+            return Color.WHITE;
+        }
 
         dbugThis("Valid color is default");
         return Color.BLACK;
     }
 
+    /***
+     * Calculates the percentage of change from color1 to color 2
+     * @param color1
+     * @param color2
+     * @return
+     */
+    private int _percentChange(int color1, int color2) {
+        return Math.abs(color2 - color1) * 100 / color1;
+    }
 
 
     /**
