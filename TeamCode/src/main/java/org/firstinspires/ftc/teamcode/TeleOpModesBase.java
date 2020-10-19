@@ -19,9 +19,9 @@ import org.firstinspires.ftc.teamcode.Components.WheelPower;
 @Disabled
 public class TeleOpModesBase extends OpMode {
 
-    private static final boolean DEBUG = true;
-    private static final double K = 0.6;
-    private static final double theta = 0;   // gyro angle.  For field centric autonomous mode we will use this to orient the robot
+    private static final boolean DEBUG      = true;
+    private static final double K           = 1.0;
+    private static final double theta       = 0;   // gyro angle.  For field centric autonomous mode we will use this to orient the robot
 
     protected BotBase botBase = null;
     protected BotTop botTop = null;

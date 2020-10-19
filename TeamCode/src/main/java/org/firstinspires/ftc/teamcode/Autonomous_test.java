@@ -133,7 +133,7 @@ public class Autonomous_test extends AutonomousOpModesBase {
 
 
         telemetry.addLine("GetValidColor()")
-                .addData("Color Detected", validColor == Color.RED ? "Red" : validColor == Color.BLUE ? "Blue" : validColor == Color.YELLOW ? "Yellow" : validColor == Color.BLACK ? "Black" : "Unknown");
+                .addData("Color Detected", validColor == Color.RED ? "Red" : validColor == Color.BLUE ? "Blue" : validColor == Color.YELLOW ? "Yellow" : validColor == Color.WHITE ? "White" : validColor == Color.BLACK ? "Black" : "Unknown");
     }
 
 }
