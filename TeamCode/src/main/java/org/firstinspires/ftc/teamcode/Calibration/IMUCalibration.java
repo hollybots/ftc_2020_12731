@@ -27,11 +27,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.Testing;
+package org.firstinspires.ftc.teamcode.Calibration;
 
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ReadWriteFile;
@@ -47,7 +46,7 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * {@link TestIMUCalibration} calibrates the IMU accelerometer per
+ * {@link IMUCalibration} calibrates the IMU accelerometer per
  * "Section 3.11 Calibration" of the BNO055 specification.
  *
  * <p>Manual calibration of the IMU is definitely NOT necessary: except for the magnetometer
@@ -99,8 +98,8 @@ import java.util.Locale;
  * @see <a href="https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST_BNO055_DS000_14.pdf">BNO055 specification</a>
  */
 @TeleOp(name = "IMU Calibration", group = "3")
-@Disabled                            // Uncomment this to add to the opmode list
-public class TestIMUCalibration extends LinearOpMode
+//@Disabled                            // Uncomment this to add to the opmode list
+public class IMUCalibration extends LinearOpMode
     {
     //----------------------------------------------------------------------------------------------
     // State

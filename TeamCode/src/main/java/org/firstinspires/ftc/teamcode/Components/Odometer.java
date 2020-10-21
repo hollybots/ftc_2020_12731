@@ -136,6 +136,10 @@ public class Odometer {
             verticalRightEncoderWheelPosition = (verticalEncoderRight.getCurrentPosition() * verticalRightEncoderPositionMultiplier);
             rightChange = verticalRightEncoderWheelPosition - previousVerticalRightEncoderWheelPosition;
         }
+        dbugThis("verticalLeftEncoderWheelPosition: " + verticalLeftEncoderWheelPosition);
+        dbugThis("verticalRightEncoderWheelPosition: " + verticalRightEncoderWheelPosition);
+        dbugThis("leftChange: " + leftChange);
+        dbugThis("rightChange: " + rightChange);
 
         // Calculate Angle if we have 2 encoders, if not don't
         if ((verticalEncoderLeft != null) && (verticalEncoderRight != null)) {

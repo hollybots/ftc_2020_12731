@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode.OpenCV;
  */
 public enum RingPosition
 {
+    UNKNOWN,
     FOUR,
     ONE,
     NONE

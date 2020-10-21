@@ -43,6 +43,7 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
 
     private FieldPlacement oldPlacement            = null;
     private FieldPlacement currentPlacement        = null;
+    private String foundTargetName                  = null;
 
 
     protected  List<Recognition> lastUpdatedRecognitions = null;
@@ -50,7 +51,7 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
     public TensorFlowObjectIdentification(
         HardwareMap hardwareMap,
         Telemetry telemetry,
-        String modelAssetName,      // identifiable models file ressource
+        String modelAssetName,      // identifiable models file resource
         String [] assetNames,       // Name of the identifiable asset within the file, important
         String targetName,
         String typeOfCamera,        // PHONE or WEBCAM
@@ -70,14 +71,38 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
          **/
         if (tfod != null) {
             tfod.activate();
+
+            // The TensorFlow software will scale the input images from the camera to a lower resolution.
+            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+            // should be set to the value of the images used to create the TensorFlow Object Detection model
+            // (typically 1.78 or 16/9).
+
+            // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
+            tfod.setZoom(2.5, 1.78);
         }
     }
 
+    /**
+     * This method is Part of the ObjectIdentificationInterface contract
+     * @return FieldPlacement       The placement (or Pose) of the founc object
+     */
     public FieldPlacement getTargetRelativePosition() {
         return currentPlacement;
     }
 
+    /**
+     * This method is Part of the ObjectIdentificationInterface contract
+     * @return String   The Label of the found target
+     */
+    public String getTargetLabel() { return foundTargetName; }
 
+
+    /**
+     * This method is Part of the ObjectIdentificationInterface contract
+     * This must be called within the event loop of your autonomous mode
+     */
     public void find()
     {
         FieldPlacement placement = null;
@@ -95,21 +120,22 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
         // step through the list of recognitions and display boundary info.
         int i = 0;
 
-        // ther emigh be multpi objects to recognize here.  We are only interestd in one
+        // there might be multiple objects to recognize here.  If targetName is provided, it means we are only looking for target name
         for (Recognition recognition : recognitions) {
 
-            if (recognition.getLabel() != targetName) {
+            if (targetName != "" && recognition.getLabel() != targetName) {
                 continue;
             }
-
-            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                    recognition.getLeft(), recognition.getTop());
-            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                    recognition.getRight(), recognition.getBottom());
+//
+//            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+//            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+//                    recognition.getLeft(), recognition.getTop());
+//            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+//                    recognition.getRight(), recognition.getBottom());
 
             oldPlacement = currentPlacement;
             currentPlacement = new FieldPlacement(recognition.getRight(), recognition.getBottom());
+            foundTargetName = recognition.getLabel();
         }
     }
 

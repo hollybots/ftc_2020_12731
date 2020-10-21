@@ -33,12 +33,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.TeleOpModesBase;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 @TeleOp(name="Testing Ramping", group="1")
-//@Disabled
+@Disabled
 public class TestRamping extends TeleOpModesBase
 {
 

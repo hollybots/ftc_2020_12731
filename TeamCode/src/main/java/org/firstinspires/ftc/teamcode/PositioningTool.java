@@ -33,21 +33,27 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Components.WheelPower;
+import org.firstinspires.ftc.teamcode.OpenCV.RingDetector;
 
 
 /**
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@TeleOp(name="TeleOp Test", group="1")
+@TeleOp(name="Positioning Tool", group="1")
 //@Disabled
-public class TeleOpMode_test extends TeleOpModesBase
+public class PositioningTool extends TeleOpModesBase
 {
 
+    static final double CLAW_POWER                      = 0.4;
     static final double  LED_OFF                        = 0.7745;   // off
-    static final double  LED_TEAM_COLORS1               = 0.6545;  // Sinelon, Color 1 and 2
-    static final double  LED_TEAM_COLORS2               = 0.6295;  // End to End Blend
-    static final double  LED_TEAM_COLORS3               = 0.6045;  // Sparkle, Color 1 on Color 2
-    static final double  LED_TEAM_COLORS4               = 0.6195;  // Beats per Minute, Color 1 and 2
+
+    static final int INITIATE_COLLECTING_STATE          = 1;
+    static final int LOAD_STATE                         = 2;
+    static final int COLLECTING_STATE                   = 3;
+    static final int LAUNCHING_STATE                    = 4;
+    static final int REJECTING_STATE                    = 5;
+    static final int ENDGAME_STATE                      = 6;
+    private int currentState = INITIATE_COLLECTING_STATE;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -55,6 +61,9 @@ public class TeleOpMode_test extends TeleOpModesBase
     // State variables
     boolean isFastSpeedMode                             = false;
     boolean waitForSpeedButtonRelease                   = false;
+    boolean isReverseMode                               = false;
+
+    RingDetector ringDetector                           = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -70,6 +79,7 @@ public class TeleOpMode_test extends TeleOpModesBase
 
         // Turn off the LEDs
         botBase.setBling(LED_OFF);
+        ringDetector =  RingDetector.init(hardwareMap, "WEBCAM", true);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -96,8 +106,6 @@ public class TeleOpMode_test extends TeleOpModesBase
 
         // Resets the OpMode timer
         runtime.reset();
-        // Fire up the LEDs
-        botBase.setBling(LED_TEAM_COLORS4);
     }
 
 
@@ -124,10 +132,9 @@ public class TeleOpMode_test extends TeleOpModesBase
         // push joystick1 to the right to strafe right
         // push joystick2 to the right to rotate clockwise
 
-        double forward                  = -gamepad1.left_stick_y;
-        double right                    = gamepad1.left_stick_x;
+        double forward                  = isReverseMode ? gamepad1.left_stick_y : -gamepad1.left_stick_y;
+        double right                    = isReverseMode ? -gamepad1.left_stick_x : gamepad1.left_stick_x;
         double clockwise                = gamepad1.right_stick_x;
-
 
         /**
          * Input speed toggle
@@ -135,30 +142,58 @@ public class TeleOpMode_test extends TeleOpModesBase
         boolean isPressedSpeedButton        = gamepad1.right_stick_button;
         boolean toggledSpeed                = false;
 
-        /**
-         * Input LED trigger
+        /* Other gamepad inputs
          */
-        boolean blinkinOff                  =  gamepad1.dpad_up;
-        boolean blinkin1                    =  gamepad1.dpad_down;
-        boolean blinkin2                    =  gamepad1.dpad_left;
-        boolean blinkin3                    =  gamepad1.dpad_right;
-
+        // To Hook wobble goal
+        boolean isPressedHookWobbleGoalButton   = gamepad1.right_bumper;
+        // To unhook wobble goal
+        boolean isPressedUnhookWobbleGoalButton = gamepad1.left_bumper;
+        // To lift wobble goal
+        boolean isPressedLiftWobbleGoalButton   = gamepad1.right_trigger > 0.2;
+        // To lower wobble goal
+        boolean isPressedLowerWobbleGoalButton  = gamepad1.left_trigger > 0.2;
 
         /*******************************
          * 2) SUBSYSTEMS UPDATES
          *
          */
+        botTop.liftMagazine();
+        botTop.retractArm();
+        botTop.intakeMotorOff();
+        botTop.launchMotorOff();
+
+        isReverseMode = true;
+        /**
+         * Enable Wobble Goal hook through bumpers
+         */
+        if (isPressedHookWobbleGoalButton) {
+            botTop.wobbleGoalHookMotorOn(0.5);
+        }
+        else if (isPressedUnhookWobbleGoalButton) {
+            botTop.wobbleGoalHookMotorOn(-0.5);
+        }
+        if (!isPressedHookWobbleGoalButton && !isPressedUnhookWobbleGoalButton) {
+            botTop.wobbleGoalHookMotorOff();
+        }
+        /**
+         * Enable Wobble Goal Lift through trigger
+         */
+        if (isPressedLiftWobbleGoalButton) {
+            botTop.clawMotorOn(-CLAW_POWER);
+        }
+        else if (isPressedLowerWobbleGoalButton) {
+            botTop.clawMotorOn(CLAW_POWER);
+        }
+        if (!isPressedLiftWobbleGoalButton && !isPressedLowerWobbleGoalButton) {
+            botTop.clawMotorOff();
+        }
 
         /**
          * Updates from Odometer
          */
-        botBase.odometer.globalCoordinatePositionUpdate();
-
-        /**
-         * Updates from  critical limit switches
-         */
-        botTop.checkAllLimitSwitches();
-
+        if (botBase.hasOdometry()) {
+            botBase.odometer.globalCoordinatePositionUpdate();
+        }
 
         /*******************************
          * 3) CALCULATIONS
@@ -188,12 +223,10 @@ public class TeleOpMode_test extends TeleOpModesBase
             wheels.rear_right /= 2;
         }
 
-
         /*******************************
          * 4) OUTPUT SECTION
          *
          */
-
 
         /**
          * Output drivetrain
@@ -203,28 +236,12 @@ public class TeleOpMode_test extends TeleOpModesBase
         botBase.getRearLeftDrive().setPower(wheels.rear_left);
         botBase.getRearRightDrive().setPower(wheels.rear_right);
 
-        dbugThis(String.format("%.02f,%.02f,%.02f,%.02f", wheels.front_left,wheels.front_right,wheels.rear_left,wheels.rear_right));
-
-
-        /**
-         * Output LED
-         */
-        if (blinkinOff) {
-            botBase.setBling(LED_OFF);
-        }
-        else if (blinkin1) {
-            botBase.setBling(LED_TEAM_COLORS1);
-        }
-        else if (blinkin2) {
-            botBase.setBling(LED_TEAM_COLORS4);
-        }
-        else if (blinkin3) {
-            botBase.setBling(LED_TEAM_COLORS3);
-        }
-
         /**
          * Output Telemetry
          */
+        telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
+        .addData("OdometerY", botBase.odometer.getCurrentYPos());
+        telemetry.addData("Rings", "" + ringDetector.getPosition());
         telemetry.update();
     }
 

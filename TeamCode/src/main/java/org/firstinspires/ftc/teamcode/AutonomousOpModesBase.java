@@ -52,7 +52,6 @@ import org.firstinspires.ftc.teamcode.Components.ObjectIdentificationInterface;
 import org.firstinspires.ftc.teamcode.Components.TensorFlowObjectIdentification;
 import org.firstinspires.ftc.teamcode.Components.TravelDirection;
 import org.firstinspires.ftc.teamcode.Components.VuMarkIdentification;
-import org.firstinspires.ftc.teamcode.OpenCV.RingDetector;
 
 
 /**
@@ -82,9 +81,9 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     // Needed for TENSORFLOW object Identification
-    protected String TFOD_MODEL_ASSET            = "Skystone.tflite";
-    protected String [] TFOD_MODEL_ASSETS_LABEL  = {"Stone", "Skystone"};
-    protected String TFOD_TARGET_LABEL           = "Skystone";
+    protected String TFOD_MODEL_ASSET                           = "Skystone.tflite";
+    protected String [] TFOD_MODEL_ASSETS_LABEL                 = {"Stone", "Skystone"};
+    protected String TFOD_TARGET_LABEL                          = "Skystone";
 
     /**
      * FIELD CONSTANT
@@ -103,17 +102,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
     /***  IMPORTANT NOTE IF YOU DONT WANT TO GET STUCK in an infinite loop while turning:
      P_TURN_COEFF * TURNING_SPEED must be > 0.1
      ************************************************************************* */
-    static final double     P_TURN_COEFF            = 0.5;     // Larger is more responsive, but also less stable
+    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
 
-
-    static final double  LED_TEAM_COLORS1               = 0.6545;  // Sinelon, Color 1 and 2
-    static final double  LED_TEAM_COLORS2               = 0.6295;  // End to End Blend
-    static final double  LED_TEAM_COLORS3               = 0.6045;  // Sparkle, Color 1 on Color 2
-    static final double  LED_TEAM_COLORS4               = 0.6195;  // Beats per Minute, Color 1 and 2
-
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
-
 
     /* Propulsion and basic hardware
      */
@@ -132,7 +124,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
     /* Color sensors
     */
-    ColorSensor bottomColor                                     = null;
+    protected ColorSensor bottomColor                                     = null;
 
     /**
      * For state management
@@ -303,7 +295,22 @@ public class AutonomousOpModesBase extends LinearOpMode {
     }
 
 
-    protected void moveTo(double targetX, double targetY, double power) {
+    /**
+     * This method uses to Odometer to move the robot to the given targetX and targetY parameters using power.
+     *
+     * TargetX and targetY are absolute values given in inches in a robot centric coordinates system:
+     * The Y axis is always pointing in the same direction as the robot's heading.
+     *
+     * Because targetX and targetY are absolute values, the caller must be aware of the current position of the robot.
+     *
+     * See moveDiagonally() in order to move the robot at a certain angle.
+     * See moveToRelative() in order to move the robot to a specific robot centric coordinate.
+     *
+     * @param targetX in inches
+     * @param targetY in inches
+     * @param power in fraction
+     */
+    private void _moveTo(double targetX, double targetY, double power) {
         // cannot use this function without Odometry
         if (!botBase.hasOdometry()) {
             return;
@@ -318,8 +325,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
             double deltaY = targetY - y;
 
             //recalculate the angle
-            double theta = Math.atan2(deltaY, deltaX);
-            powerPropulsionAtAngle(theta, power);
+            double theta = Math.atan2(deltaX, deltaY);
+            powerPropulsionAtAngle(theta, power * 1.5);
 
             if (Math.abs(targetX - x) < CLOSE_ENOUGH_X && Math.abs(targetY - y) < CLOSE_ENOUGH_Y) {
                 break;
@@ -331,9 +338,30 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
-     * This function moves the robot at the given angle until it reaches the final distance.
-     * PLEASE NOTE that the heading of the robot does not change.  The robot will be straffing and moving at the
-     * same time.
+     * This method uses to Odometer to move the robot to the given targetX and targetY parameters using power.
+     *
+     * TargetX and targetY are given in inches in a robot centric coordinates system.
+     * The Y axis is always pointing in the same direction as the robot's heading.  The origin of this coordinate system is
+     * always the current position of the robot.
+     *
+     * @param targetX in inches
+     * @param targetY in inches
+     * @param power in fraction
+     */
+    public void moveToRelative(double targetX, double targetY, double power) {
+        // cannot use this function without Odometry
+        if (!botBase.hasOdometry()) {
+            return;
+        }
+
+        botBase.odometer.resetToZero();
+        _moveTo(targetX, targetY, power);
+    }
+
+
+    /**
+     * This function moves the robot at the given angle until it reaches the final destination.
+     * PLEASE NOTE that the heading of the robot does not change.  The robot will be straffing.
      *
      * angleInDegrees is ALWAYS the angle in degrees between the desired direction of the movement and the robot's heading.
      *
@@ -371,27 +399,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         double limitX = botBase.odometer.getCurrentXPos() + distance * Math.sin(angleInRadians);
         double limitY = botBase.odometer.getCurrentYPos() + distance * Math.cos(angleInRadians);
 
-        double previousDeltaX;
-        double previousDeltaY;
-
-        double deltaX = Math.abs(limitX - botBase.odometer.getCurrentXPos());
-        double deltaY = Math.abs(limitY - botBase.odometer.getCurrentYPos());
-
-        powerPropulsionAtAngle(angleInRadians, power);
-
-        while (opModeIsActive()) {
-
-            autonomousIdleTasks();
-            previousDeltaX = deltaX;
-            deltaX = Math.abs(limitX - botBase.odometer.getCurrentXPos());
-            previousDeltaY = deltaY;
-            deltaY = Math.abs(limitY - botBase.odometer.getCurrentYPos());
-
-            if (deltaX >= previousDeltaX || deltaY >= previousDeltaY) {
-                break;
-            }
-        }
-        stopMoving();
+        _moveTo(limitX, limitY, power);
         return;
     }
 
@@ -918,7 +926,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             }
 
             // @todo needs to be tested
-//            if ( now > limitToSlowDown && power > 0.4 ) {
+//            if ( now > limitToSlowDown && power > 0.5 ) {
 //                powerPropulsion(direction, power / 2.0);
 //            }
 //            else {
@@ -934,13 +942,13 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
     /***
      *
-     * Powers the propulsion to so the robot moves at an angle
+     * Powers the drive train to so the robot moves at an angle
      * angleInRadians is ALWAYS the angle expressed in radians between the desired direction of the movement and the heading of the robot.
      *
      * @param angleInRadians
      * @param power
      *
-     * WARNING ***************  This method MUST be called INSIDE a control loop. (see moveAtAngle)  ********************
+     * WARNING ***************  This method MUST be called INSIDE a control loop. (see moveDiagonally)  ********************
      */
     protected void powerPropulsionAtAngle(double angleInRadians, double power) {
         if (power == 0) {
@@ -1140,6 +1148,18 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
+     * Calculates the proportional term of the PID
+     *
+     * NOTE:
+     * the output of a PID controller is composed of three distinct components.
+     * 1) the proportional term
+     * 2) the Integral term
+     * 3) the Derivative term
+     *
+     * The proportional term u = PCoeff * e, where u is the control input, PCoeff is the proportional gain, and e is
+     * the error, produces a control input in direct proportion to the error signal.
+     * The Proportional Gain Coefficient is a tunable parameter that determines the aggressiveness of the control action.
+     *
      * Returns desired steering force.  +/- 1 range.  +ve = steer left
      *
      * @param error   Error angle in robot relative degrees
@@ -1395,9 +1415,9 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     public int getValidColor(ColorSensor sensor) {
         /**
-         * PLEASE NOTE THAT these values are purely experimental and were obtained using a v2 REV Robotic color sensor
-         * at a distance no more than 1cm from the target.
-         * If you use a v1 or v3, or if the sensor is further away from the target, you will have to recalibrate this
+         * PLEASE NOTE THAT these values are purely experimental and were obtained using a v3 REV Robotics color sensor
+         * at a distance no more than 1in. from the target.
+         * If you use a v1 or v2, or if the sensor is further away from the target, you will have to recalibrate this
          * function.
          * @todo:  Use machine learning to predict the color based on RGVH values and distance
          */
@@ -1460,6 +1480,9 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
     /**
      * Computes the current battery voltage.  This function is used in
+     * the calculation of the time required to power the drivetrain in
+     * order to travel a certain distance.
+     * If you have an Odometer, this function becomes completely obsolete
      * @return
      */
     private double _getBatteryVoltage() {

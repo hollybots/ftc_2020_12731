@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 
 import org.firstinspires.ftc.teamcode.Components.WheelPower;
 
@@ -52,12 +53,6 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
     }
-
-    static final double  LED_OFF                        = 0.7745;   // off
-    static final double  LED_TEAM_COLORS1               = 0.6545;  // Sinelon, Color 1 and 2
-    static final double  LED_TEAM_COLORS2               = 0.6295;  // End to End Blend
-    static final double  LED_TEAM_COLORS3               = 0.6045;  // Sparkle, Color 1 on Color 2
-    static final double  LED_TEAM_COLORS4               = 0.6195;  // Beats per Minute, Color 1 and 2
 
     static final int INITIATE_COLLECTING_STATE          = 1;
     static final int LOAD_STATE                         = 2;
@@ -96,7 +91,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         super.init();
 
         // Turn off the LEDs
-        botBase.setBling(LED_OFF);
+        botBase.setBling(LedPatterns.LED_OFF);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -124,7 +119,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         // Resets the OpMode timer
         runtime.reset();
         // Fire up the LEDs
-        botBase.setBling(LED_TEAM_COLORS4);
+        botBase.setBling(LedPatterns.LED_TEAM_COLORS4);
     }
 
 
@@ -300,16 +295,16 @@ public class TeleOpMode_sofia extends TeleOpModesBase
          * Output LED
          */
         if (blinkinOff) {
-            botBase.setBling(LED_OFF);
+            botBase.setBling(LedPatterns.LED_OFF);
         }
         else if (blinkin1) {
-            botBase.setBling(LED_TEAM_COLORS1);
+            botBase.setBling(LedPatterns.LED_TEAM_COLORS1);
         }
         else if (blinkin2) {
-            botBase.setBling(LED_TEAM_COLORS4);
+            botBase.setBling(LedPatterns.LED_TEAM_COLORS4);
         }
         else if (blinkin3) {
-            botBase.setBling(LED_TEAM_COLORS3);
+            botBase.setBling(LedPatterns.LED_TEAM_COLORS3);
         }
 
         /**
@@ -324,6 +319,6 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     @Override
     public void stop() {
         super.stop();
-        botBase.setBling(LED_OFF);
+        botBase.setBling(LedPatterns.LED_OFF);
     }
 }

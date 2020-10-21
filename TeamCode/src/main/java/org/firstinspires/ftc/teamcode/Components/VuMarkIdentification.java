@@ -33,7 +33,6 @@ import android.util.Log;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.ConceptVuforiaNavigation;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -54,13 +53,11 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * This class abstracts the Vuforia engine.
  * It is used to identity a Vuforia VuMark encountered on field.
  *
- * @see ConceptVuforiaNavigation
  * @see VuforiaLocalizer
  * @see VuforiaTrackableDefaultListener
  * see  ftc_app/doc/tutorial/FTC_FieldCoordinateSystemDefinition.pdf
  *
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
- * is explained in {@link ConceptVuforiaNavigation}.
  */
 public class VuMarkIdentification implements ObjectIdentificationInterface
 {
@@ -93,6 +90,7 @@ public class VuMarkIdentification implements ObjectIdentificationInterface
 
     private FieldPlacement oldPlacement            = null;
     private FieldPlacement currentPlacement        = null;
+    private String foundTargetName                 = null;
 
 
     public VuMarkIdentification(
@@ -144,6 +142,10 @@ public class VuMarkIdentification implements ObjectIdentificationInterface
         targetTrackables.activate();
     }
 
+    /**
+     * This method is Part of the ObjectIdentificationInterface contract
+     * This must be called within the event loop of your autonomous mode
+     */
     public void find() {
 
         FieldPlacement placement = null;
@@ -163,11 +165,15 @@ public class VuMarkIdentification implements ObjectIdentificationInterface
             double tY = translation.get(1) / mmPerInch;
             oldPlacement = currentPlacement;
             currentPlacement = new FieldPlacement(tX, tY);
+            foundTargetName = mainTarget.getName();
         }
         return;
     }
 
-
+    /**
+     * This method is Part of the ObjectIdentificationInterface contract.
+     * @return void
+     */
     public void stop() {
         targetTrackables.deactivate();
     }
@@ -177,9 +183,19 @@ public class VuMarkIdentification implements ObjectIdentificationInterface
         return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
     }
 
+    /**
+     * This method is Part of the ObjectIdentificationInterface contract
+     * @return FieldPlacement       The placement (or Pose) of the founc object
+     */
     public FieldPlacement getTargetRelativePosition() {
         return currentPlacement;
     }
+
+    /**
+     * This method is Part of the ObjectIdentificationInterface contract
+     * @return String   The Label of the found target
+     */
+    public String getTargetLabel() { return foundTargetName; }
 
 
     private void dbugThis(String s) {

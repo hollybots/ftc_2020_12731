@@ -14,6 +14,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class BotBase {
 
+    static private boolean  ODOMETRY_REVERSE_RIGHT_ENCODER           = true;
+    static private boolean  ODOMETRY_REVERSE_LEFT_ENCODER            = true;
+    static private boolean  ODOMETRY_REVERSE_HORIZONTAL_ENCODER      = false;
+
     static final boolean DEBUG = false;
 
     // Timekeeper OpMode members.
@@ -66,6 +70,16 @@ public class BotBase {
         hasOdometry = ((odometer = Odometer.init(hardwareMap, "front_left_drive", "front_right_drive", "rear_right_drive")) != null);
         if (!hasOdometry) {
             dbugThis("Odometer not working");
+        } else {
+            if (ODOMETRY_REVERSE_RIGHT_ENCODER) {
+                odometer.reverseRightEncoder();
+            }
+            if (ODOMETRY_REVERSE_LEFT_ENCODER) {
+                odometer.reverseLeftEncoder();
+            }
+            if (ODOMETRY_REVERSE_HORIZONTAL_ENCODER) {
+                odometer.reverseHorizontalEncoder();
+            }
         }
 
         /* ***********************************

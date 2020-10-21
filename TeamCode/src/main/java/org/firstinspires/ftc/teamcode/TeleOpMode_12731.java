@@ -33,25 +33,21 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Components.WheelPower;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 
 
 /**
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 @TeleOp(name="TeleOp Main", group="1")
-//@Disabled
+@Disabled
 public class TeleOpMode_12731 extends TeleOpModesBase
 {
 
     // This limits the power change to an 0.1 increment every 200ms 0,00005 power/s^2
     static final double  DELTA_T                        = 200; // in ms ) {
     static final double  MAX_CHANGE_IN_POWER_IN_DELTA_T = 0.1;
-
-    static final double  LED_OFF                        = 0.7745;   // off
-    static final double  LED_TEAM_COLORS1               = 0.6545;  // Sinelon, Color 1 and 2
-    static final double  LED_TEAM_COLORS2               = 0.6295;  // End to End Blend
-    static final double  LED_TEAM_COLORS3               = 0.6045;  // Sparkle, Color 1 on Color 2
-    static final double  LED_TEAM_COLORS4               = 0.6195;  // Beats per Minute, Color 1 and 2
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -82,7 +78,7 @@ public class TeleOpMode_12731 extends TeleOpModesBase
         // Init Botbase and Bottop
         super.init();
 
-        botBase.setBling(LED_OFF);
+        botBase.setBling(LedPatterns.LED_OFF);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -108,7 +104,7 @@ public class TeleOpMode_12731 extends TeleOpModesBase
     public void start() {
 
         runtime.reset();
-        botBase.setBling(LED_TEAM_COLORS4);
+        botBase.setBling(LedPatterns.LED_TEAM_COLORS4);
     }
 
 
@@ -267,16 +263,16 @@ public class TeleOpMode_12731 extends TeleOpModesBase
          * OUTPUT BLING
          */
         if (blinkinOff) {
-            botBase.setBling(LED_OFF);
+            botBase.setBling(LedPatterns.LED_OFF);
         }
         else if (blinkin1) {
-            botBase.setBling(LED_TEAM_COLORS1);
+            botBase.setBling(LedPatterns.LED_TEAM_COLORS1);
         }
         else if (blinkin2) {
-            botBase.setBling(LED_TEAM_COLORS4);
+            botBase.setBling(LedPatterns.LED_TEAM_COLORS4);
         }
         else if (blinkin3) {
-            botBase.setBling(LED_TEAM_COLORS3);
+            botBase.setBling(LedPatterns.LED_TEAM_COLORS3);
         }
 
         // Show the elapsed game time and wheel power.
@@ -298,7 +294,7 @@ public class TeleOpMode_12731 extends TeleOpModesBase
     @Override
     public void stop() {
         super.stop();
-        botBase.setBling(LED_OFF);
+        botBase.setBling(LedPatterns.LED_OFF);
     }
 
 

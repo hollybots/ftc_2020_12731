@@ -37,12 +37,13 @@ import org.firstinspires.ftc.teamcode.Components.TensorFlowObjectIdentification;
 import org.firstinspires.ftc.teamcode.Components.VuMarkIdentification;
 import org.firstinspires.ftc.teamcode.Components.WheelPower;
 import org.firstinspires.ftc.teamcode.TeleOpModesBase;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 @TeleOp(name="Test Object Detection", group="3")
-//@Disabled
+@Disabled
 public class TestObjectDetection extends TeleOpModesBase
 {
 

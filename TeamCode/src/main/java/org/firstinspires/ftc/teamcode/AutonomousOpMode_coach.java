@@ -1,14 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
+
+
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.OpenCV.RingDetector;
 import org.firstinspires.ftc.teamcode.OpenCV.RingPosition;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+/**
+ * Unofficial OpMode, just used as an example, leave disable
+ */
 @Autonomous(name="Autonomous Coach", group="none")
-//@Disabled
+@Disabled
 
 public class AutonomousOpMode_coach extends AutonomousOpModesBase {
 

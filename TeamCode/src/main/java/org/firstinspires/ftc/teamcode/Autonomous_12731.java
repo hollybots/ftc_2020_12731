@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Components.BotSounds;
 import org.firstinspires.ftc.teamcode.Components.FieldPlacement;
+import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 
 @Autonomous(name="Base Team 12731", group="none")
 @Disabled
@@ -33,7 +34,7 @@ public class Autonomous_12731 extends AutonomousOpModesBase {
 
     protected static final int MAX_CYCLES_FOR_FINDING_STONE = 3;
 
-    protected static final double BLING_MODE_CLAMP = LED_TEAM_COLORS4;
+    protected static final double BLING_MODE_CLAMP = LedPatterns.LED_TEAM_COLORS4;
     protected static final double DISTANCE_TO_STONEWALL = 12.0;
 
 
