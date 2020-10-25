@@ -183,6 +183,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
          *
          */
         if (currentState == INITIATE_COLLECTING_STATE) {
+            botBase.setBling(LedPatterns.LED_SOLID_COLOR_ORANGE);
             botTop.lowerMagazine();
             botTop.retractArm();
             botTop.intakeMotorOn(INTAKE_POWER);
@@ -197,6 +198,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
         else if (currentState == LOAD_STATE) {
+            botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
             botTop.intakeMotorOff();
             botTop.launchMotorOn(LAUNCH_POWER);
             botTop.liftMagazine();
