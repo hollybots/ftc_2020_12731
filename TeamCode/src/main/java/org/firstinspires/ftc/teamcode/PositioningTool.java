@@ -32,11 +32,20 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Components.TensorFlowObjectIdentification;
+import org.firstinspires.ftc.teamcode.Components.VuMarkIdentification;
 import org.firstinspires.ftc.teamcode.Components.WheelPower;
 import org.firstinspires.ftc.teamcode.OpenCV.RingDetector;
+import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 
 
 /**
+ * This OpMode was developed to help position the robot in the pre-start portion of the game.
+ * It enables the drivetrain and provides the controls to pre-load the wobble goal onto the
+ * robot prior to the game.
+ *
+ * Additionally, it also initialize the ring detector
+ *
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 @TeleOp(name="Positioning Tool", group="1")
@@ -45,15 +54,6 @@ public class PositioningTool extends TeleOpModesBase
 {
 
     static final double CLAW_POWER                      = 0.4;
-    static final double  LED_OFF                        = 0.7745;   // off
-
-    static final int INITIATE_COLLECTING_STATE          = 1;
-    static final int LOAD_STATE                         = 2;
-    static final int COLLECTING_STATE                   = 3;
-    static final int LAUNCHING_STATE                    = 4;
-    static final int REJECTING_STATE                    = 5;
-    static final int ENDGAME_STATE                      = 6;
-    private int currentState = INITIATE_COLLECTING_STATE;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -78,7 +78,7 @@ public class PositioningTool extends TeleOpModesBase
         super.init();
 
         // Turn off the LEDs
-        botBase.setBling(LED_OFF);
+        botBase.setBling(LedPatterns.LED_OFF);
         ringDetector =  RingDetector.init(hardwareMap, "WEBCAM", true);
 
         // Tell the driver that initialization is complete.
@@ -251,6 +251,6 @@ public class PositioningTool extends TeleOpModesBase
     @Override
     public void stop() {
         super.stop();
-        botBase.setBling(LED_OFF);
+        botBase.setBling(LedPatterns.LED_OFF);
     }
 }

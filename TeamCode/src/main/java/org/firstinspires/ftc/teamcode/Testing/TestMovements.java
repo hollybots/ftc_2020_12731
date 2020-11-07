@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Testing;
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 
 import org.firstinspires.ftc.teamcode.AutonomousOpModesBase;
 
@@ -18,7 +19,7 @@ public class TestMovements extends AutonomousOpModesBase {
         IDENTIFICATION_SYSTEM = "NONE";
         DEBUG = true;
         super.initAutonomous();
-        botBase.setBling(0.7745); //off
+        botBase.setBling(LedPatterns.LED_OFF); //off
     }
 
     @Override

@@ -16,13 +16,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class BotTop {
 
-    static final double STACKING = 0.2;
-    static final double LAUNCHING = 0.58;
+    static final double STACKING        = 0.2;
+    static final double LAUNCHING       = 0.58;
 
-    static final double RETRACTED = 1.0;
-    static final double EXTENDED = 0.2;
+    static final double RETRACTED       = 1.0;
+    static final double EXTENDED        = 0.2;
 
-    static final boolean DEBUG = true;
+    static final boolean DEBUG          = false;
 
 
     /* ************************************
@@ -89,7 +89,7 @@ public class BotTop {
 
         try {
             launchMotor = hardwareMap.get(DcMotor.class, "launch_motor");
-            launchMotor.setDirection(DcMotor.Direction.FORWARD);
+            launchMotor.setDirection(DcMotor.Direction.REVERSE);
             launchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         } catch (Exception e) {
             dbugThis("Cannot initialize launchMotor");
