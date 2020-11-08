@@ -235,7 +235,6 @@ public class AutonomousOpModesBase extends LinearOpMode {
             searchableTarget.stop();
         }
         stopMoving();
-        stop();
     }
 
 
@@ -284,12 +283,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && !_onHeading(TURNING_SPEED, angle, P_TURN_COEFF)) {
-
             autonomousIdleTasks();
         }
-
-        justWait(0.5);
-
         stopMoving();
         return;
     }
@@ -875,7 +870,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
                 limitToSlowDown = botBase.odometer.getCurrentYPos() + 0.85 * distance;
                 break;
             case BACKWARD:
-                limit = botBase.odometer.getCurrentYPos() - distance;
+                limit = botBase.odometer.getCurrentYPos() + distance;
                 limitToSlowDown = botBase.odometer.getCurrentYPos() - 0.85 * distance;
                 break;
             case RIGHT:
@@ -883,7 +878,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
                 limitToSlowDown = botBase.odometer.getCurrentXPos() + 0.85 * distance;
                 break;
             case LEFT:
-                limit = botBase.odometer.getCurrentXPos() - distance;
+                limit = botBase.odometer.getCurrentXPos() + distance;
                 limitToSlowDown = botBase.odometer.getCurrentXPos() - 0.85 * distance;
                 break;
         }
@@ -891,13 +886,16 @@ public class AutonomousOpModesBase extends LinearOpMode {
         while (
             opModeIsActive() &&
             (
-                (direction == TravelDirection.FORWARD && botBase.odometer.getCurrentYPos() < limit) ||
-                (direction == TravelDirection.BACKWARD && botBase.odometer.getCurrentYPos() > limit) ||
-                (direction == TravelDirection.RIGHT && botBase.odometer.getCurrentXPos() < limit) ||
-                (direction == TravelDirection.LEFT && botBase.odometer.getCurrentXPos() > limit)
+                (direction == TravelDirection.FORWARD && Math.abs(limit - botBase.odometer.getCurrentYPos()) > 1.0) ||
+                (direction == TravelDirection.BACKWARD && Math.abs(limit - botBase.odometer.getCurrentYPos()) > 1.0) ||
+                (direction == TravelDirection.RIGHT && Math.abs(limit - botBase.odometer.getCurrentXPos()) > 1.0)  ||
+                (direction == TravelDirection.LEFT && Math.abs(limit - botBase.odometer.getCurrentXPos()) > 1.0)
             )
         ) {
             autonomousIdleTasks();
+
+            dbugThis("Limit: " + limit);
+            dbugThis("Current: " + botBase.odometer.getCurrentYPos());
 
             now = runtime.milliseconds();
             if (useCollisionAlerts) {
@@ -1463,7 +1461,13 @@ public class AutonomousOpModesBase extends LinearOpMode {
             return Color.WHITE;
         }
 
+        if ( red > 700  && red < 800 && green > 1200 && green < 1400 && blue > 1000 && blue < 1200) {
+            dbugThis("Valid color is white");
+            return Color.WHITE;
+        }
+
         dbugThis("Valid color is default");
+        dbugThis("red: " + red + " green: " + green + " blue: " + blue);
         return Color.BLACK;
     }
 
