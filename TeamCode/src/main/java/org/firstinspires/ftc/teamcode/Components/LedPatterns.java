@@ -12,4 +12,5 @@ public class LedPatterns {
     public static final double  LED_SOLID_COLOR_RED_ORANGE     = 0.6745;
     public static final double  LED_SOLID_COLOR_BLUE           = 0.7445;
     public static final double  LED_SOLID_COLOR_GREEN          = 0.7045;
+    public static final double  LED_SOLID_COLOR_WHITE          = 0.7595;
 }
