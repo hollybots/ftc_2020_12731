@@ -41,42 +41,37 @@ import org.firstinspires.ftc.teamcode.Components.WheelPower;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 @TeleOp(name="TeleOp sofia lol", group="1")
-@Disabled
+//@Disabled
 public class TeleOpMode_sofia extends TeleOpModesBase
 {
 
-    private void justWait(int milliseconds){
+    static final double CLAW_POWER                      = 0.4;
+    static final double LAUNCH_POWER                    = 0.75;
+    static final double INTAKE_POWER                    = 1.0;
+    static final int SERVO_TIMEOUT                      = 220;     // ms before the arms retracts.  Should be the interval defined by the servo manufacturer for 60 degrees
 
-        double currTime = getRuntime();
-        double waitUntil = currTime + (double)(milliseconds/1000);
-        while (getRuntime() < waitUntil){
-        }
 
-    }
+
 
     static final int INITIATE_COLLECTING_STATE          = 1;
     static final int LOAD_STATE                         = 2;
     static final int COLLECTING_STATE                   = 3;
     static final int LAUNCHING_STATE                    = 4;
-
-
-
-    static final double CLAW_POWER                      = 0.4;
-    static final double LAUNCH_POWER                    = 0.75;
-    static final double INTAKE_POWER                    = 1.0;
+    static final int REJECTING_STATE                    = 5;
+    static final int ENDGAME_STATE                      = 6;
+    private int currentState = INITIATE_COLLECTING_STATE;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
 
     // State variables
-
-    private int currentState                            = INITIATE_COLLECTING_STATE;
-
     boolean isFastSpeedMode                             = false;
     boolean waitForSpeedButtonRelease                   = false;
+    boolean isReverseMode                               = false;
 
     boolean wasPressedLaunchingButton                   = false;
-    boolean wasPressedLoadingButton                     = false;
+    double servoTimeout                                 = 0.0;
+    boolean wasPressedResetButton                       = false;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -118,8 +113,6 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 
         // Resets the OpMode timer
         runtime.reset();
-        // Fire up the LEDs
-        botBase.setBling(LedPatterns.LED_TEAM_COLORS4);
     }
 
 
@@ -145,8 +138,9 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         // push joystick1 forward to go forward
         // push joystick1 to the right to strafe right
         // push joystick2 to the right to rotate clockwise
-        double forward                  = -gamepad1.left_stick_y;
-        double right                    = gamepad1.left_stick_x;
+
+        double forward                  = isReverseMode ? gamepad1.left_stick_y : -gamepad1.left_stick_y;
+        double right                    = isReverseMode ? -gamepad1.left_stick_x : gamepad1.left_stick_x;
         double clockwise                = gamepad1.right_stick_x;
 
         /**
@@ -155,34 +149,36 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         boolean isPressedSpeedButton        = gamepad1.right_stick_button;
         boolean toggledSpeed                = false;
 
-        // To control the claw
-        boolean isPressedClawExtend        = gamepad1.right_trigger >= 0.2;
-        boolean isPressedClawRetract        = gamepad1.left_trigger >= 0.2;
+        boolean isPressedReverseButton        = gamepad1.left_stick_button;
+        boolean toggledReverse                = false;
 
         /* Other gamepad inputs
          */
-        // To initiate loaading state
-        boolean isPressedLoadingButton     = gamepad1.x;  // a and b are already used by the Robot Controller to select the gamepad
+        // To initiate loading state
+        boolean isPressedLoadingButton          = gamepad1.x;  // a and b are already used by the Robot Controller to select the gamepad
         // To initiate collecting state
-        boolean isPressedResetButton       = gamepad1.y;
+        boolean isPressedResetButton            = gamepad1.y;
+        // To start end game mode
+        boolean isPressedEndGameButton          = gamepad1.a;
         // To launch rings
-        boolean isPressedLaunchingButton   = gamepad1.right_bumper;
-
-
-        /**
-         * Input LED trigger
-         */
-        boolean blinkinOff                  =  gamepad1.dpad_up;
-        boolean blinkin1                    =  gamepad1.dpad_down;
-        boolean blinkin2                    =  gamepad1.dpad_left;
-        boolean blinkin3                    =  gamepad1.dpad_right;
+        boolean isPressedLaunchingButton        = gamepad1.right_bumper;
+        // To Hook wobble goal
+        boolean isPressedHookWobbleGoalButton   = gamepad1.right_bumper;
+        // To unhook wobble goal
+        boolean isPressedUnhookWobbleGoalButton = gamepad1.left_bumper;
+        // To lift wobble goal
+        boolean isPressedLiftWobbleGoalButton   = gamepad1.right_trigger > 0.2;
+        // To lower wobble goal
+        boolean isPressedLowerWobbleGoalButton  = gamepad1.left_trigger > 0.2;
 
 
         /*******************************
          * 2) SUBSYSTEMS UPDATES
          *
          */
+
         if (currentState == INITIATE_COLLECTING_STATE) {
+            isReverseMode = false;
             botBase.setBling(LedPatterns.LED_SOLID_COLOR_ORANGE);
             botTop.lowerMagazine();
             botTop.retractArm();
@@ -192,13 +188,37 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
         else if (currentState == COLLECTING_STATE) {
+            isReverseMode = false;
             if (isPressedLoadingButton) {
                 currentState = LOAD_STATE;
+            }
+            if (isPressedResetButton) {
+                wasPressedResetButton = true;
+            }
+            else if (wasPressedResetButton) {
+                wasPressedResetButton = false;
+                currentState = REJECTING_STATE;
+            }
+            if (isPressedEndGameButton){
+                currentState = ENDGAME_STATE;
+            }
+        }
+
+        else if (currentState == REJECTING_STATE) {
+            isReverseMode = false;
+            botBase.setBling(LedPatterns.LED_SOLID_COLOR_RED_ORANGE);
+            botTop.intakeMotorOn(-INTAKE_POWER/2);
+            if (isPressedResetButton) {
+                wasPressedResetButton = true;
+            }
+            else if (wasPressedResetButton) {
+                wasPressedResetButton = false;
+                currentState = INITIATE_COLLECTING_STATE;
             }
         }
 
         else if (currentState == LOAD_STATE) {
-            botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
+            isReverseMode = false;
             botTop.intakeMotorOff();
             botTop.launchMotorOn(LAUNCH_POWER);
             botTop.liftMagazine();
@@ -206,37 +226,76 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
         else if (currentState == LAUNCHING_STATE) {
-            // The button is being pressed
+            isReverseMode = false;
+            botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
+            // The launch button is being pressed
             if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
                 botTop.extendArm();
                 wasPressedLaunchingButton = true;
+                servoTimeout = runtime.milliseconds() + SERVO_TIMEOUT;
             }
-            // the button is being released
-            else if (!isPressedLaunchingButton && wasPressedLaunchingButton) {
+            // the button is being released after servoTimeout
+            else if (runtime.milliseconds() > servoTimeout && wasPressedLaunchingButton) {
                 botTop.retractArm();
                 wasPressedLaunchingButton = false;
             }
-
-            else if (isPressedResetButton){
+            if (isPressedResetButton) {
+                wasPressedResetButton = true;
+            }
+            else if (wasPressedResetButton) {
+                wasPressedResetButton = false;
                 currentState = INITIATE_COLLECTING_STATE;
+            }
+            if (isPressedEndGameButton){
+                currentState = ENDGAME_STATE;
             }
         }
 
-        //pick up the wobble goal
-        if (isPressedClawExtend) {
-            botTop.clawMotorOn(-CLAW_POWER);
-        }
-        else if (isPressedClawRetract) {
-            botTop.clawMotorOn(CLAW_POWER);
-        }
-        else if (!isPressedClawExtend && !isPressedClawRetract){
-            botTop.clawMotorOff();
+        else if (currentState == ENDGAME_STATE) {
+            isReverseMode = true;
+            botBase.setBling(LedPatterns.LED_SOLID_COLOR_GREEN);
+            botTop.intakeMotorOff();
+            botTop.launchMotorOff();
+            /**
+             * Enable Wobble Goal hook through bumpers
+             */
+            if (isPressedHookWobbleGoalButton) {
+                botTop.wobbleGoalHookMotorOn(0.5);
+            }
+            else if (isPressedUnhookWobbleGoalButton) {
+                botTop.wobbleGoalHookMotorOn(-0.5);
+            }
+            if (!isPressedHookWobbleGoalButton && !isPressedUnhookWobbleGoalButton) {
+                botTop.wobbleGoalHookMotorOff();
+            }
+            /**
+             * Enable Wobble Goal Lift through trigger
+             */
+            if (isPressedLiftWobbleGoalButton) {
+                botTop.clawMotorOn(-CLAW_POWER);
+            }
+            else if (isPressedLowerWobbleGoalButton) {
+                botTop.clawMotorOn(CLAW_POWER);
+            }
+            if (!isPressedLiftWobbleGoalButton && !isPressedLowerWobbleGoalButton) {
+                botTop.clawMotorOff();
+            }
+
+            if (isPressedResetButton) {
+                wasPressedResetButton = true;
+            }
+            else if (wasPressedResetButton) {
+                wasPressedResetButton = false;
+                currentState = INITIATE_COLLECTING_STATE;
+            }
         }
 
         /**
          * Updates from Odometer
          */
-        botBase.odometer.globalCoordinatePositionUpdate();
+        if (botBase.hasOdometry()) {
+            botBase.odometer.globalCoordinatePositionUpdate();
+        }
 
         /**
          * Updates from  critical limit switches
@@ -252,9 +311,6 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         /**
          * Power calculation for drivetrain
          */
-
-        // making myself a note to change these
-
         wheels =  calcWheelPower(clockwise, forward, right);
         if (isPressedSpeedButton) {
             waitForSpeedButtonRelease = true;
@@ -275,12 +331,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             wheels.rear_right /= 2;
         }
 
-
         /*******************************
          * 4) OUTPUT SECTION
          *
          */
-
 
         /**
          * Output drivetrain
@@ -292,26 +346,11 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 
         dbugThis(String.format("%.02f,%.02f,%.02f,%.02f", wheels.front_left,wheels.front_right,wheels.rear_left,wheels.rear_right));
 
-
-        /**
-         * Output LED
-         */
-        if (blinkinOff) {
-            botBase.setBling(LedPatterns.LED_OFF);
-        }
-        else if (blinkin1) {
-            botBase.setBling(LedPatterns.LED_TEAM_COLORS1);
-        }
-        else if (blinkin2) {
-            botBase.setBling(LedPatterns.LED_TEAM_COLORS4);
-        }
-        else if (blinkin3) {
-            botBase.setBling(LedPatterns.LED_TEAM_COLORS3);
-        }
-
         /**
          * Output Telemetry
          */
+        telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
+                .addData("OdometerY", botBase.odometer.getCurrentYPos());
         telemetry.update();
     }
 
