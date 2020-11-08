@@ -43,7 +43,7 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
 
     private FieldPlacement oldPlacement            = null;
     private FieldPlacement currentPlacement        = null;
-    private String foundTargetName                  = null;
+    private String foundTargetName                  = "None";
 
 
     protected  List<Recognition> lastUpdatedRecognitions = null;
