@@ -32,11 +32,13 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Components.ObjectIdentificationInterface;
 import org.firstinspires.ftc.teamcode.Components.TensorFlowObjectIdentification;
 import org.firstinspires.ftc.teamcode.Components.VuMarkIdentification;
 import org.firstinspires.ftc.teamcode.Components.WheelPower;
 import org.firstinspires.ftc.teamcode.OpenCV.RingDetector;
 import org.firstinspires.ftc.teamcode.Components.LedPatterns;
+import org.firstinspires.ftc.teamcode.OpenCV.RingPosition;
 
 
 /**
@@ -53,6 +55,14 @@ import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 public class PositioningTool extends TeleOpModesBase
 {
 
+    // Needed for TENSORFLOW object Identification
+    protected String TFOD_MODEL_ASSET                           = "Skystone.tflite";
+    protected String [] TFOD_MODEL_ASSETS_LABEL                 = {"Stone", "Skystone"};
+    protected String TFOD_TARGET_LABEL                          = "Skystone";
+
+    protected String IDENTIFICATION_SYSTEM         = "TSF"; // can be VUFORIA, TSF, or NONE
+    protected String CAMERA_SYSTEM                 = "WEBCAM";  // can be PHONE or WEBCAM
+
     static final double CLAW_POWER                      = 0.4;
 
     // Declare OpMode members.
@@ -63,7 +73,14 @@ public class PositioningTool extends TeleOpModesBase
     boolean waitForSpeedButtonRelease                   = false;
     boolean isReverseMode                               = false;
 
-    RingDetector ringDetector                           = null;
+    // State variables
+    RingPosition ringPosition               = RingPosition.UNKNOWN;
+    protected String ringLabel              = "";
+
+
+    /* Object detection sub system
+     */
+    protected ObjectIdentificationInterface searchableTarget      = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -79,7 +96,22 @@ public class PositioningTool extends TeleOpModesBase
 
         // Turn off the LEDs
         botBase.setBling(LedPatterns.LED_OFF);
-        ringDetector =  RingDetector.init(hardwareMap, "WEBCAM", true);
+
+        TFOD_MODEL_ASSET                            = "UltimateGoal.tflite";
+        TFOD_MODEL_ASSETS_LABEL                     = new String[] {"Quad", "Single"};
+        TFOD_TARGET_LABEL                           = "";
+        IDENTIFICATION_SYSTEM                       = "TSF"; // can be VUFORIA, TSF, or NONE
+        CAMERA_SYSTEM                               = "WEBCAM";  // can be PHONE or WEBCAM
+
+        searchableTarget  = new TensorFlowObjectIdentification(
+                hardwareMap,
+                telemetry,
+                TFOD_MODEL_ASSET,
+                TFOD_MODEL_ASSETS_LABEL,
+                TFOD_TARGET_LABEL,
+                CAMERA_SYSTEM,
+                true
+        );
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -241,7 +273,11 @@ public class PositioningTool extends TeleOpModesBase
          */
         telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
         .addData("OdometerY", botBase.odometer.getCurrentYPos());
-        telemetry.addData("Rings", "" + ringDetector.getPosition());
+
+        // Object detection
+        telemetry.addLine("Object Detection")
+                .addData("Object Detected (label)", searchableTarget != null && searchableTarget.getTargetLabel() != null ? searchableTarget.getTargetLabel() : "none")
+                .addData("Target Position", searchableTarget != null && searchableTarget.getTargetRelativePosition() != null ? searchableTarget.getTargetRelativePosition().toString() : "none");
         telemetry.update();
     }
 
