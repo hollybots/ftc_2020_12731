@@ -186,13 +186,14 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     }
 
     protected void towerShot() {
-        double timeLeft = 30 - runtime.seconds();
+        double timeLeft = 30.0 - runtime.seconds();
         while (timeLeft > 5.0) {
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
         }
+//        currentState = STATE_TRAVEL_TO_POWER_SHOT;
         currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
     }
 
@@ -204,7 +205,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     protected void powerShot() {
 
-        double timeLeft = 30 - runtime.seconds();
+        double timeLeft = 30.0 - runtime.seconds();
         while (timeLeft > 3.0) {
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);

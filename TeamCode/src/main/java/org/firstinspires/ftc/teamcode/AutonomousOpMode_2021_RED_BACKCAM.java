@@ -58,7 +58,6 @@ public class AutonomousOpMode_2021_RED_BACKCAM extends AutonomousOpMode_2021_Bas
     }
 
     protected void travelToRingLauncher() {
-        dbugThis("travelToRingLauncher");
         if (ringLabel == null) {ringLabel = "None";}
         switch (ringLabel) {
             case "Quad":
@@ -81,7 +80,6 @@ public class AutonomousOpMode_2021_RED_BACKCAM extends AutonomousOpMode_2021_Bas
     }
 
     protected void travelToPowerShot() {
-        dbugThis("travelToRingLauncher");
         currentState = STATE_POWER_SHOT;
     }
 }
