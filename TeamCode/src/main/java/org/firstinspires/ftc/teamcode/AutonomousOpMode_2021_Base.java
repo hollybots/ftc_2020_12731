@@ -14,11 +14,11 @@ import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
 
-    protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.68;
+    protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.7;
     protected static final double LAUNCH_POWER                          = 0.8;
 
     protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.4; // lifting is negative, lowering is positive
-    protected static final double TIME_TO_DELIVER                       = 2500;
+    protected static final double TIME_TO_DELIVER                       = 2600;
 
     protected static final int TIME_TO_EXTEND                           = 300; //ms
     protected static final int TIME_TO_RETRACT                          = 300; //ms
@@ -41,6 +41,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected static final int STATE_TRAVEL_TO_POWER_SHOT       = 6;
     protected static final int STATE_POWER_SHOT                 = 7;
     protected static final int STATE_TRAVEL_TO_LAUNCH_LINE      = 8;
+    protected static final int STATE_PICKUP_RINGS               = 9;
 
 
     protected static final int STATE_done                       = 50;
@@ -141,6 +142,9 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
                     travelToLaunchLine();
                     break;
 
+                case STATE_PICKUP_RINGS:
+                    pickupExtraRings();
+                    break;
             }
 //            telemetry.addData("Actual Rings", "" + ringPosition);
             telemetry.update();
@@ -167,8 +171,9 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     protected void moveToTargetZone() {
         /***
-         * Implemented in base class
+         * Implemented in extended class
          */
+        currentState = STATE_DELIVER_WOBBLE_GOAL;
     }
 
     protected void deliverWobbleGoal() {
@@ -181,30 +186,36 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     protected void travelToRingLauncher() {
         /***
-         * Implemented in base class
+         * Implemented in extended class
          */
+        currentState = STATE_TOWER_SHOT;
     }
 
     protected void towerShot() {
-        double timeLeft = 30.0 - runtime.seconds();
-        while (timeLeft > 5.0) {
+        int t = 5;
+        justWait(1500);
+        while (t > 0) {
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
+            t--;
         }
-//        currentState = STATE_TRAVEL_TO_POWER_SHOT;
-        currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
+        if (ringLabel == "Single") {
+            currentState = STATE_PICKUP_RINGS;
+        } else {
+            currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
+        }
     }
 
     protected void travelToPowerShot() {
         /***
-         * Implemented in base class
+         * Implemented in extended class
          */
+        currentState = STATE_POWER_SHOT;
     }
 
     protected void powerShot() {
-
         double timeLeft = 30.0 - runtime.seconds();
         while (timeLeft > 3.0) {
             botTop.extendArm();
@@ -212,13 +223,21 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
         }
+        currentState = STATE_PICKUP_RINGS;
+    }
+
+    protected void pickupExtraRings() {
+        /***
+         * Implemented in extended class
+         */
         currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
     }
 
     protected void travelToLaunchLine() {
+        botTop.launchMotorOff();
         moveForwardToColor(Color.WHITE, 0.3);
-        botBase.setBling(LedPatterns.LED_TEAM_COLORS3);
         botTop.stopAll();
+        botBase.setBling(LedPatterns.LED_TEAM_COLORS3);
         super.terminateAutonomous();
         currentState = STATE_done;
         return;

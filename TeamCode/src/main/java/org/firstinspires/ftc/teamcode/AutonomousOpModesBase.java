@@ -1461,7 +1461,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             return Color.WHITE;
         }
 
-        if ( red > 700  && red < 800 && green > 1200 && green < 1400 && blue > 1000 && blue < 1200) {
+        if ( red > 600  && red < 800 && green > 1000 && green < 1400 && blue > 900 && blue < 1200) {
             dbugThis("Valid color is white");
             return Color.WHITE;
         }

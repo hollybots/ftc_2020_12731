@@ -12,10 +12,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * so the robot start the autonomous mode backward, and eventually turns in order to shoot the rings.
  */
 
-@Autonomous(name="Autonomous RED - BACKCAM", group="none")
+@Autonomous(name="Autonomous RED MOTION PLUS(TM)", group="none")
 //@Disabled
 
-public class AutonomousOpMode_2021_RED_BACKCAM extends AutonomousOpMode_2021_Base {
+public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_2021_Base {
 
     public void initAutonomous() {
         super.initAutonomous();
@@ -42,7 +42,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM extends AutonomousOpMode_2021_Bas
             case "Single":
                 moveBackward(74.0, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
-                moveRight(-18, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRight(-21, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
                 break;
             case "None":
@@ -61,23 +61,43 @@ public class AutonomousOpMode_2021_RED_BACKCAM extends AutonomousOpMode_2021_Bas
             case "Quad":
                 moveForward(-41, DRIVE_TRAIN_TRAVELING_POWER);
                 moveRight(-15, DRIVE_TRAIN_TRAVELING_POWER);
+                botTop.launchMotorOn(LAUNCH_POWER);
+                gotoHeading(177);
                 break;
             case "Single":
-                moveForward(-20, DRIVE_TRAIN_TRAVELING_POWER);
+                moveForward(-23, DRIVE_TRAIN_TRAVELING_POWER);
+                botTop.launchMotorOn(LAUNCH_POWER);
+                gotoHeading(170);
                 break;
             case "None":
             default:
                 moveRight(-12, DRIVE_TRAIN_TRAVELING_POWER);
-                moveBackward(5, DRIVE_TRAIN_TRAVELING_POWER);
+                moveBackward(2, DRIVE_TRAIN_TRAVELING_POWER);
+                botTop.launchMotorOn(LAUNCH_POWER);
+                gotoHeading(170);
             break;
         }
-        botTop.launchMotorOn(LAUNCH_POWER);
-        gotoHeading(180);
         currentState = STATE_TOWER_SHOT;
         return;
     }
 
     protected void pickupExtraRings() {
+        botTop.intakeMotorOn(LAUNCH_POWER/1.5);
+        gotoHeading(0);
+        botTop.lowerMagazine();
+        moveForward(-20.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveBackward(12.0, DRIVE_TRAIN_TRAVELING_POWER);
+        botTop.liftMagazine();
+        gotoHeading(200);
+        int t = 2;
+        while (t > 0) {
+            botTop.extendArm();
+            justWait(TIME_TO_EXTEND);
+            botTop.retractArm();
+            justWait(TIME_TO_RETRACT);
+            t--;
+        }
         currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
+        return;
     }
 }
