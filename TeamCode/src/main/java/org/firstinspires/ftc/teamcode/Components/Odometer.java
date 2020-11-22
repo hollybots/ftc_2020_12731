@@ -195,7 +195,7 @@ public class Odometer {
      * Returns the robot's global orientation
      * @return global orientation, in degrees
      */
-    public double returnOrientation(){ return Math.toDegrees(robotOrientationRadians) % 360; }
+    public double getHeading(){ return Math.toDegrees(robotOrientationRadians) % 360; }
 
     public void reset(double x, double y) {
         robotGlobalXCoordinatePosition   = x * COUNTS_PER_INCH;

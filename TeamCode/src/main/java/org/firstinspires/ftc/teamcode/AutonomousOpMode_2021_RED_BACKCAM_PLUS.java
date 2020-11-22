@@ -10,6 +10,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * 1) the webcam positioned at the very back of the robot
  * 2) the RED alliance starting position
  * so the robot start the autonomous mode backward, and eventually turns in order to shoot the rings.
+ *
+ * NOTE:  Directions FORWARD, BACKWARD, LEFT and RIGHT are given in the robots coordinate the positioning values are
+ * vectored values given in field coordinates: positive Y is moving toward the tower goal and positive X is moving toward
+ * the red alliance wall.
  */
 
 @Autonomous(name="Autonomous RED MOTION PLUS(TM)", group="none")

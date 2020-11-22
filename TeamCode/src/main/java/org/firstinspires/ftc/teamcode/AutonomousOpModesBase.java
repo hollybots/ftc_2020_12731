@@ -1121,6 +1121,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
+     * @todo if we have odometry, use odometry to calculate heading
      * Determines the error between the target angle and the robot"s current heading
      *
      * @param   targetAngle  Desired angle (relative to global reference established at last Gyro Reset).
