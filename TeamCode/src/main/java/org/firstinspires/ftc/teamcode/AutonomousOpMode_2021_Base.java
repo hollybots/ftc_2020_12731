@@ -16,6 +16,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.7;
     protected static final double LAUNCH_POWER                          = 0.8;
+    protected static final double INTAKE_MOTOR                          = 1.0;
 
     protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.4; // lifting is negative, lowering is positive
     protected static final double TIME_TO_DELIVER                       = 2600;
@@ -42,6 +43,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected static final int STATE_POWER_SHOT                 = 7;
     protected static final int STATE_TRAVEL_TO_LAUNCH_LINE      = 8;
     protected static final int STATE_PICKUP_RINGS               = 9;
+    protected static final int STATE_MOVE_XTRA_WOBBLE_GOAL      = 10;
 
 
     protected static final int STATE_done                       = 50;
@@ -145,6 +147,10 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
                 case STATE_PICKUP_RINGS:
                     pickupExtraRings();
                     break;
+
+                case STATE_MOVE_XTRA_WOBBLE_GOAL:
+                    moveExtraWobbleGoal();
+                    break;
             }
 //            telemetry.addData("Actual Rings", "" + ringPosition);
             telemetry.update();
@@ -193,17 +199,23 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     protected void towerShot() {
         int t = 5;
-        justWait(1500);
         while (t > 0) {
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
+            if (t==5) {
+                botTop.launchMotorOn(LAUNCH_POWER);
+                justWait(500);
+            }
             t--;
         }
         if (ringLabel == "Single") {
             currentState = STATE_PICKUP_RINGS;
-        } else {
+        } else if (ringLabel != "Single" && ringLabel != "Quad")  {
+            currentState = STATE_MOVE_XTRA_WOBBLE_GOAL;
+        }
+        else {
             currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
         }
     }
@@ -231,6 +243,13 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
          * Implemented in extended class
          */
         currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
+    }
+
+    protected void moveExtraWobbleGoal() {
+        /***
+         * Implemented in extended class
+         */
+        currentState = STATE_done;
     }
 
     protected void travelToLaunchLine() {

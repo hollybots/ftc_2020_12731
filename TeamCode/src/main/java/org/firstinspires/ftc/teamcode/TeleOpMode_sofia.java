@@ -218,6 +218,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
         else if (currentState == LOAD_STATE) {
+            botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
             isReverseMode = false;
             botTop.intakeMotorOff();
             botTop.launchMotorOn(LAUNCH_POWER);
@@ -287,6 +288,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             else if (wasPressedResetButton) {
                 wasPressedResetButton = false;
                 currentState = INITIATE_COLLECTING_STATE;
+            }
+
+            if (isPressedLoadingButton) {
+                currentState = LOAD_STATE;
             }
         }
 

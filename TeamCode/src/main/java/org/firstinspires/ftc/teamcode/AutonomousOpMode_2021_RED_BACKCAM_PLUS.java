@@ -29,7 +29,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 
     protected void moveToTargetZone() {
         if (ringLabel == null) {ringLabel = "None";}
-        moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER/1.25);
+        moveBackward(1.0, DRIVE_TRAIN_TRAVELING_POWER/1.75);
         gotoHeading(0);
         moveXInchesFromLeftObject(10.0, 5000, DRIVE_TRAIN_TRAVELING_POWER/1.25);
         switch (ringLabel) {
@@ -42,12 +42,13 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             case "Single":
                 moveBackward(74.0, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
-                moveRight(-21, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRight(-17, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
                 break;
             case "None":
             default:
-                moveBackward(48, DRIVE_TRAIN_TRAVELING_POWER);
+                moveBackward(56, DRIVE_TRAIN_TRAVELING_POWER);
+                moveXInchesFromLeftObject(5.0, 5000, DRIVE_TRAIN_TRAVELING_POWER/1.25);
                 gotoHeading(2);
                 break;
         }
@@ -61,32 +62,35 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             case "Quad":
                 moveForward(-41, DRIVE_TRAIN_TRAVELING_POWER);
                 moveRight(-15, DRIVE_TRAIN_TRAVELING_POWER);
-                botTop.launchMotorOn(LAUNCH_POWER);
-                gotoHeading(177);
+                botTop.launchMotorOn(LAUNCH_POWER/1.1);
+                gotoHeading(170);
                 break;
             case "Single":
-                moveForward(-23, DRIVE_TRAIN_TRAVELING_POWER);
-                botTop.launchMotorOn(LAUNCH_POWER);
+                moveForward(-18, DRIVE_TRAIN_TRAVELING_POWER);
+                botTop.launchMotorOn(LAUNCH_POWER/1.1);
                 gotoHeading(170);
                 break;
             case "None":
             default:
-                moveRight(-12, DRIVE_TRAIN_TRAVELING_POWER);
-                moveBackward(2, DRIVE_TRAIN_TRAVELING_POWER);
-                botTop.launchMotorOn(LAUNCH_POWER);
-                gotoHeading(170);
+                moveRight(-17, DRIVE_TRAIN_TRAVELING_POWER);
+                moveForward(-3, DRIVE_TRAIN_TRAVELING_POWER);
+                botTop.launchMotorOn(LAUNCH_POWER/1.1);
+                gotoHeading(178);
             break;
+
+
         }
         currentState = STATE_TOWER_SHOT;
         return;
     }
 
     protected void pickupExtraRings() {
-        botTop.intakeMotorOn(LAUNCH_POWER/1.5);
+        botTop.intakeMotorOn(INTAKE_MOTOR);
+        botTop.launchMotorOn(LAUNCH_POWER/1.15);
         gotoHeading(0);
         botTop.lowerMagazine();
-        moveForward(-20.0, DRIVE_TRAIN_TRAVELING_POWER);
-        moveBackward(12.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(-25.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveBackward(10.0, DRIVE_TRAIN_TRAVELING_POWER);
         botTop.liftMagazine();
         gotoHeading(200);
         int t = 2;
@@ -99,5 +103,20 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         }
         currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
         return;
+    }
+
+
+    protected void moveExtraWobbleGoal() {
+        botTop.launchMotorOff();
+        botTop.clawMotorOn(-WOBBLE_GOAL_DELIVERY_POWER);
+        justWait(TIME_TO_DELIVER/3.0);
+        botTop.clawMotorOff();
+        moveXInchesFromBackObject(8.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+        moveXInchesFromBackObject(2.0, 10000, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+        moveLeft(-25.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+        gotoHeading(150);
+        moveForward(6, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+        moveForward(48, DRIVE_TRAIN_TRAVELING_POWER);
+        currentState = STATE_done;
     }
 }
