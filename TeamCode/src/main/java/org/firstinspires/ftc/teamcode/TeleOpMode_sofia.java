@@ -344,11 +344,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         /**
          * Output drivetrain
          */
-        botBase.getFrontLeftDrive().setPower(wheels.front_left);
-        botBase.getFrontRightDrive().setPower(wheels.front_right);
-        botBase.getRearLeftDrive().setPower(wheels.rear_left);
-        botBase.getRearRightDrive().setPower(wheels.rear_right);
-
+        // @todo make a component for drivetrain
+        botBase.driveTrain.setPower(wheels);
         dbugThis(String.format("%.02f,%.02f,%.02f,%.02f", wheels.front_left,wheels.front_right,wheels.rear_left,wheels.rear_right));
 
         /**

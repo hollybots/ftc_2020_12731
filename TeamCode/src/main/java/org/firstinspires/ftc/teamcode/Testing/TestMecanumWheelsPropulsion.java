@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.TeleOpModesBase;
+import org.firstinspires.ftc.teamcode.Components.WheelPower;
 
 /**
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
@@ -119,40 +120,19 @@ public class TestMecanumWheelsPropulsion extends TeleOpModesBase
         // Now apply the inverse kinematic tranformation
         // to convert your vehicle motion command
         // to 4 wheel speed commands:
-        double front_left = forward + clockwise + right;
-        double front_right = forward - clockwise - right;
-        double rear_left = forward + clockwise - right;
-        double rear_right = forward - clockwise + right;
-
-        // Finally, normalize the wheel speed commands
-        // so that no wheel speed command exceeds magnitude of 1:
-        double max = Math.abs(front_left);
-        if (Math.abs(front_right)>max) {
-            max = Math.abs(front_right);
-        }
-        if (Math.abs(rear_left)>max){
-            max = Math.abs(rear_left);
-        }
-        if (Math.abs(rear_right)>max) {
-            max = Math.abs(rear_right);
-        }
-        if ( max > 1.0 ) {
-            front_left /= max;
-            front_right /= max;
-            rear_left /= max;
-            rear_right /= max;
-        }
-
+        WheelPower wheels = null;
+        wheels.front_left = forward + clockwise + right;
+        wheels.front_right = forward - clockwise - right;
+        wheels.rear_left = forward + clockwise - right;
+        wheels.rear_right = forward - clockwise + right;
+        wheels.normalize();
 
         // Send calculated power to wheels
-        botBase.getFrontLeftDrive().setPower(front_left);
-        botBase.getFrontRightDrive().setPower(front_right);
-        botBase.getRearLeftDrive().setPower(rear_left);
-        botBase.getRearRightDrive().setPower(rear_right);
+        botBase.driveTrain.setPower(wheels);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "front left (%.2f), front right (%.2f), rear left (%.2f), rear right (%.2f)", front_left, front_right, rear_left, rear_right);
+        telemetry.addData("Motors", "front left (%.2f), front right (%.2f), rear left (%.2f), rear right (%.2f)", wheels.front_left, wheels.front_right, wheels.rear_left, wheels.rear_right);
 
         telemetry.update();
     }

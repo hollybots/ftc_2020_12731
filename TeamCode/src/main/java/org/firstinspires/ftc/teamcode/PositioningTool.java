@@ -263,10 +263,7 @@ public class PositioningTool extends TeleOpModesBase
         /**
          * Output drivetrain
          */
-        botBase.getFrontLeftDrive().setPower(wheels.front_left);
-        botBase.getFrontRightDrive().setPower(wheels.front_right);
-        botBase.getRearLeftDrive().setPower(wheels.rear_left);
-        botBase.getRearRightDrive().setPower(wheels.rear_right);
+        botBase.driveTrain.setPower(wheels);
 
         /**
          * Output Telemetry

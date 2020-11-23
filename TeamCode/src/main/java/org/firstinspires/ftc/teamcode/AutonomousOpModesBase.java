@@ -52,6 +52,8 @@ import org.firstinspires.ftc.teamcode.Components.ObjectIdentificationInterface;
 import org.firstinspires.ftc.teamcode.Components.TensorFlowObjectIdentification;
 import org.firstinspires.ftc.teamcode.Components.TravelDirection;
 import org.firstinspires.ftc.teamcode.Components.VuMarkIdentification;
+import org.firstinspires.ftc.teamcode.Controllers.PIDController;
+import org.firstinspires.ftc.teamcode.Components.WheelPower;
 
 
 /**
@@ -121,10 +123,6 @@ public class AutonomousOpModesBase extends LinearOpMode {
     /* IMU
      */
     protected BNO055IMU gyro = null;
-
-    /* Color sensors
-    */
-    protected ColorSensor bottomColor                                     = null;
 
     /**
      * For state management
@@ -209,18 +207,6 @@ public class AutonomousOpModesBase extends LinearOpMode {
             );
         }
 
-
-        /* ************************************
-            LINE DETECTION @todo move to its own component
-         */
-        try {
-            bottomColor = hardwareMap.get(ColorSensor.class, "bottom_color");
-        }
-        catch (Exception e){
-            bottomColor = null;
-            dbugThis("Unable to initialize bottom_color");
-        }
-
         telemetry.addData("Status", "Robot Initialized");
         telemetry.update();
     }
@@ -240,7 +226,13 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
     /**
      * this function rotates the robot by adding the angle passed in parameter to the current heading.
-     *
+     * The conventions used to describe angles and rotation in a 3d space are defined here
+     * https://en.wikipedia.org/wiki/Euler_angles#Proper_Euler_angles_2
+     * In our particular case, we are using the intrinsic Tait-Bryan angles used in aviation where
+     * z-y′-x″ (intrinsic rotations) are known as: yaw, pitch and roll that dictates the order of rotation and the axis around
+     * which we are rotating.
+     * In this case, we are using the first angle which is the yaw.  It defines the rotation around the original Z axis.  The yaw rate is
+     * positive anti-clockwise.
      * @param angle:    degrees to add to the current heading
      */
     protected void turn(double angle)
@@ -275,7 +267,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * Use the Gyro to turn (rotate) the robot until heading is equal to the angle passed in parameter.
      * When the games starts, the heading is reset to 0.  This means that all headings are relative to
      * the robot's initial heading.
-     * This is why it is a good practice to align the robot with the Y axis of the field when the game start.
+     * This is why it is a good practice to align the robot with the Y axis of the field when the game starts.
      *
      * @param angle         : Final heading in degrees
      */
@@ -321,7 +313,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
             //recalculate the angle
             double theta = Math.atan2(deltaX, deltaY);
-            powerPropulsionAtAngle(theta, power * 1.5);
+            _straffe(theta, power * 1.5);
 
             if (Math.abs(targetX - x) < CLOSE_ENOUGH_X && Math.abs(targetY - y) < CLOSE_ENOUGH_Y) {
                 break;
@@ -351,6 +343,65 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         botBase.odometer.resetToZero();
         _moveTo(targetX, targetY, power);
+    }
+
+
+    /**
+     * This method uses to Odometer to move the robot to the given pose using a closed loop P system.
+     * The system of coordinates is determined when the Odometry system is initialized.  Whichever position the robot is at
+     * during initialization becomes the origin (0,0) of the coordinate system.   Additionally, the heading of the robot at
+     * initialization defines heading 0 in this system of coordinates.
+     *
+     * pose.x and pose.y are given relative to the center of the robot.
+     *
+     * @param targetPose
+     * @param power in fraction of 1
+     */
+    public void moveToRelativePose(FieldPlacement targetPose, double power) {
+        // cannot use this function without Odometry
+        if (!botBase.hasOdometry()) {
+            return;
+        }
+
+        botBase.odometer.resetToZero();
+
+        // There are 2 PID going on here.  One for the translation and one for the rotation
+        FieldPlacement pose = null;
+        FieldPlacement error = null;
+
+        double turningPower = TURNING_SPEED;
+        double turningError = 0;
+
+        while (opModeIsActive()) {
+            autonomousIdleTasks();
+            pose.x = botBase.odometer.getCurrentXPos();
+            pose.y = botBase.odometer.getCurrentYPos();
+            pose.theta = botBase.odometer.getCurrentHeading();
+
+            double deltaX = targetPose.x - pose.x;
+            double deltaY = targetPose.y - pose.y;
+            double deltaTheta = targetPose.theta - pose.theta;
+
+            // calculate the angle of the staffing path to translation
+            double straffingAngle = Math.atan2(deltaX, deltaY) - pose.theta;
+
+            // calculate the direction of rotation
+            _straffe(straffingAngle, power);
+            _turn(turningPower);
+
+            error.x = targetPose.x - pose.x;
+            error.y = targetPose.y - pose.y;
+            error.theta = targetPose.theta - pose.theta;
+
+            double e = Math.sqrt(error.x * error.x + error.y * error.y);
+            double te = error.theta;
+            power = power * P_DRIVE_COEFF * e;
+            turningPower = turningPower * P_TURN_COEFF * te;
+
+            if (Math.abs(error.x) < CLOSE_ENOUGH_X && Math.abs(error.y) < CLOSE_ENOUGH_Y) {
+                break;
+            }
+        }
     }
 
 
@@ -473,7 +524,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         double limit = runtime.milliseconds() + ms;
         double now;
 
-        powerPropulsionAtAngle(angleInRadians, power);
+        _straffe(angleInRadians, power);
 
         while (opModeIsActive() &&
             (now = runtime.milliseconds()) < limit) {
@@ -539,20 +590,18 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     protected void moveRightToColor(int color, double power) {
 
-        if ( getValidColor(bottomColor) == color ) {
+        if ( botBase.lineDetector.getLineDetectorValue() == color ) {
             return;
         }
-
         powerPropulsion(TravelDirection.RIGHT, power);
 
         while (
             opModeIsActive() &&
             !isHittingSomething(TravelDirection.RIGHT) &&
-            getValidColor(bottomColor) != color
+            botBase.lineDetector.getLineDetectorValue() != color
         ) {
             autonomousIdleTasks();
         }
-
         stopMoving();
         return;
     }
@@ -566,16 +615,15 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     protected void moveLeftToColor(int color, double power) {
 
-        if ( getValidColor(bottomColor) == color ) {
+        if ( botBase.lineDetector.getLineDetectorValue() == color ) {
             return;
         }
-
         powerPropulsion(TravelDirection.LEFT, power);
 
         while (
             opModeIsActive() &&
             !isHittingSomething(TravelDirection.LEFT) &&
-            getValidColor(bottomColor) != color
+            botBase.lineDetector.getLineDetectorValue() != color
         ) {
             autonomousIdleTasks();
         }
@@ -593,16 +641,15 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     protected void moveForwardToColor(int color, double power) {
 
-        if ( getValidColor(bottomColor) == color ) {
+        if ( botBase.lineDetector.getLineDetectorValue() == color ) {
             return;
         }
-
         powerPropulsion(TravelDirection.FORWARD, power);
 
         while (
             opModeIsActive() &&
             !isHittingSomething(TravelDirection.FORWARD) &&
-            getValidColor(bottomColor) != color
+            botBase.lineDetector.getLineDetectorValue() != color
         ) {
             autonomousIdleTasks();
         }
@@ -620,16 +667,15 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     protected void moveBackwardToColor(int color, double power) {
 
-        if (getValidColor(bottomColor) == color ) {
+        if ( botBase.lineDetector.getLineDetectorValue() == color ) {
             return;
         }
-
         powerPropulsion(TravelDirection.BACKWARD, power);
 
         while (
             opModeIsActive() &&
             !isHittingSomething(TravelDirection.BACKWARD) &&
-            getValidColor(bottomColor) != color
+            botBase.lineDetector.getLineDetectorValue() != color
         ) {
             autonomousIdleTasks();
         }
@@ -836,6 +882,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
+     * @todo move with Telemetry should not have a direction.  It should be a pose or FieldPlacement variable {x, y, finalOrientation}
      *  Robot centric. Moves the robot in either 4 direction until it reaches the given distance OR until it hits an object whichever comes first
      *  if the useCollisionAlerts flag is set to true.  If useCollisionAlerts is set to false, it will ignore the limit switch
      *
@@ -859,7 +906,6 @@ public class AutonomousOpModesBase extends LinearOpMode {
         boolean hasCollidedWithFront    = false;
         double limitTime = 0;
         double limit = 0;
-        double limitToSlowDown = 0;
         double now;
 
         powerPropulsion(direction, power);
@@ -867,19 +913,15 @@ public class AutonomousOpModesBase extends LinearOpMode {
         switch (direction) {
             case FORWARD:
                 limit = botBase.odometer.getCurrentYPos() + distance;
-                limitToSlowDown = botBase.odometer.getCurrentYPos() + 0.85 * distance;
                 break;
             case BACKWARD:
                 limit = botBase.odometer.getCurrentYPos() + distance;
-                limitToSlowDown = botBase.odometer.getCurrentYPos() - 0.85 * distance;
                 break;
             case RIGHT:
                 limit = botBase.odometer.getCurrentXPos() + distance;
-                limitToSlowDown = botBase.odometer.getCurrentXPos() + 0.85 * distance;
                 break;
             case LEFT:
                 limit = botBase.odometer.getCurrentXPos() + distance;
-                limitToSlowDown = botBase.odometer.getCurrentXPos() - 0.85 * distance;
                 break;
         }
 
@@ -922,16 +964,6 @@ public class AutonomousOpModesBase extends LinearOpMode {
                     break;
                 }
             }
-
-            // @todo needs to be tested
-//            if ( now > limitToSlowDown && power > 0.5 ) {
-//                powerPropulsion(direction, power / 2.0);
-//            }
-//            else {
-//                powerPropulsion(direction, power);
-//            }
-
-
         }
         stopMoving();
         return;
@@ -946,43 +978,47 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * @param angleInRadians
      * @param power
      *
-     * WARNING ***************  This method MUST be called INSIDE a control loop. (see moveDiagonally)  ********************
+     * WARNING ***************  This method MUST be called INSIDE a PID control loop.  ********************
      */
-    protected void powerPropulsionAtAngle(double angleInRadians, double power) {
+    protected void _straffe(double angleInRadians, double power) {
         if (power == 0) {
-            power = DRIVE_SPEED;
+            return;
         }
 
         double temp = -angleInRadians + Math.PI/4.0;
 
-        double front_left = power * Math.cos(temp);
-        double front_right = power * Math.sin(temp);
-        double rear_left = power * Math.sin(temp);
-        double rear_right = power * Math.cos(temp);
+        WheelPower wheelPower = null;
+        wheelPower.front_left = power * Math.cos(temp);
+        wheelPower.front_right = power * Math.sin(temp);
+        wheelPower.rear_left = power * Math.sin(temp);
+        wheelPower.rear_right = power * Math.cos(temp);
+        wheelPower.normalize();
 
-        // normalize the wheel speed so we don"t exceed 1
-        double max = Math.abs(front_left);
-        if (Math.abs(front_right)>max) {
-            max = Math.abs(front_right);
-        }
-        if (Math.abs(rear_left)>max){
-            max = Math.abs(rear_left);
-        }
-        if (Math.abs(rear_right)>max) {
-            max = Math.abs(rear_right);
-        }
-        if ( max > 1.0 ) {
-            front_left /= max;
-            front_right /= max;
-            rear_left /= max;
-            rear_right /= max;
-        }
+        botBase.driveTrain.setPower(wheelPower);
+    }
 
-        botBase.getFrontLeftDrive().setPower(front_left);
-        botBase.getFrontRightDrive().setPower(front_right);
-        botBase.getRearLeftDrive().setPower(rear_left);
-        botBase.getRearRightDrive().setPower(rear_right);
+    /***
+     * Powers the drive train to turn either clockwise (power < 0) or anticlockwise (power > 0)
+     *
+     * @param power
+     *
+     * WARNING ***************  This method MUST be called INSIDE a PID loop.  ********************
+     */
+    protected void _turn(double power) {
 
+        double leftSpeed;
+        double rightSpeed;
+
+        rightSpeed  = power;
+        leftSpeed   = -rightSpeed;
+
+        // Send desired speeds to motors.
+        WheelPower wheelPower = null;
+        wheelPower.front_left = leftSpeed;
+        wheelPower.rear_left = leftSpeed;
+        wheelPower.front_right = rightSpeed;
+        wheelPower.rear_right = rightSpeed;
+        botBase.driveTrain.setPower(wheelPower);
     }
 
 
@@ -992,7 +1028,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * @param direction
      * @param power
      *
-     * WARNING ***************  This method MUST be called INSIDE a control loop. ********************
+     * WARNING ***************  This method MUST be called INSIDE a PID control loop. ********************
      *
      */
     protected void powerPropulsion(TravelDirection direction, double power) {
@@ -1039,11 +1075,12 @@ public class AutonomousOpModesBase extends LinearOpMode {
                 return;
 
         }
-
-        botBase.getFrontRightDrive().setPower(power * multiplierFR);
-        botBase.getRearRightDrive().setPower(power * multiplierRR);
-        botBase.getFrontLeftDrive().setPower(power * multiplierFL);
-        botBase.getRearLeftDrive().setPower(power * multiplierRL);
+        WheelPower wheelPower = null;
+        wheelPower.front_right = power * multiplierFR;
+        wheelPower.rear_right = power * multiplierRR;
+        wheelPower.front_left = power * multiplierFL;
+        wheelPower.rear_left = power * multiplierRL;
+        botBase.driveTrain.setPower(wheelPower);
     }
 
 
@@ -1076,16 +1113,16 @@ public class AutonomousOpModesBase extends LinearOpMode {
     }
 
 
-
     /**
      * Performs one cycle of closed loop heading control.
      *
      * @param speed     Desired speed of turn.
-     * @param angle     Absolute Angle (in Degrees) relative to last gyro reset.
-     *                  0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
+     * @param angle     Desired heading.  Absolute Angle (in Degrees) relative to last gyro reset.
+     *                  if e is +, robot should turn left to compensate.
+     *                  if e is -, robot should turn right to compensate.
      *                  If a relative angle is required, add/subtract from current heading.
      * @param PCoeff    Proportional Gain coefficient
-     * @return
+     * @return true if on target.
      */
     private Boolean _onHeading(double speed, double angle, double PCoeff) {
 
@@ -1105,17 +1142,19 @@ public class AutonomousOpModesBase extends LinearOpMode {
             onTarget = true;
         }
         else {
+            // if error is +, robot should turn left
             steer = _getSteer(error, PCoeff);
             rightSpeed  = speed * steer;
             leftSpeed   = -rightSpeed;
         }
 
         // Send desired speeds to motors.
-        botBase.getFrontLeftDrive().setPower(leftSpeed);
-        botBase.getRearLeftDrive().setPower(leftSpeed);
-        botBase.getFrontRightDrive().setPower(rightSpeed);
-        botBase.getRearRightDrive().setPower(rightSpeed);
-
+        WheelPower wheelPower = null;
+        wheelPower.front_right = rightSpeed;
+        wheelPower.rear_right = rightSpeed;
+        wheelPower.front_left = leftSpeed;
+        wheelPower.rear_left = leftSpeed;
+        botBase.driveTrain.setPower(wheelPower);
         return onTarget;
     }
 
@@ -1169,6 +1208,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
     private double _getSteer(double error, double PCoeff) {
 
         return Range.clip(error * PCoeff, -1, 1);
+    }
+
+    private double _normalize(double number) {
+        return Range.clip(number, -1, 1);
     }
 
 
@@ -1256,6 +1299,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         botBase.globalCoordinatePositionUpdate();
         botBase.updateLimitSwitchesState();
         botBase.updateSensorPositioningDistances();
+        botBase.updateLineDetector();
         if (searchableTarget != null) {
             searchableTarget.find();
         }
@@ -1402,86 +1446,6 @@ public class AutonomousOpModesBase extends LinearOpMode {
         }
         return false;
     }
-
-
-    /***
-     * @todo: Make this a component
-     *
-     * This function returns either RED, BLUE, or BLACK as a default.
-     * We use it to position the robot over a line (see the functions move(left|Right|ForwardBackward)ToColor())
-     * @param sensor
-     * @return
-     */
-    public int getValidColor(ColorSensor sensor) {
-        /**
-         * PLEASE NOTE THAT these values are purely experimental and were obtained using a v3 REV Robotics color sensor
-         * at a distance no more than 1in. from the target.
-         * If you use a v1 or v2, or if the sensor is further away from the target, you will have to recalibrate this
-         * function.
-         * @todo:  Use machine learning to predict the color based on RGVH values and distance
-         */
-        if (sensor == null ) {
-            dbugThis("Valid color is null");
-            return Color.BLACK;
-        }
-
-        int red = sensor.red();
-        int green = sensor.green();
-        int blue = sensor.blue();
-
-        float hsvValues[] = {0F, 0F, 0F};
-        // convert the RGB values to HSV values.
-        // multiply by the SCALE_FACTOR.
-        // then cast it back to int (SCALE_FACTOR is a double)
-        Color.RGBToHSV((int) (sensor.red() * 255),
-                (int) (sensor.green() * 255),
-                (int) (sensor.blue() * 255),
-                hsvValues);
-
-        if ( red > 2000 && green > 1000 && blue < green &&  hsvValues[0] < 80 ) {
-            dbugThis("Valid color is yellow");
-            return Color.YELLOW;
-        }
-
-        if ( red > 80 && red > green &&  red > blue  ) {
-            dbugThis("Valid color is red");
-            return Color.RED;
-        }
-
-        if ( blue > 80 && blue > green &&  blue > red ) {
-            dbugThis("Valid color is blue");
-            return Color.BLUE;
-        }
-
-        double prb = _percentChange(red,green);
-        double ppg = _percentChange(green,blue);
-        double prg = _percentChange(red,blue);
-
-        if ( prb > 70  && prb < 80 && ppg > 6 && ppg < 11 && prg > 53 && prg < 62 && hsvValues[0] > 160 && hsvValues[0] < 180) {
-            dbugThis("Valid color is white");
-            return Color.WHITE;
-        }
-
-        if ( red > 600  && red < 800 && green > 1000 && green < 1400 && blue > 900 && blue < 1200) {
-            dbugThis("Valid color is white");
-            return Color.WHITE;
-        }
-
-        dbugThis("Valid color is default");
-        dbugThis("red: " + red + " green: " + green + " blue: " + blue);
-        return Color.BLACK;
-    }
-
-    /***
-     * Calculates the percentage of change from color1 to color 2
-     * @param color1
-     * @param color2
-     * @return
-     */
-    private int _percentChange(int color1, int color2) {
-        return Math.abs(color2 - color1) * 100 / color1;
-    }
-
 
     /**
      * Computes the current battery voltage.  This function is used in

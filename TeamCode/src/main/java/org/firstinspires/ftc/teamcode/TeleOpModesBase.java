@@ -115,26 +115,7 @@ public class TeleOpModesBase extends OpMode {
         wheels.rear_left = forward + clockwise - right;
         wheels.rear_right = forward - clockwise + right;
 
-        // Finally, normalize and limit acceleration for the wheel speed command
-        // so that no wheel speed command exceeds magnitude of 1 and acceleration is kept under limit:
-        double calculatedPropulsionCommand = Math.abs(wheels.front_left);
-        if (Math.abs(wheels.front_right) > calculatedPropulsionCommand) {
-            calculatedPropulsionCommand = Math.abs(wheels.front_right);
-        }
-        if (Math.abs(wheels.rear_left) > calculatedPropulsionCommand) {
-            calculatedPropulsionCommand = Math.abs(wheels.rear_left);
-        }
-        if (Math.abs(wheels.rear_right) > calculatedPropulsionCommand) {
-            calculatedPropulsionCommand = Math.abs(wheels.rear_right);
-        }
-
-        if (calculatedPropulsionCommand > 1.0) {
-            wheels.front_left /= calculatedPropulsionCommand;
-            wheels.front_right /= calculatedPropulsionCommand;
-            wheels.rear_left /= calculatedPropulsionCommand;
-            wheels.rear_right /= calculatedPropulsionCommand;
-        }
-
+        wheels.normalize();
         return wheels;
     }
 

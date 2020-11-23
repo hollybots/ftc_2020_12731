@@ -73,10 +73,6 @@ public class BatteryTest extends LinearOpMode {
             throw new RuntimeException("Cannot write to file", e);
         }
 
-        // start front left propulsion
-        botBase.getFrontLeftDrive().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        botBase.getFrontLeftDrive().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -86,9 +82,8 @@ public class BatteryTest extends LinearOpMode {
         double  deltaT = 0;
         double  startSampling = 0;
 
-        botBase.getFrontLeftDrive().setPower(0.5);
+        botBase.driveTrain.setPower(0.5);
         double startIntervalBetweenSamplings = runtime.milliseconds();
-
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -103,7 +98,7 @@ public class BatteryTest extends LinearOpMode {
                     break;
 
                 case 1:
-                    startPosition = botBase.getFrontLeftDrive().getCurrentPosition();
+                    startPosition = botBase.driveTrain.getFrontLeftDrive().getCurrentPosition();
                     dbugThis("" + startPosition);
                     startSampling = now;
                     samplingState = 2;
@@ -111,7 +106,7 @@ public class BatteryTest extends LinearOpMode {
 
                 case 2:
                     if ((now - startSampling) > 1000) {
-                        double counts = Math.abs(botBase.getFrontLeftDrive().getCurrentPosition() - startPosition);
+                        double counts = Math.abs(botBase.driveTrain.getFrontLeftDrive().getCurrentPosition() - startPosition);
                         double battery = getBatteryVoltage();
                         double rpm = counts * 60000 / COUNTS_PER_MOTOR_REV  / (now - startSampling);
                         dbugThis(String.format("%.4f, %.4f, %.4f", now, battery, rpm));

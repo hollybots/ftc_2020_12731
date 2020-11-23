@@ -7,5 +7,7 @@ public enum TravelDirection {
     LEFT,
     UP,
     DOWN,
+    CW,
+    CCW,
     IDLE
 }

@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.AutonomousOpModesBase;
+import org.firstinspires.ftc.teamcode.Components.LineDetector;
 
 @Autonomous(name="Test Sensors", group="1")
 //@Disabled
@@ -76,29 +77,30 @@ public class TestSensors extends AutonomousOpModesBase {
                 .addData("Object Detected", searchableTarget != null && searchableTarget.getTargetLabel() != null ? searchableTarget.getTargetLabel() : "none")
                 .addData("Target Position", searchableTarget != null && searchableTarget.getTargetRelativePosition() != null ? searchableTarget.getTargetRelativePosition().toString() : "none");
 
-        float hsvValues[] = {0F, 0F, 0F};
 
-        if (bottomColor != null) {
+        if ( botBase.hasLineDetector() ) {
+
+            float hsvValues[] = {0F, 0F, 0F};
+
             // convert the RGB values to HSV values.
             // multiply by the SCALE_FACTOR.
             // then cast it back to int (SCALE_FACTOR is a double)
-            Color.RGBToHSV((int) (bottomColor.red() * 255),
-                    (int) (bottomColor.green() * 255),
-                    (int) (bottomColor.blue() * 255),
+            Color.RGBToHSV((int) (botBase.lineDetector.getRed() * 255),
+                    (int) (botBase.lineDetector.getGreen() * 255),
+                    (int) (botBase.lineDetector.getBlue() * 255),
                     hsvValues);
+
+            // Color sensor
+            telemetry.addLine("Color Sensors")
+                    .addData("Red", botBase.lineDetector.getRed())
+                    .addData("Green", botBase.lineDetector.getGreen())
+                    .addData("Blue", botBase.lineDetector.getBlue())
+                    .addData("Hue", hsvValues[0]);
+
+            int validColor = botBase.lineDetector.getLineDetectorValue();
+            telemetry.addLine("GetValidColor()")
+                    .addData("Color Detected", validColor == Color.RED ? "Red" : validColor == Color.BLUE ? "Blue" : validColor == Color.YELLOW ? "Yellow" : validColor == Color.WHITE ? "White" : validColor == Color.BLACK ? "Black" : "Unknown");
         }
-
-        // Color sensor
-        int validColor = getValidColor(bottomColor);
-        telemetry.addLine("Color Sensors")
-                .addData("Red", bottomColor != null ? bottomColor.red() :"none")
-                .addData("Green", bottomColor != null ? bottomColor.green() :"none")
-                .addData("Blue", bottomColor != null ? bottomColor.blue() :"none")
-                .addData("Hue", hsvValues[0]);
-
-
-        telemetry.addLine("GetValidColor()")
-                .addData("Color Detected", validColor == Color.RED ? "Red" : validColor == Color.BLUE ? "Blue" : validColor == Color.YELLOW ? "Yellow" : validColor == Color.WHITE ? "White" : validColor == Color.BLACK ? "Black" : "Unknown");
     }
 
 }

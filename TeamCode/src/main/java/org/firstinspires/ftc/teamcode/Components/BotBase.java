@@ -24,10 +24,11 @@ public class BotBase {
     ElapsedTime runtime = new ElapsedTime();
 
     // Drive Train
-    private DcMotor frontLeftDrive      = null;
-    private DcMotor frontRightDrive     = null;
-    private DcMotor rearLeftDrive       = null;
-    private DcMotor rearRightDrive      = null;
+    public MecanumDriveTrain driveTrain = null;
+//    private DcMotor frontLeftDrive      = null;
+//    private DcMotor frontRightDrive     = null;
+//    private DcMotor rearLeftDrive       = null;
+//    private DcMotor rearRightDrive      = null;
 
     // Decorative LEDs
     private BlinkinBling bling          = null;
@@ -52,6 +53,10 @@ public class BotBase {
     private Boolean hasSensorPositioningLeft    = false;
     public SensorPositioning distanceRight      = null;
     private Boolean hasSensorPositioningRight   = false;
+
+    // line detection
+    public LineDetector lineDetector            = null;
+    private Boolean hasLineDetector             = false;
 
 
 
@@ -103,56 +108,65 @@ public class BotBase {
         hasBling = ((bling = BlinkinBling.init(hardwareMap, "bling")) != null);
 
 
+       /* ***********************************
+            LINE DETECTOR COMPONENTS
+        */
+        hasLineDetector = ((lineDetector = LineDetector.init(hardwareMap, "color_bottom")) != null);
+
+
         /* ************************************
             DRIVE TRAIN
         */
 
-        /**
-         * NOTE
-         * ====
-         * Most robots need the motor on one side to be reversed to drive forward
-         * Reverse the motor that runs backwards when connected directly to the battery
-         */
-        frontLeftDrive = hardwareMap.get(DcMotor.class, "front_left_drive");
-        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
-        frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        driveTrain = MecanumDriveTrain.init(hardwareMap, new String[] {
+                "front_left_drive",
+                "front_right_drive",
+                "rear_left_drive",
+                "rear_right_drive"});
 
-        frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
-        frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
-        frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        rearLeftDrive = hardwareMap.get(DcMotor.class, "rear_left_drive");
-        rearLeftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rearLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        rearRightDrive = hardwareMap.get(DcMotor.class, "rear_right_drive");
-        rearRightDrive.setDirection(DcMotor.Direction.REVERSE);
-        rearRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        /**
+//         * NOTE
+//         * ====
+//         * Most robots need the motor on one side to be reversed to drive forward
+//         * Reverse the motor that runs backwards when connected directly to the battery
+//         */
+//        frontLeftDrive = hardwareMap.get(DcMotor.class, "front_left_drive");
+//        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+//        frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
+//        frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
+//        frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        rearLeftDrive = hardwareMap.get(DcMotor.class, "rear_left_drive");
+//        rearLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+//        rearLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        rearRightDrive = hardwareMap.get(DcMotor.class, "rear_right_drive");
+//        rearRightDrive.setDirection(DcMotor.Direction.REVERSE);
+//        rearRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
     }
 
     public void stop() {
-        frontLeftDrive.setPower(0.0);
-        frontRightDrive.setPower(0.0);
-        rearLeftDrive.setPower(0.0);
-        rearRightDrive.setPower(0.0);
+        driveTrain.stop();
     }
 
-    public DcMotor getFrontRightDrive() {
-        return frontRightDrive;
-    }
-
-    public DcMotor getFrontLeftDrive() {
-        return frontLeftDrive;
-    }
-
-    public DcMotor getRearRightDrive() {
-        return rearRightDrive;
-    }
-
-    public DcMotor getRearLeftDrive() {
-        return rearLeftDrive;
-    }
+//    public DcMotor getFrontRightDrive() {
+//        return frontRightDrive;
+//    }
+//
+//    public DcMotor getFrontLeftDrive() {
+//        return frontLeftDrive;
+//    }
+//
+//    public DcMotor getRearRightDrive() {
+//        return rearRightDrive;
+//    }
+//
+//    public DcMotor getRearLeftDrive() {
+//        return rearLeftDrive;
+//    }
 
     protected BlinkinBling getBling() {
         return bling;
@@ -171,6 +185,7 @@ public class BotBase {
     public Boolean hasSensorPositioningFront() { return hasSensorPositioningFront; }
     public Boolean hasSensorPositioningLeft() { return hasSensorPositioningLeft; }
     public Boolean hasSensorPositioningRight() { return hasSensorPositioningRight; }
+    public Boolean hasLineDetector() { return hasLineDetector; }
     public Boolean hasBling() { return hasBling; }
 
 
@@ -201,6 +216,12 @@ public class BotBase {
         }
         if ( hasSensorPositioningRight() ) {
             distanceRight.updateSensorPositioningDistance();
+        }
+    }
+
+    public void updateLineDetector() {
+        if ( hasLineDetector() ) {
+            lineDetector.updateLineDetectorValue();
         }
     }
 
