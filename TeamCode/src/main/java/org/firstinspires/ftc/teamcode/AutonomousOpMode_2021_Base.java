@@ -204,10 +204,9 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
-            if (t==5) {
-                botTop.launchMotorOn(LAUNCH_POWER);
-//                justWait(500);
-            }
+//            if (t==5) {
+//                botTop.launchMotorOn(LAUNCH_POWER);
+//            }
             t--;
         }
         if ((ringLabel == "Single") || (ringLabel == "Quad"))  {

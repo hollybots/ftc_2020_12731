@@ -65,7 +65,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         switch (ringLabel) {
             case "Quad":
                 moveForward(-41, DRIVE_TRAIN_TRAVELING_POWER);
-                moveRight(-16, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRight(-18, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER/1.1);
                 gotoHeading(176);
                 break;
@@ -77,7 +77,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             case "None":
             default:
                 moveRight(-17, DRIVE_TRAIN_TRAVELING_POWER);
-                moveForward(-3, DRIVE_TRAIN_TRAVELING_POWER);
+                moveForward(-1, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER/1.1);
                 gotoHeading(178);
                 break;
@@ -133,23 +133,29 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 
 
     protected void pickupExtraFourRings() {
-        botTop.intakeMotorOn(INTAKE_MOTOR);
-        botTop.launchMotorOn(LAUNCH_POWER/1.15);
+        botTop.launchMotorOn(LAUNCH_POWER/1.25);
         gotoHeading(0);
         botTop.lowerMagazine();
         moveRight(-4.0, DRIVE_TRAIN_TRAVELING_POWER);
-        moveForward(-10.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
-        moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER);
-        moveForward(-2.0, DRIVE_TRAIN_TRAVELING_POWER);
-        moveBackward(5.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(-12.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+        botTop.intakeMotorOn(INTAKE_MOTOR);
+        moveForward(-3.0, DRIVE_TRAIN_TRAVELING_POWER);
+        justWait(500);
+//        moveForward(-2.0, DRIVE_TRAIN_TRAVELING_POWER);
+//        moveBackward(5.0, DRIVE_TRAIN_TRAVELING_POWER);
+        gotoHeading(195);
+        moveForward(12.0, DRIVE_TRAIN_TRAVELING_POWER);
         botTop.liftMagazine();
-        gotoHeading(200);
+        justWait(250);
         int t = 2;
         while (t > 0) {
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
+            turn(-5.0);
+//            moveRight(2.0, DRIVE_TRAIN_TRAVELING_POWER);
             t--;
         }
     }
