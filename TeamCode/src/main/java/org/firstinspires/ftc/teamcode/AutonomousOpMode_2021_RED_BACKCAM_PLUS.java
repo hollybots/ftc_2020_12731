@@ -51,7 +51,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
                 break;
             case "None":
             default:
-                moveBackward(56, DRIVE_TRAIN_TRAVELING_POWER);
+                moveBackward(54, DRIVE_TRAIN_TRAVELING_POWER);
                 moveXInchesFromLeftObject(5.0, 5000, DRIVE_TRAIN_TRAVELING_POWER/1.25);
                 gotoHeading(2);
                 break;
@@ -65,9 +65,9 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         switch (ringLabel) {
             case "Quad":
                 moveForward(-41, DRIVE_TRAIN_TRAVELING_POWER);
-                moveRight(-15, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRight(-16, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER/1.1);
-                gotoHeading(170);
+                gotoHeading(176);
                 break;
             case "Single":
                 moveForward(-18, DRIVE_TRAIN_TRAVELING_POWER);
@@ -80,8 +80,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
                 moveForward(-3, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER/1.1);
                 gotoHeading(178);
-            break;
-
+                break;
 
         }
         currentState = STATE_TOWER_SHOT;
@@ -89,6 +88,15 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
     }
 
     protected void pickupExtraRings() {
+        if (ringLabel == "Single") {
+            pickupExtraOneRing();
+        } else if (ringLabel == "Quad") {
+            pickupExtraFourRings();
+        }
+        currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
+    }
+
+    protected void pickupExtraOneRing() {
         botTop.intakeMotorOn(INTAKE_MOTOR);
         botTop.launchMotorOn(LAUNCH_POWER/1.15);
         gotoHeading(0);
@@ -105,8 +113,6 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             justWait(TIME_TO_RETRACT);
             t--;
         }
-        currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
-        return;
     }
 
 
@@ -115,12 +121,36 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         botTop.clawMotorOn(-WOBBLE_GOAL_DELIVERY_POWER);
         justWait(TIME_TO_DELIVER/3.0);
         botTop.clawMotorOff();
+        autonomousIdleTasks();
         moveXInchesFromBackObject(8.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
         moveXInchesFromBackObject(2.0, 10000, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         moveLeft(-25.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
         gotoHeading(150);
-        moveForward(6, DRIVE_TRAIN_TRAVELING_POWER/1.5);
-        moveForward(48, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(5, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+        moveForward(50, DRIVE_TRAIN_TRAVELING_POWER/1.5);
         currentState = STATE_done;
+    }
+
+
+    protected void pickupExtraFourRings() {
+        botTop.intakeMotorOn(INTAKE_MOTOR);
+        botTop.launchMotorOn(LAUNCH_POWER/1.15);
+        gotoHeading(0);
+        botTop.lowerMagazine();
+        moveRight(-4.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(-10.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+        moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(-2.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveBackward(5.0, DRIVE_TRAIN_TRAVELING_POWER);
+        botTop.liftMagazine();
+        gotoHeading(200);
+        int t = 2;
+        while (t > 0) {
+            botTop.extendArm();
+            justWait(TIME_TO_EXTEND);
+            botTop.retractArm();
+            justWait(TIME_TO_RETRACT);
+            t--;
+        }
     }
 }

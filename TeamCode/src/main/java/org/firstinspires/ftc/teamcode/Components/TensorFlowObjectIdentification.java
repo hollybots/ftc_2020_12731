@@ -43,7 +43,8 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
 
     private FieldPlacement oldPlacement            = null;
     private FieldPlacement currentPlacement        = null;
-    private String foundTargetName                  = "None";
+    private String foundTargetName                 = "None";
+    private boolean isActive                       = false;
 
 
     protected  List<Recognition> lastUpdatedRecognitions = null;
@@ -81,6 +82,7 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
 
             // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
             tfod.setZoom(2.5, 1.78);
+            isActive = true;
         }
     }
 
@@ -111,6 +113,10 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
             return;
         }
 
+        if (!isActive ) {
+            return;
+        }
+
         List<Recognition> recognitions = tfod.getRecognitions();
         if (recognitions == null) {
             return;
@@ -126,13 +132,6 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
             if (targetName != "" && recognition.getLabel() != targetName) {
                 continue;
             }
-//
-//            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-//            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-//                    recognition.getLeft(), recognition.getTop());
-//            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-//                    recognition.getRight(), recognition.getBottom());
-
             oldPlacement = currentPlacement;
             currentPlacement = new FieldPlacement(recognition.getRight(), recognition.getBottom());
             foundTargetName = recognition.getLabel();
@@ -142,8 +141,9 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
     public void stop()
     {
         if (tfod != null) {
-            tfod.shutdown();
+            tfod.deactivate();
         }
+        isActive = false;
     }
 
 

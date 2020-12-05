@@ -59,6 +59,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     static final int LAUNCHING_STATE                    = 4;
     static final int REJECTING_STATE                    = 5;
     static final int ENDGAME_STATE                      = 6;
+    static final int LOAD_STATE_2                       = 7;
     private int currentState = INITIATE_COLLECTING_STATE;
 
     // Declare OpMode members.
@@ -160,6 +161,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         boolean isPressedResetButton            = gamepad1.y;
         // To start end game mode
         boolean isPressedEndGameButton          = gamepad1.a;
+        // To start end game mode
+        boolean isPressedSecondEndGameButton    = gamepad1.b;
         // To launch rings
         boolean isPressedLaunchingButton        = gamepad1.right_bumper;
         // To Hook wobble goal
@@ -217,6 +220,16 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             }
         }
 
+        else if (currentState == LOAD_STATE_2) {
+            // same as following but with a slower lau
+            botBase.setBling(LedPatterns.LED_SOLID_COLOR_RED);
+            isReverseMode = false;
+            botTop.intakeMotorOff();
+            botTop.launchMotorOn(LAUNCH_POWER/1.04);
+            botTop.liftMagazine();
+            currentState = LAUNCHING_STATE;
+        }
+
         else if (currentState == LOAD_STATE) {
             botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
             isReverseMode = false;
@@ -228,7 +241,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 
         else if (currentState == LAUNCHING_STATE) {
             isReverseMode = false;
-            botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
+//            botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
             // The launch button is being pressed
             if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
                 botTop.extendArm();
@@ -293,6 +306,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             if (isPressedLoadingButton) {
                 currentState = LOAD_STATE;
             }
+
+            if (isPressedSecondEndGameButton) {
+                currentState = LOAD_STATE_2;
+            }
         }
 
         /**
@@ -355,7 +372,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
          * Output Telemetry
          */
         telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
-                .addData("OdometerY", botBase.odometer.getCurrentYPos());
+                .addData("OdometerY", botBase.odometer.getCurrentYPos())
+                .addData("Orientation", botBase.odometer.getHeading());
         telemetry.update();
     }
 

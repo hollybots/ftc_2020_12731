@@ -206,16 +206,16 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
             justWait(TIME_TO_RETRACT);
             if (t==5) {
                 botTop.launchMotorOn(LAUNCH_POWER);
-                justWait(500);
+//                justWait(500);
             }
             t--;
         }
-        if (ringLabel == "Single") {
+        if ((ringLabel == "Single") || (ringLabel == "Quad"))  {
             currentState = STATE_PICKUP_RINGS;
-        } else if (ringLabel != "Single" && ringLabel != "Quad")  {
-            currentState = STATE_MOVE_XTRA_WOBBLE_GOAL;
         }
-        else {
+        else if (ringLabel == "None") {
+            currentState = STATE_MOVE_XTRA_WOBBLE_GOAL;
+        } else {
             currentState = STATE_TRAVEL_TO_LAUNCH_LINE;
         }
     }
