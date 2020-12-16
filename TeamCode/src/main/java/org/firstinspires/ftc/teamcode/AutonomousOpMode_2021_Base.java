@@ -200,13 +200,13 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected void towerShot() {
         int t = 5;
         while (t > 0) {
+            if (t == 4 && ringLabel == "Quad") {
+                botTop.launchMotorOn(LAUNCH_POWER);
+            }
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
-//            if (t==5) {
-//                botTop.launchMotorOn(LAUNCH_POWER);
-//            }
             t--;
         }
         if ((ringLabel == "Single") || (ringLabel == "Quad"))  {

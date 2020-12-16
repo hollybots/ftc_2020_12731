@@ -64,21 +64,21 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         if (ringLabel == null) {ringLabel = "None";}
         switch (ringLabel) {
             case "Quad":
-                moveForward(-41, DRIVE_TRAIN_TRAVELING_POWER);
-                moveRight(-18, DRIVE_TRAIN_TRAVELING_POWER);
+                moveForward(-38, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRight(-15, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER/1.1);
                 gotoHeading(176);
                 break;
             case "Single":
                 moveForward(-18, DRIVE_TRAIN_TRAVELING_POWER);
-                botTop.launchMotorOn(LAUNCH_POWER/1.1);
-                gotoHeading(170);
+                botTop.launchMotorOn(LAUNCH_POWER/1.0);
+                gotoHeading(173);
                 break;
             case "None":
             default:
-                moveRight(-17, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRight(-15, DRIVE_TRAIN_TRAVELING_POWER);
                 moveForward(-1, DRIVE_TRAIN_TRAVELING_POWER);
-                botTop.launchMotorOn(LAUNCH_POWER/1.1);
+                botTop.launchMotorOn(LAUNCH_POWER/1.05);
                 gotoHeading(178);
                 break;
 
@@ -104,7 +104,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         moveForward(-25.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveBackward(10.0, DRIVE_TRAIN_TRAVELING_POWER);
         botTop.liftMagazine();
-        gotoHeading(200);
+        gotoHeading(198);
         int t = 2;
         while (t > 0) {
             botTop.extendArm();
@@ -119,7 +119,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
     protected void moveExtraWobbleGoal() {
         botTop.launchMotorOff();
         botTop.clawMotorOn(-WOBBLE_GOAL_DELIVERY_POWER);
-        justWait(TIME_TO_DELIVER/3.0);
+        justWait(TIME_TO_DELIVER/2.5);
         botTop.clawMotorOff();
         autonomousIdleTasks();
         moveXInchesFromBackObject(8.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
@@ -133,10 +133,10 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 
 
     protected void pickupExtraFourRings() {
-        botTop.launchMotorOn(LAUNCH_POWER/1.25);
+        botTop.launchMotorOn(LAUNCH_POWER/1.2);
         gotoHeading(0);
         botTop.lowerMagazine();
-        moveRight(-4.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveRight(-2.0, DRIVE_TRAIN_TRAVELING_POWER/1.25);
         moveForward(-12.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         botTop.intakeMotorOn(INTAKE_MOTOR);
@@ -144,7 +144,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         justWait(500);
 //        moveForward(-2.0, DRIVE_TRAIN_TRAVELING_POWER);
 //        moveBackward(5.0, DRIVE_TRAIN_TRAVELING_POWER);
-        gotoHeading(195);
+        gotoHeading(200);
         moveForward(12.0, DRIVE_TRAIN_TRAVELING_POWER);
         botTop.liftMagazine();
         justWait(250);

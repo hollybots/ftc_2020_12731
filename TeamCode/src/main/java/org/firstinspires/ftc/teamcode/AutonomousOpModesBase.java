@@ -95,7 +95,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * PROPULSION CONSTANTS
      */
     static final double DRIVE_SPEED                     = 0.8;
-    static final double TURNING_SPEED                   = 0.5;
+    static final double TURNING_SPEED                   = 0.6;
 
 
     static final double     HEADING_THRESHOLD       = 1.0 ;      // As tight as we can make it with an integer gyro
@@ -894,8 +894,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
         ) {
             autonomousIdleTasks();
 
-            dbugThis("Limit: " + limit);
-            dbugThis("Current: " + botBase.odometer.getCurrentYPos());
+//            dbugThis("Limit: " + limit);
+//            dbugThis("Current: " + botBase.odometer.getCurrentYPos());
 
             now = runtime.milliseconds();
             if (useCollisionAlerts) {
@@ -1462,7 +1462,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             return Color.WHITE;
         }
 
-        if ( red > 600  && red < 800 && green > 1000 && green < 1400 && blue > 900 && blue < 1200) {
+        if ( red > 100  && red < 800 && green > 1000 && green < 1400 && blue > 800 && blue < 1200) {
             dbugThis("Valid color is white");
             return Color.WHITE;
         }

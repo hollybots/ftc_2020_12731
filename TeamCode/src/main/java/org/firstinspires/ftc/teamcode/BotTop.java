@@ -19,8 +19,8 @@ public class BotTop {
     static final double STACKING        = 0.2;
     static final double LAUNCHING       = 0.59;
 
-    static final double RETRACTED       = 0.2;
-    static final double EXTENDED        = -0.05;
+    static final double RETRACTED       = 1.0;
+    static final double EXTENDED        = 0.8;
 
     static final boolean DEBUG          = false;
 
@@ -91,6 +91,7 @@ public class BotTop {
             launchMotor = hardwareMap.get(DcMotor.class, "launch_motor");
             launchMotor.setDirection(DcMotor.Direction.REVERSE);
             launchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            launchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             dbugThis("Cannot initialize launchMotor");
             launchMotor = null;

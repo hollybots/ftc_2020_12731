@@ -221,11 +221,11 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
         else if (currentState == LOAD_STATE_2) {
+            botTop.launchMotorOn(LAUNCH_POWER/1.04);
             // same as following but with a slower lau
             botBase.setBling(LedPatterns.LED_SOLID_COLOR_RED);
             isReverseMode = false;
             botTop.intakeMotorOff();
-            botTop.launchMotorOn(LAUNCH_POWER/1.04);
             botTop.liftMagazine();
             currentState = LAUNCHING_STATE;
         }
