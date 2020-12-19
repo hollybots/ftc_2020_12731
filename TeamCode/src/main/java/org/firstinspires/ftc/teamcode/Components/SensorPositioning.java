@@ -81,6 +81,8 @@ public class SensorPositioning {
             previousDistance = currentDistance;
             currentDistance = average;
             return;
+        }  else {
+            currentDistance = DistanceSensor.distanceOutOfRange;
         }
 
 //        if (sensor == null) {

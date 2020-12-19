@@ -40,6 +40,9 @@ import org.firstinspires.ftc.teamcode.OpenCV.RingDetector;
 import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 import org.firstinspires.ftc.teamcode.OpenCV.RingPosition;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 
 /**
  * This OpMode was developed to help position the robot in the pre-start portion of the game.
@@ -64,6 +67,14 @@ public class PositioningTool extends TeleOpModesBase
     protected String CAMERA_SYSTEM                 = "WEBCAM";  // can be PHONE or WEBCAM
 
     static final double CLAW_POWER                      = 0.4;
+    static final double MIN_LAUNCH_POWER                = 0.3;
+    static final double MAX_LAUNCH_POWER                = 1.0;
+    static final double LAUNCH_POWER_BIG_INCREMENT      = 0.05;
+    static final double LAUNCH_POWER_SMALL_INCREMENT    = 0.01;
+    static final int SERVO_TIMEOUT                      = 220;     // ms before the arms retracts.  Should be the interval defined by the servo manufacturer for 60 degrees
+    static final int RPM_CALC_DURATION                  = 500; // in ms
+    static final double COUNTS_PER_MOTOR_REV            = 28.0;
+
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -76,6 +87,24 @@ public class PositioningTool extends TeleOpModesBase
     // State variables
     RingPosition ringPosition               = RingPosition.UNKNOWN;
     protected String ringLabel              = "";
+    double launchPower                      = MIN_LAUNCH_POWER;
+
+    boolean wasPressedPowerBigIncrement                 = false;
+    boolean wasPressedPowerSmallIncrement               = false;
+    boolean wasPressedPowerBigReduction                 = false;
+    boolean wasPressedPowerSmallReduction               = false;
+
+    boolean wasPressedLaunchingButton                   = false;
+    double servoTimeout                                 = 0.0;
+    boolean wasPressedResetButton                       = false;
+    double rpm                                          = 0;
+    double startSampling                                = 0;
+    double startPosition                                = 0;
+
+    static final int JUST_CHILLING                      = 1;
+    static final int LAUNCHING_STATE                    = 2;
+
+    private int currentState                            = JUST_CHILLING;
 
 
     /* Object detection sub system
@@ -135,9 +164,10 @@ public class PositioningTool extends TeleOpModesBase
      */
     @Override
     public void start() {
-
         // Resets the OpMode timer
         runtime.reset();
+        botTop.retractArm();
+        botTop.liftMagazine();
     }
 
 
@@ -158,6 +188,15 @@ public class PositioningTool extends TeleOpModesBase
          */
 
         /**
+         * Input laucher tuning commands
+         */
+        boolean isPressedPowerBigIncrement       = gamepad1.dpad_up;
+        boolean isPressedPowerSmallIncrement     = gamepad1.dpad_right;
+        boolean isPressedPowerBigReduction       = gamepad1.dpad_down;
+        boolean isPressedPowerSmallReduction     = gamepad1.dpad_left;
+
+
+        /**
          * Input drivetrain commands
          */
         // push joystick1 forward to go forward
@@ -176,6 +215,10 @@ public class PositioningTool extends TeleOpModesBase
 
         /* Other gamepad inputs
          */
+        // To initiate loading state
+        boolean isPressedLoadingButton          = gamepad1.x;  // a and b are already used by the Robot Controller to select the gamepad
+        // To initiate chilling state
+        boolean isPressedResetButton            = gamepad1.y;
         // To Hook wobble goal
         boolean isPressedHookWobbleGoalButton   = gamepad1.right_bumper;
         // To unhook wobble goal
@@ -184,40 +227,115 @@ public class PositioningTool extends TeleOpModesBase
         boolean isPressedLiftWobbleGoalButton   = gamepad1.right_trigger > 0.2;
         // To lower wobble goal
         boolean isPressedLowerWobbleGoalButton  = gamepad1.left_trigger > 0.2;
+        // To launch rings
+        boolean isPressedLaunchingButton        = gamepad1.right_bumper;
 
         /*******************************
          * 2) SUBSYSTEMS UPDATES
          *
          */
-        botTop.liftMagazine();
-        botTop.retractArm();
-        botTop.intakeMotorOff();
-        botTop.launchMotorOff();
 
-        isReverseMode = true;
+        if (currentState == JUST_CHILLING) {
+
+            botTop.launchMotorOff();
+            /**
+             * Enable Wobble Goal hook through bumpers
+             */
+            if (isPressedHookWobbleGoalButton) {
+                botTop.wobbleGoalHookMotorOn(0.5);
+            } else if (isPressedUnhookWobbleGoalButton) {
+                botTop.wobbleGoalHookMotorOn(-0.5);
+            }
+            if (!isPressedHookWobbleGoalButton && !isPressedUnhookWobbleGoalButton) {
+                botTop.wobbleGoalHookMotorOff();
+            }
+            /**
+             * Enable Wobble Goal Lift through trigger
+             */
+            if (isPressedLiftWobbleGoalButton) {
+                botTop.clawMotorOn(-CLAW_POWER);
+            } else if (isPressedLowerWobbleGoalButton) {
+                botTop.clawMotorOn(CLAW_POWER);
+            }
+            if (!isPressedLiftWobbleGoalButton && !isPressedLowerWobbleGoalButton) {
+                botTop.clawMotorOff();
+            }
+
+            if (isPressedLoadingButton) {
+                currentState = LAUNCHING_STATE;
+            }
+        }
+
         /**
-         * Enable Wobble Goal hook through bumpers
+         * Updates from launcher commands
          */
-        if (isPressedHookWobbleGoalButton) {
-            botTop.wobbleGoalHookMotorOn(0.5);
-        }
-        else if (isPressedUnhookWobbleGoalButton) {
-            botTop.wobbleGoalHookMotorOn(-0.5);
-        }
-        if (!isPressedHookWobbleGoalButton && !isPressedUnhookWobbleGoalButton) {
-            botTop.wobbleGoalHookMotorOff();
-        }
-        /**
-         * Enable Wobble Goal Lift through trigger
-         */
-        if (isPressedLiftWobbleGoalButton) {
-            botTop.clawMotorOn(-CLAW_POWER);
-        }
-        else if (isPressedLowerWobbleGoalButton) {
-            botTop.clawMotorOn(CLAW_POWER);
-        }
-        if (!isPressedLiftWobbleGoalButton && !isPressedLowerWobbleGoalButton) {
-            botTop.clawMotorOff();
+        else if (currentState == LAUNCHING_STATE) {
+
+            // The launch button is being pressed
+            if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
+                botTop.extendArm();
+                wasPressedLaunchingButton = true;
+                servoTimeout = runtime.milliseconds() + SERVO_TIMEOUT;
+            }
+            // the button is being released after servoTimeout
+            else if (runtime.milliseconds() > servoTimeout && wasPressedLaunchingButton) {
+                botTop.retractArm();
+                wasPressedLaunchingButton = false;
+            }
+
+            /**
+             * Updates from launcher power commands
+             */
+            if (isPressedPowerBigIncrement) {
+                wasPressedPowerBigIncrement = true;
+
+            } else if (wasPressedPowerBigIncrement) {
+                wasPressedPowerBigIncrement = false;
+                launchPower += LAUNCH_POWER_BIG_INCREMENT;
+                launchPower = Math.min(MAX_LAUNCH_POWER, launchPower);
+
+            } else if (isPressedPowerSmallIncrement) {
+                wasPressedPowerSmallIncrement = true;
+
+            } else if (wasPressedPowerSmallIncrement) {
+                wasPressedPowerSmallIncrement = false;
+                launchPower += LAUNCH_POWER_SMALL_INCREMENT;
+                launchPower = Math.min(MAX_LAUNCH_POWER, launchPower);
+
+            } else if (isPressedPowerBigReduction) {
+                wasPressedPowerBigReduction = true;
+
+            } else if (wasPressedPowerBigReduction) {
+                wasPressedPowerBigReduction = false;
+                launchPower -= LAUNCH_POWER_BIG_INCREMENT;
+                launchPower = Math.max(MIN_LAUNCH_POWER, launchPower);
+
+            } else if (isPressedPowerSmallReduction) {
+                wasPressedPowerSmallReduction = true;
+
+            } else if (wasPressedPowerSmallReduction) {
+                wasPressedPowerSmallReduction = false;
+                launchPower -= LAUNCH_POWER_SMALL_INCREMENT;
+                launchPower = Math.max(MIN_LAUNCH_POWER, launchPower);
+            }
+
+            /**
+             * Calc RPM for telemetry
+             */
+            rpm = getRPMs(rpm);
+
+            /**
+             * Go back to chilling
+             */
+            if (isPressedResetButton) {
+                wasPressedResetButton = true;
+            }
+            else if (wasPressedResetButton) {
+                wasPressedResetButton = false;
+                currentState = JUST_CHILLING;
+            }
+
+            botTop.launchMotorOn(launchPower);
         }
 
         /**
@@ -271,6 +389,9 @@ public class PositioningTool extends TeleOpModesBase
         /**
          * Output Telemetry
          */
+        telemetry.addData("RPMs", String.format("%.3f", rpm))
+        .addData("Power",  String.format("%.3f", launchPower));
+
         telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
         .addData("OdometerY", botBase.odometer.getCurrentYPos());
 
@@ -279,6 +400,21 @@ public class PositioningTool extends TeleOpModesBase
                 .addData("Object Detected (label)", searchableTarget != null && searchableTarget.getTargetLabel() != null ? searchableTarget.getTargetLabel() : "none")
                 .addData("Target Position", searchableTarget != null && searchableTarget.getTargetRelativePosition() != null ? searchableTarget.getTargetRelativePosition().toString() : "none");
         telemetry.update();
+    }
+
+
+    private double getRPMs(double rpm) {
+        double now;
+        double counts;
+        now = runtime.milliseconds();
+        // waiting for rmp calculations
+        if ((now - startSampling) > RPM_CALC_DURATION) {
+            counts = Math.abs(botTop.getLaunchMotor().getCurrentPosition() - startPosition);
+            rpm = counts * RPM_CALC_DURATION * 60 / COUNTS_PER_MOTOR_REV / (now - startSampling);
+            startSampling = now;
+            startPosition = botTop.getLaunchMotor().getCurrentPosition();
+        }
+        return rpm;
     }
 
     /*

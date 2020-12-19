@@ -90,8 +90,8 @@ public class BotTop {
         try {
             launchMotor = hardwareMap.get(DcMotor.class, "launch_motor");
             launchMotor.setDirection(DcMotor.Direction.REVERSE);
-            launchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//            launchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            launchMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            launchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             dbugThis("Cannot initialize launchMotor");
             launchMotor = null;
@@ -185,11 +185,13 @@ public class BotTop {
         launchMotor.setPower(power);
     }
 
-
     public void launchMotorOff() {
         launchMotor.setPower(0);
     }
 
+    public DcMotor getLaunchMotor() {
+        return launchMotor;
+    }
 
     /**
      * Set magazine position so it can stack rings
@@ -262,4 +264,5 @@ public class BotTop {
             Log.d("BOTTOP: ", s);
         }
     }
+
 }
