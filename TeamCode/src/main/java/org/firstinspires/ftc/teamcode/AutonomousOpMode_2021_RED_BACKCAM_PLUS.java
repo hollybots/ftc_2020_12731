@@ -124,8 +124,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         botTop.clawMotorOff();
         autonomousIdleTasks();
         moveRight(4.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
-        moveXInchesFromBackObject(8.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
-        moveXInchesFromBackObject(2.0, 10000, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+        moveBackwardXInchesFromBackObject(8.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+        moveBackwardXInchesFromBackObject(2.0, 10000, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         moveLeft(-29.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
         gotoHeading(150);
         moveForward(5, DRIVE_TRAIN_TRAVELING_POWER/2.0);

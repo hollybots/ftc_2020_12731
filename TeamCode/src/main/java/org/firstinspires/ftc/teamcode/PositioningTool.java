@@ -216,6 +216,7 @@ public class PositioningTool extends TeleOpModesBase
         /* Other gamepad inputs
          */
         // To initiate loading state
+
         boolean isPressedLoadingButton          = gamepad1.x;  // a and b are already used by the Robot Controller to select the gamepad
         // To initiate chilling state
         boolean isPressedResetButton            = gamepad1.y;
@@ -286,6 +287,7 @@ public class PositioningTool extends TeleOpModesBase
             /**
              * Updates from launcher power commands
              */
+
             if (isPressedPowerBigIncrement) {
                 wasPressedPowerBigIncrement = true;
 
@@ -394,6 +396,13 @@ public class PositioningTool extends TeleOpModesBase
 
         telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
         .addData("OdometerY", botBase.odometer.getCurrentYPos());
+
+        // Power
+        telemetry.addLine("Power")
+                .addData("FL", String.format("%.3f", wheels.front_left))
+                .addData("FR", String.format("%.3f", wheels.front_right))
+                .addData("RL", String.format("%.3f", wheels.rear_left))
+                .addData("RR", String.format("%.3f", wheels.rear_right));
 
         // Object detection
         telemetry.addLine("Object Detection")
