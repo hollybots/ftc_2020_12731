@@ -132,18 +132,26 @@ public class SampleColors extends LinearOpMode {
                             (int) (bottomColor.green() * 255),
                             (int) (bottomColor.blue() * 255),
                             hsvValues);
+                    dbugThis(String.format("%d,%d,%d,%.3f,%s", bottomColor.red(), bottomColor.blue(), bottomColor.green(), hsvValues[0], label));
+                    try {
+                        PrintWriter log = new PrintWriter(new FileWriter("/sdcard/color_samples.csv", true));
+                        log.printf(String.format("%d,%d,%d,%.3f,%s\n", bottomColor.red(), bottomColor.blue(), bottomColor.green(), hsvValues[0], label));
+                        nbSamples++;
+                        log.close();
+                    } catch (Exception e) {
+                        dbugThis(e.getMessage());
+                    }
+                    // Color sensor
+                    telemetry.addLine("Current Values")
+                            .addData("Red", bottomColor != null ? bottomColor.red() : "n/a")
+                            .addData("Green", bottomColor != null ? bottomColor.green() : "n/a")
+                            .addData("Blue", bottomColor != null ? bottomColor.blue() : "n/a")
+                            .addData("Hue", String.format("%.2f", hsvValues[0]));
+                    startSampling = now;
                 }
-                dbugThis(String.format("%d,%d,%d,%.3f,%s", bottomColor.red(), bottomColor.blue(), bottomColor.green(), hsvValues[0], label));
-                try {
-                    PrintWriter log = new PrintWriter(new FileWriter("/sdcard/color_samples.csv", true));
-                    log.printf(String.format("%d,%d,%d,%.3f,%s\n", bottomColor.red(), bottomColor.blue(), bottomColor.green(), hsvValues[0], label));
-                    nbSamples++;
-                    log.close();
-                } catch (Exception e) {
-                    dbugThis(e.getMessage());
-                }
-                startSampling = now;
             }
+
+            telemetry.addData("Sampling Color", label);
             telemetry.addData("Sampling Color", label);
             telemetry.addData("Number of samples", nbSamples);
             telemetry.update();

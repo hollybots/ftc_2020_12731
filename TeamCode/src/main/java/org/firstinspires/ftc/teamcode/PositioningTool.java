@@ -82,7 +82,7 @@ public class PositioningTool extends TeleOpModesBase
     // State variables
     boolean isFastSpeedMode                             = false;
     boolean waitForSpeedButtonRelease                   = false;
-    boolean isReverseMode                               = false;
+    boolean isReverseMode                               = true;
 
     // State variables
     RingPosition ringPosition               = RingPosition.UNKNOWN;

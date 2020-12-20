@@ -15,7 +15,11 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
 
     protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.7;
-    protected static final double LAUNCH_POWER                          = 0.8;
+    protected static final double LAUNCH_POWER                          = 0.7;
+    protected static final double LAUNCH_POWER_NONE                     = LAUNCH_POWER;
+    protected static final double LAUNCH_POWER_SINGLE                   = LAUNCH_POWER;
+    protected static final double LAUNCH_POWER_QUAD                     = LAUNCH_POWER;
+    protected static final double LAUNCH_POWER_POWER_SHOT_FRONT         = 0.64;
     protected static final double INTAKE_MOTOR                          = 1.0;
 
     protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.4; // lifting is negative, lowering is positive
@@ -200,14 +204,14 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected void towerShot() {
         int t = 5;
         while (t > 0) {
-            if (t == 4 && ringLabel == "Quad") {
-                botTop.launchMotorOn(LAUNCH_POWER);
-            }
+//            if (t == 4 && ringLabel == "Quad") {
+//                botTop.launchMotorOn(LAUNCH_POWER);
+//            }
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
-            t--;
+            t = t - 1;
         }
         if ((ringLabel == "Single") || (ringLabel == "Quad"))  {
             currentState = STATE_PICKUP_RINGS;

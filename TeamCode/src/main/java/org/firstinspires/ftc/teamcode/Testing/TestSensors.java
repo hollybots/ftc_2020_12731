@@ -61,10 +61,10 @@ public class TestSensors extends AutonomousOpModesBase {
 
         // Distance sensor
         telemetry.addLine("Positioning")
-                .addData("Left", botBase.hasSensorPositioningLeft() ? String.format("%.3f", botBase.distanceLeft.getDistance()) : "n/a")
-                .addData("Right", botBase.hasSensorPositioningRight() ? String.format("%.3f", botBase.distanceRight.getDistance()) : "n/a")
-                .addData("Front", botBase.hasSensorPositioningFront() ? String.format("%.3f", botBase.distanceFront.getDistance()): "n/a")
-                .addData("Back", botBase.hasSensorPositioningBack() ? String.format("%.3f", botBase.distanceBack.getDistance()) : "n/a");
+                .addData("Left", botBase.hasSensorPositioningLeft() && !botBase.distanceLeft.isOutOfRange() ? String.format("%.3f", botBase.distanceLeft.getDistance()) : "n/a")
+                .addData("Right", botBase.hasSensorPositioningRight() && !botBase.distanceRight.isOutOfRange() ? String.format("%.3f", botBase.distanceRight.getDistance()) : "n/a")
+                .addData("Front", botBase.hasSensorPositioningFront() && !botBase.distanceFront.isOutOfRange() ? String.format("%.3f", botBase.distanceFront.getDistance()): "n/a")
+                .addData("Back", botBase.hasSensorPositioningBack() && !botBase.distanceBack.isOutOfRange() ? String.format("%.3f", botBase.distanceBack.getDistance()) : "n/a");
 
         // Collision switches
         telemetry.addLine("Collision")

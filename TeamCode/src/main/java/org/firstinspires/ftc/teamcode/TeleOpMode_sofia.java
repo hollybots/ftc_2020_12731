@@ -47,6 +47,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 
     static final double CLAW_POWER                      = 0.4;
     static final double LAUNCH_POWER                    = 0.75;
+
+    static final double LAUNCH_POWER_POWER_SHOT_BACK    = 0.74;
+    static final double LAUNCH_POWER_POWER_SHOT_FRONT   = 0.62;
+    static final double LAUNCH_POWER_TOWER_RING         = 0.7;
     static final double INTAKE_POWER                    = 1.0;
     static final int SERVO_TIMEOUT                      = 220;     // ms before the arms retracts.  Should be the interval defined by the servo manufacturer for 60 degrees
 
@@ -62,6 +66,11 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     static final int LOAD_STATE_2                       = 7;
     private int currentState = INITIATE_COLLECTING_STATE;
 
+
+    static final int POWER_MODE_TOWER_GOAL              = 1;
+    static final int POWER_MODE_POWER_SHOT_FRONT        = 2;
+    static final int POWER_MODE_POWER_SHOT_BACK         = 3;
+
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -73,6 +82,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     boolean wasPressedLaunchingButton                   = false;
     double servoTimeout                                 = 0.0;
     boolean wasPressedResetButton                       = false;
+    int launchPowerMode                                 = POWER_MODE_TOWER_GOAL;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -173,6 +183,14 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         boolean isPressedLiftWobbleGoalButton   = gamepad1.right_trigger > 0.2;
         // To lower wobble goal
         boolean isPressedLowerWobbleGoalButton  = gamepad1.left_trigger > 0.2;
+        // To launch power tower ring
+        boolean isPressedLaunchPowerTowerRing  = gamepad1.dpad_right;
+        // To launch power tower ring
+        boolean isPressedLaunchPowerPowerShot  = gamepad1.dpad_left;
+        // To launch power tower ring
+        boolean isPressedLaunchPowerBackPowerShot  = gamepad1.dpad_up;
+        // Defining launch power
+        double launchPower = 0.0;
 
 
         /*******************************
@@ -234,7 +252,15 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
             isReverseMode = false;
             botTop.intakeMotorOff();
-            botTop.launchMotorOn(LAUNCH_POWER);
+            if (launchPowerMode == POWER_MODE_POWER_SHOT_FRONT){
+                launchPower = LAUNCH_POWER_POWER_SHOT_FRONT;
+            }
+            else if (launchPowerMode == POWER_MODE_POWER_SHOT_FRONT){
+                launchPower = LAUNCH_POWER_POWER_SHOT_BACK;
+            } else {
+                launchPower = LAUNCH_POWER_TOWER_RING;
+            }
+            botTop.launchMotorOn(launchPower);
             botTop.liftMagazine();
             currentState = LAUNCHING_STATE;
         }
@@ -329,6 +355,15 @@ public class TeleOpMode_sofia extends TeleOpModesBase
          * 3) CALCULATIONS
          *
          */
+        if (isPressedLaunchPowerTowerRing){
+            launchPowerMode = POWER_MODE_TOWER_GOAL;
+        }
+        else if (isPressedLaunchPowerPowerShot){
+            launchPowerMode = POWER_MODE_POWER_SHOT_FRONT;
+        }
+        else if (isPressedLaunchPowerBackPowerShot){
+            launchPowerMode = POWER_MODE_POWER_SHOT_FRONT;
+        }
 
         /**
          * Power calculation for drivetrain
@@ -374,6 +409,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
                 .addData("OdometerY", botBase.odometer.getCurrentYPos())
                 .addData("Orientation", botBase.odometer.getHeading());
+        telemetry.addData("Launching Mode", (launchPowerMode == POWER_MODE_TOWER_GOAL) ? "Tower Goal" : (launchPowerMode == POWER_MODE_POWER_SHOT_BACK) ? "Back Power Shot" : (launchPowerMode == POWER_MODE_POWER_SHOT_FRONT)  ? "Front Power Shot" : "Unknown");
         telemetry.update();
     }
 
