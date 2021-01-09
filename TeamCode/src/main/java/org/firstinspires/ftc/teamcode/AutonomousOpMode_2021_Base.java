@@ -26,7 +26,8 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected static final double TIME_TO_DELIVER                       = 2600;
 
     protected static final int TIME_TO_EXTEND                           = 300; //ms
-    protected static final int TIME_TO_RETRACT                          = 300; //ms
+    protected static final int TIME_TO_RETRACT                          = 350; //ms
+//    protected static final int TIME_TO_RETRACT                          = 300; //ms
 
     protected static final int NB_RINGS_POWER_SHOT                      = 1;
 

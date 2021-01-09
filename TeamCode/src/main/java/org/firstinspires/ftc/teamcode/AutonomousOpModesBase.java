@@ -102,7 +102,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
     /***  IMPORTANT NOTE IF YOU DONT WANT TO GET STUCK in an infinite loop while turning:
      P_TURN_COEFF * TURNING_SPEED must be > 0.1
      ************************************************************************* */
-    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
+//    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
+    static final double     P_TURN_COEFF            = 0.09;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
 
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
@@ -1525,8 +1526,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             dbugThis("Valid color is white");
             return Color.WHITE;
         }
-
-        if ( red > 100  && red < 800 && green > 1000 && green < 1400 && blue > 800 && blue < 1200) {
+        if ( red > 100  && red < 800 && green > 900 && green < 1400 && blue > 800 && blue < 1200) {
             dbugThis("Valid color is white");
             return Color.WHITE;
         }
@@ -1543,6 +1543,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * @return
      */
     private int _percentChange(int color1, int color2) {
+        color1 = color1 != 0 ? color1 : 1;
         return Math.abs(color2 - color1) * 100 / color1;
     }
 

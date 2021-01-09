@@ -64,7 +64,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         if (ringLabel == null) {ringLabel = "None";}
         switch (ringLabel) {
             case "Quad":
-                moveForward(-36, DRIVE_TRAIN_TRAVELING_POWER);
+                moveForward(-32, DRIVE_TRAIN_TRAVELING_POWER);
+//                moveForward(-36, DRIVE_TRAIN_TRAVELING_POWER);
                 moveRightXInchesFromLeftObject(20, 10000, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER_QUAD);
                 gotoHeading(176);
@@ -105,6 +106,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         botTop.launchMotorOn(LAUNCH_POWER_POWER_SHOT_FRONT);
         gotoHeading(0);
         botTop.lowerMagazine();
+        moveRightXInchesFromLeftObject(28.0, 5.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveForward(-25.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveBackward(10.0, DRIVE_TRAIN_TRAVELING_POWER);
         botTop.liftMagazine();
@@ -142,13 +144,16 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         gotoHeading(0);
         botTop.lowerMagazine();
         moveRight(-2.0, DRIVE_TRAIN_TRAVELING_POWER/1.25);
-        moveForward(-12.0, DRIVE_TRAIN_TRAVELING_POWER);
+//        moveForward(-12.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(-16.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         botTop.intakeMotorOn(INTAKE_MOTOR);
-        moveForward(-3.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(-4.0, DRIVE_TRAIN_TRAVELING_POWER);
         justWait(500);
-        gotoHeading(200);
-        moveForward(12.0, DRIVE_TRAIN_TRAVELING_POWER);
+//        gotoHeading(200);
+        // counter clockwise from 180 is positive
+        moveBackward(13.0, DRIVE_TRAIN_TRAVELING_POWER);
+        gotoHeading(195);
         botTop.liftMagazine();
         justWait(450);
         int t = 2;
