@@ -72,7 +72,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
     protected String CAMERA_SYSTEM                 = "PHONE";  // can be PHONE or WEBCAM
 
     // Will dump debug information in the LogCat if true
-    protected boolean DEBUG                                     = false;
+    protected boolean DEBUG                                     = true;
 
     // Needed for VUFORIA Vumark Identification
     protected String TRACKABLE_ASSET_NAME                       = "Skystone";
@@ -648,7 +648,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * @param ms
      * @param power
      */
-    public void moveXInchesFromLeftObject(double x, double ms, double power) {
+    public void moveLeftXInchesFromLeftObject(double x, double ms, double power) {
 
         if (botBase.hasSensorPositioningLeft() && getDistance(TravelDirection.LEFT) < x ) {
             return;
@@ -662,6 +662,39 @@ public class AutonomousOpModesBase extends LinearOpMode {
             !isHittingSomething(TravelDirection.LEFT) &&
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.LEFT) || isValidDistance(TravelDirection.LEFT) && getDistance(TravelDirection.LEFT) > x)
+        ) {
+            autonomousIdleTasks();
+        }
+
+        stopMoving();
+        return;
+    }
+
+
+    /**
+     * Robot centric. Powers up the propulsion to move Left until it is x inches from an object
+     * Please NOTE that The Range Sensor combines ultrasonic and optical measuring elements to obtain a reading between
+     * 1cm and 255cm.
+     * ANYTHING outside of that rance cannot be evaluated propaerly with this sensor
+     * @param x
+     * @param ms
+     * @param power
+     */
+    public void moveRightXInchesFromLeftObject(double x, double ms, double power) {
+
+        dbugThis("" + getDistance(TravelDirection.LEFT));
+        if (botBase.hasSensorPositioningLeft() && getDistance(TravelDirection.LEFT) > x ) {
+            return;
+        }
+
+        powerPropulsion(TravelDirection.RIGHT, power);
+        double limit = runtime.milliseconds() + ms;
+
+        while (
+            opModeIsActive() &&
+            !isHittingSomething(TravelDirection.RIGHT) &&
+            runtime.milliseconds() < limit &&
+            (!isValidDistance(TravelDirection.LEFT) || isValidDistance(TravelDirection.LEFT) && getDistance(TravelDirection.LEFT) < x)
         ) {
             autonomousIdleTasks();
         }
@@ -687,6 +720,37 @@ public class AutonomousOpModesBase extends LinearOpMode {
         }
 
         powerPropulsion(TravelDirection.RIGHT, power);
+        double limit = runtime.milliseconds() + ms;
+
+        while (
+            opModeIsActive() &&
+            !isHittingSomething(TravelDirection.RIGHT) &&
+            runtime.milliseconds() < limit &&
+            (!isValidDistance(TravelDirection.RIGHT) || isValidDistance(TravelDirection.RIGHT) && getDistance(TravelDirection.RIGHT) > x)
+        ) {
+            autonomousIdleTasks();
+        }
+
+        stopMoving();
+        return;
+    }
+
+    /**
+     * Robot centric. Powers up the propulsion to move Left until it is x inches from an object located to the right
+     * Please NOTE that The Range Sensor combines ultrasonic and optical measuring elements to obtain a reading between
+     * 1cm and 255cm.
+     * ANYTHING outside of that rance cannot be evaluated properly with this sensor
+     * @param x
+     * @param ms
+     * @param power
+     */
+    public void moveLeftXInchesFromRightObject(double x, double ms, double power) {
+
+        if (botBase.hasSensorPositioningRight() && getDistance(TravelDirection.RIGHT) > x ) {
+            return;
+        }
+
+        powerPropulsion(TravelDirection.LEFT, power);
         double limit = runtime.milliseconds() + ms;
 
         while (

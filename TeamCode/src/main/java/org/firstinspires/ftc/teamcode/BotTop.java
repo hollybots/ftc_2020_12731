@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class BotTop {
 
-    static final double STACKING        = 0.2;
+    static final double STACKING        = 0.25;
     static final double LAUNCHING       = 0.59;
 
     static final double RETRACTED       = 1.0;

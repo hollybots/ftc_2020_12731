@@ -203,6 +203,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     protected void towerShot() {
         int t = 5;
+        dbugThis("Entering towerShot()");
         while (t > 0) {
 //            if (t == 4 && ringLabel == "Quad") {
 //                botTop.launchMotorOn(LAUNCH_POWER);
