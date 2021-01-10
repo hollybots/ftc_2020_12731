@@ -112,6 +112,8 @@ public class Odometer {
                      DcMotor horizontalEncoder)
     {
         this.robotEncoderWheelDistance = robotEncoderWheelDistance;
+        // if something goes wrong, comment this line
+//        this.horizontalEncoderTickPerDegreeOffset = horizontalEncoderTickPerDegreeOffset;
         this.verticalEncoderLeft = verticalEncoderLeft;
         this.verticalEncoderRight = verticalEncoderRight;
         this.horizontalEncoder = horizontalEncoder;

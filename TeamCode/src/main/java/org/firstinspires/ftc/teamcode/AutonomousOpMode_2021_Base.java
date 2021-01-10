@@ -20,7 +20,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected static final double LAUNCH_POWER_SINGLE                   = LAUNCH_POWER;
     protected static final double LAUNCH_POWER_QUAD                     = LAUNCH_POWER;
     protected static final double LAUNCH_POWER_POWER_SHOT_FRONT         = 0.64;
-    protected static final double INTAKE_MOTOR                          = 1.0;
+    protected static final double INTAKE_MOTOR                          = 0.9;
 
     protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.4; // lifting is negative, lowering is positive
     protected static final double TIME_TO_DELIVER                       = 2600;
@@ -69,7 +69,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     @Override
     public void initAutonomous() {
 
-        DEBUG = true;
+        DEBUG = false;
         super.initAutonomous();
 
         botTop.liftMagazine();

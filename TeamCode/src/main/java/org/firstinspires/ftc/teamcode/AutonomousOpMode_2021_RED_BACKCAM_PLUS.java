@@ -40,7 +40,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             case "Quad":
                 moveBackward(48, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
-                moveBackward(48, DRIVE_TRAIN_TRAVELING_POWER);
+                moveXInchesFromBackObject(26.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
                 break;
             case "Single":
@@ -66,7 +66,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             case "Quad":
                 moveForward(-32, DRIVE_TRAIN_TRAVELING_POWER);
 //                moveForward(-36, DRIVE_TRAIN_TRAVELING_POWER);
-                moveRightXInchesFromLeftObject(20, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRight(-5.0, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRightXInchesFromLeftObject(20.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER_QUAD);
                 gotoHeading(176);
                 break;
@@ -153,6 +154,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 //        gotoHeading(200);
         // counter clockwise from 180 is positive
         moveBackward(13.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveRight(-2.0, DRIVE_TRAIN_TRAVELING_POWER);
         gotoHeading(195);
         botTop.liftMagazine();
         justWait(450);
@@ -162,7 +164,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
-            moveRight(2.0, DRIVE_TRAIN_TRAVELING_POWER/3.0);
+            gotoHeading(190);
+//            moveRight(5.0, DRIVE_TRAIN_TRAVELING_POWER/3.0);
             t--;
         }
     }

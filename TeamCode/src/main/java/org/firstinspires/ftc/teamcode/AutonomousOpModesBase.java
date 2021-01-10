@@ -72,7 +72,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
     protected String CAMERA_SYSTEM                 = "PHONE";  // can be PHONE or WEBCAM
 
     // Will dump debug information in the LogCat if true
-    protected boolean DEBUG                                     = true;
+    protected boolean DEBUG                                     = false;
 
     // Needed for VUFORIA Vumark Identification
     protected String TRACKABLE_ASSET_NAME                       = "Skystone";
@@ -98,7 +98,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
     static final double TURNING_SPEED                   = 0.6;
 
 
-    static final double     HEADING_THRESHOLD       = 1.0 ;      // As tight as we can make it with an integer gyro
+    static final double     HEADING_THRESHOLD       = 0.8 ;      // As tight as we can make it with an integer gyro
     /***  IMPORTANT NOTE IF YOU DONT WANT TO GET STUCK in an infinite loop while turning:
      P_TURN_COEFF * TURNING_SPEED must be > 0.1
      ************************************************************************* */
@@ -251,8 +251,11 @@ public class AutonomousOpModesBase extends LinearOpMode {
         double actualAngle = AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle));
         double finalTheta = actualAngle + angle;
 
+        // This is a pathetic attempt to avoid infinite oscillation in our PID
+        double limit = runtime.milliseconds() + 5000;
+
         // keep looping while we are still active, and not on heading.
-        while (opModeIsActive() && !_onHeading(TURNING_SPEED, finalTheta, P_TURN_COEFF)) {
+        while (opModeIsActive() && !_onHeading(TURNING_SPEED, finalTheta, P_TURN_COEFF) && runtime.milliseconds() < limit) {
 
             autonomousIdleTasks();
         }
@@ -1206,6 +1209,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
         robotError = targetAngle - actualAngle;
         while (robotError > 180)  robotError -= 360;
         while (robotError <= -180) robotError += 360;
+
+        dbugThis("" + robotError);
 
         return robotError;
     }
