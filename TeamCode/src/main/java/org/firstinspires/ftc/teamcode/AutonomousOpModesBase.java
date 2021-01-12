@@ -97,14 +97,14 @@ public class AutonomousOpModesBase extends LinearOpMode {
     static final double DRIVE_SPEED                     = 0.8;
     static final double TURNING_SPEED                   = 0.6;
 
-
     static final double     HEADING_THRESHOLD       = 0.8 ;      // As tight as we can make it with an integer gyro
     /***  IMPORTANT NOTE IF YOU DONT WANT TO GET STUCK in an infinite loop while turning:
      P_TURN_COEFF * TURNING_SPEED must be > 0.1
      ************************************************************************* */
 //    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
-    static final double     P_TURN_COEFF            = 0.09;     // Larger is more responsive, but also less stable
-    static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
+
+    protected double     P_TURN_COEFF                   = 0.09;     // Larger is more responsive, but also less stable
+    protected double     P_DRIVE_COEFF                  = 0.15;     // Larger is more responsive, but also less stable
 
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
 
