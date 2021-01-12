@@ -103,7 +103,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      ************************************************************************* */
 //    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
 
-    protected double     P_TURN_COEFF                   = 0.09;     // Larger is more responsive, but also less stable
+    protected double     P_TURN_COEFF                   = 0.03;     // Larger is more responsive, but also less stable
     protected double     P_DRIVE_COEFF                  = 0.15;     // Larger is more responsive, but also less stable
 
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
@@ -289,6 +289,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         while (opModeIsActive() && !_onHeading(TURNING_SPEED, angle, P_TURN_COEFF)) {
             autonomousIdleTasks();
         }
+        dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: 0", angle,  _getHeadingError(angle), P_TURN_COEFF));
         stopMoving();
         return;
     }
@@ -1164,7 +1165,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
         error = _getHeadingError(angle);
 
         if (Math.abs(error) <= HEADING_THRESHOLD) {
-            dbugThis(String.format("Error: %.3f P: %.3f, Speed: 0", error, P_TURN_COEFF));
+            stopMoving();
+            dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: 0", angle,  error, PCoeff));
             return true;
         }
         else {
@@ -1174,7 +1176,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             leftSpeed   = -rightSpeed;
         }
 
-        dbugThis(String.format("Error: %.3f P: %.3f, Speed: %.3f", error, P_TURN_COEFF, rightSpeed));
+        dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: %.3f", angle,  error, PCoeff, rightSpeed));
 
         // Send desired speeds to motors.
         botBase.getFrontLeftDrive().setPower(leftSpeed);
@@ -1252,7 +1254,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         while (robotError > 180)  robotError -= 360.0;
         while (robotError <= -180) robotError += 360.0;
 
-        dbugThis("" + robotError);
+        dbugThis(String.format("%.3f", actualAngle));
 
         return robotError;
     }
