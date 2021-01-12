@@ -16,8 +16,8 @@ public class TurnPIDTuning extends AutonomousOpModesBase {
 
     protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.2;
 
-    double COMMAND_VALUE_BIG_INCREMENT                  = 0.001;
-    double COMMAND_VALUE_SMALL_INCREMENT                = 0.0005;
+    double COMMAND_VALUE_BIG_INCREMENT                  = 0.01;
+    double COMMAND_VALUE_SMALL_INCREMENT                = 0.001;
     double MAX_COMMAND_VALUE                            = 1.0;
     double MIN_COMMAND_VALUE                            = 0.0001;
     boolean wasPressedPowerBigIncrement                 = false;
@@ -43,9 +43,11 @@ public class TurnPIDTuning extends AutonomousOpModesBase {
     public void runOpMode() {
 
         initAutonomous();
-        telemetry.addLine("Tuning P for Turning PID:");
-        telemetry.addLine("Use Dpad Up/Right to increase Big/Small the value of P");
-        telemetry.addLine("Use Dpad Down/Left to decrease Big/Small the value of P");
+        telemetry.addLine("Tuning Kp for rotation PID:");
+        telemetry.addLine("---------------------------");
+        telemetry.addLine("Use Dpad Up/Right    + Big/Small increments Kp");
+        telemetry.addLine("Use Dpad Down/Left   - Big/Small increments Kp");
+        telemetry.addLine("Press X to turn");
         telemetry.update();
 
         /*********************************************
@@ -78,6 +80,7 @@ public class TurnPIDTuning extends AutonomousOpModesBase {
             Orientation angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double actualAngle = AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle));
 
+            telemetry.addLine("Press X to turn");
             telemetry.addLine("PID")
             .addData("Kp", String.format("%.3f", P_TURN_COEFF));
             telemetry.addLine("Angle")

@@ -97,7 +97,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
     static final double DRIVE_SPEED                     = 0.8;
     static final double TURNING_SPEED                   = 0.6;
 
-    static final double     HEADING_THRESHOLD       = 0.8 ;      // As tight as we can make it with an integer gyro
+    static final double     HEADING_THRESHOLD           = 0.4 ;
     /***  IMPORTANT NOTE IF YOU DONT WANT TO GET STUCK in an infinite loop while turning:
      P_TURN_COEFF * TURNING_SPEED must be > 0.1
      ************************************************************************* */
@@ -1144,7 +1144,6 @@ public class AutonomousOpModesBase extends LinearOpMode {
     }
 
 
-
     /**
      * Performs one cycle of closed loop heading control.
      *
@@ -1156,6 +1155,49 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * @return
      */
     private Boolean _onHeading(double speed, double angle, double PCoeff) {
+
+        double   error ;
+        double leftSpeed;
+        double rightSpeed;
+
+        // determine turn power based on +/- error
+        error = _getHeadingError(angle);
+
+        if (Math.abs(error) <= HEADING_THRESHOLD) {
+            dbugThis(String.format("Error: %.3f P: %.3f, Speed: 0", error, P_TURN_COEFF));
+            return true;
+        }
+        else {
+            double absValueOfSpeed = Range.clip(Math.abs(speed * error * PCoeff), 0.1, 1);
+            boolean isNegative = (speed * error * PCoeff) < 0;
+            rightSpeed  = absValueOfSpeed * (isNegative ? -1 : 1);
+            leftSpeed   = -rightSpeed;
+        }
+
+        dbugThis(String.format("Error: %.3f P: %.3f, Speed: %.3f", error, P_TURN_COEFF, rightSpeed));
+
+        // Send desired speeds to motors.
+        botBase.getFrontLeftDrive().setPower(leftSpeed);
+        botBase.getRearLeftDrive().setPower(leftSpeed);
+        botBase.getFrontRightDrive().setPower(rightSpeed);
+        botBase.getRearRightDrive().setPower(rightSpeed);
+
+        return false;
+    }
+
+
+
+    /**
+     * Performs one cycle of closed loop heading control.
+     *
+     * @param speed     Desired speed of turn.
+     * @param angle     Absolute Angle (in Degrees) relative to last gyro reset.
+     *                  0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
+     *                  If a relative angle is required, add/subtract from current heading.
+     * @param PCoeff    Proportional Gain coefficient
+     * @return
+     */
+    private Boolean _onHeadingOld(double speed, double angle, double PCoeff) {
 
         double   error ;
         double   steer ;
@@ -1207,8 +1249,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         // calculate error in -179 to +180 range  (
         robotError = targetAngle - actualAngle;
-        while (robotError > 180)  robotError -= 360;
-        while (robotError <= -180) robotError += 360;
+        while (robotError > 180)  robotError -= 360.0;
+        while (robotError <= -180) robotError += 360.0;
 
         dbugThis("" + robotError);
 
@@ -1323,9 +1365,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
     protected void autonomousIdleTasks() {
         idle();
         botTop.checkAllLimitSwitches();
-        botBase.globalCoordinatePositionUpdate();
-        botBase.updateLimitSwitchesState();
-        botBase.updateSensorPositioningDistances();
+        botBase.updateComponents();
         if (searchableTarget != null) {
             searchableTarget.find();
         }

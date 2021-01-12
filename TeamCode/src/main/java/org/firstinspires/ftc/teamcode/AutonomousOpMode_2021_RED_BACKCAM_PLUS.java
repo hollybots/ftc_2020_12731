@@ -86,10 +86,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
                 break;
 
         }
-        dbugThis("travelToRingLauncher");
-        dbugThis("" + currentState);
         currentState = STATE_TOWER_SHOT;
-        dbugThis("changed to " + currentState);
         return;
     }
 

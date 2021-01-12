@@ -2,9 +2,12 @@ package org.firstinspires.ftc.teamcode.Components;
 
 import android.util.Log;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.util.List;
 
 
 /**
@@ -52,6 +55,9 @@ public class BotBase {
     private Boolean hasSensorPositioningLeft    = false;
     public SensorPositioning distanceRight      = null;
     private Boolean hasSensorPositioningRight   = false;
+
+    // hubs
+    List<LynxModule> allHubs                    = null;
 
 
 
@@ -129,6 +135,16 @@ public class BotBase {
         rearRightDrive.setDirection(DcMotor.Direction.REVERSE);
         rearRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
+        /* ************************************
+            Get access to the Expansion/Control Hub Modules to enable changing caching methods.
+            This will allow faster hardware refresh
+         */
+        allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
+
     }
 
     public void stop() {
@@ -172,6 +188,37 @@ public class BotBase {
     public Boolean hasSensorPositioningLeft() { return hasSensorPositioningLeft; }
     public Boolean hasSensorPositioningRight() { return hasSensorPositioningRight; }
     public Boolean hasBling() { return hasBling; }
+
+
+    public void updateComponents() {
+
+        for (LynxModule module : allHubs) {
+            module.clearBulkCache();
+        }
+        if (hasCollisionFront()) {
+            collisionFront.updateLimitSwitchState();
+        }
+        if (hasCollisionBack()) {
+            collisionBack.updateLimitSwitchState();
+        }
+        if (hasOdometry()) {
+            odometer.globalCoordinatePositionUpdate();
+        }
+
+        // Ic2 doesn't get refreshed with bulk read
+        if ( hasSensorPositioningFront() ) {
+            distanceFront.updateSensorPositioningDistance();
+        }
+        if ( hasSensorPositioningBack() ) {
+            distanceBack.updateSensorPositioningDistance();
+        }
+        if ( hasSensorPositioningLeft() ) {
+            distanceLeft.updateSensorPositioningDistance();
+        }
+        if ( hasSensorPositioningRight() ) {
+            distanceRight.updateSensorPositioningDistance();
+        }
+    }
 
 
     public void globalCoordinatePositionUpdate() {
