@@ -45,7 +45,7 @@ public class TestSensors extends AutonomousOpModesBase {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
             displayTelemetry();
             telemetry.update();
         }

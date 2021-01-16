@@ -94,7 +94,7 @@ public class SensorPositioning {
 //        while ( opModeIsActive() &&
 //                runtime.milliseconds() < limit &&
 //                ((validDistance = sensor.getDistance(DistanceUnit.INCH))) == DistanceSensor.distanceOutOfRange )  {
-//            autonomousIdleTasks();
+//            autonomousIdleTasks(false);
 //        }
 //
 //        dbugThis("From get Valid distance" + validDistance);

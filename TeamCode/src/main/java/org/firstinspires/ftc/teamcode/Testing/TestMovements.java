@@ -44,7 +44,7 @@ public class TestMovements extends AutonomousOpModesBase {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
             moveSquare();
             gotoHeading(0);
             moveSquare2();

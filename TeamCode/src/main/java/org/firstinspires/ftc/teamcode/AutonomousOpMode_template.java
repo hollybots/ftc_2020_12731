@@ -54,7 +54,7 @@ public class AutonomousOpMode_template extends AutonomousOpModesBase {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
 
             if (currentState == STATE_done) {
                 break;

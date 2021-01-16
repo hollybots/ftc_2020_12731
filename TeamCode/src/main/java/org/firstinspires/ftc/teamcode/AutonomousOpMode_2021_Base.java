@@ -107,7 +107,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
             switch (currentState) {
 
                 case STATE_done:
@@ -170,7 +170,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
                 opModeIsActive() &&
                 runtime.milliseconds() < limit  && ringPlacement == null
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
             if (searchableTarget != null) {
                 ringPlacement = searchableTarget.getTargetRelativePosition();
                 ringLabel = searchableTarget.getTargetLabel();

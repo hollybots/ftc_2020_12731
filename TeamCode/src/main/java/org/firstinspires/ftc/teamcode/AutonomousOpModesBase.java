@@ -95,7 +95,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * PROPULSION CONSTANTS
      */
     static final double DRIVE_SPEED                     = 0.8;
-    static final double TURNING_SPEED                   = 0.6;
+    static final double TURNING_SPEED                   = 0.5;
 
     static final double     HEADING_THRESHOLD           = 0.4 ;
     /***  IMPORTANT NOTE IF YOU DONT WANT TO GET STUCK in an infinite loop while turning:
@@ -103,7 +103,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      ************************************************************************* */
 //    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
 
-    protected double     P_TURN_COEFF                   = 0.03;     // Larger is more responsive, but also less stable
+    protected double     P_TURN_COEFF                   = 0.05;     // Larger is more responsive, but also less stable
     protected double     P_DRIVE_COEFF                  = 0.15;     // Larger is more responsive, but also less stable
 
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
@@ -257,7 +257,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && !_onHeading(TURNING_SPEED, finalTheta, P_TURN_COEFF) && runtime.milliseconds() < limit) {
 
-            autonomousIdleTasks();
+            autonomousIdleTasks(true);
         }
 
         justWait(0.5);
@@ -285,9 +285,12 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     protected void gotoHeading(double angle) {
 
+        // This is a pathetic attempt to avoid infinite oscillation in our PID
+        double limit = runtime.milliseconds() + 5000;
+
         // keep looping while we are still active, and not on heading.
-        while (opModeIsActive() && !_onHeading(TURNING_SPEED, angle, P_TURN_COEFF)) {
-            autonomousIdleTasks();
+        while (opModeIsActive() && !_onHeading(TURNING_SPEED, angle, P_TURN_COEFF) && runtime.milliseconds() < limit) {
+            autonomousIdleTasks(true);
         }
         dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: 0", angle,  _getHeadingError(angle), P_TURN_COEFF));
         stopMoving();
@@ -318,7 +321,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            autonomousIdleTasks();
+            autonomousIdleTasks(true);
             double x = botBase.odometer.getCurrentXPos();
             double y = botBase.odometer.getCurrentYPos();
             double deltaX = targetX - x;
@@ -482,7 +485,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (opModeIsActive() &&
             (now = runtime.milliseconds()) < limit) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(true);
         }
         stopMoving();
         return;
@@ -555,7 +558,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             !isHittingSomething(TravelDirection.RIGHT) &&
             getValidColor(bottomColor) != color
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -582,7 +585,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             !isHittingSomething(TravelDirection.LEFT) &&
             getValidColor(bottomColor) != color
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -609,7 +612,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             !isHittingSomething(TravelDirection.FORWARD) &&
             getValidColor(bottomColor) != color
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -636,7 +639,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             !isHittingSomething(TravelDirection.BACKWARD) &&
             getValidColor(bottomColor) != color
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -668,7 +671,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.LEFT) || isValidDistance(TravelDirection.LEFT) && getDistance(TravelDirection.LEFT) > x)
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -701,7 +704,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.LEFT) || isValidDistance(TravelDirection.LEFT) && getDistance(TravelDirection.LEFT) < x)
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -733,7 +736,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.RIGHT) || isValidDistance(TravelDirection.RIGHT) && getDistance(TravelDirection.RIGHT) > x)
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -764,7 +767,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.RIGHT) || isValidDistance(TravelDirection.RIGHT) && getDistance(TravelDirection.RIGHT) > x)
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -797,7 +800,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.FORWARD) || isValidDistance(TravelDirection.FORWARD) && getDistance(TravelDirection.FORWARD) > x)
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -830,7 +833,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.BACKWARD) || isValidDistance(TravelDirection.BACKWARD) && getDistance(TravelDirection.BACKWARD) > x)
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
 
         stopMoving();
@@ -897,7 +900,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 //                powerPropulsion(direction, power);
 //            }
 
-            autonomousIdleTasks();
+            autonomousIdleTasks(true);
         }
         stopMoving();
         return;
@@ -961,7 +964,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
                 (direction == TravelDirection.LEFT && Math.abs(limit - botBase.odometer.getCurrentXPos()) > 1.0)
             )
         ) {
-            autonomousIdleTasks();
+            autonomousIdleTasks(true);
 
 //            dbugThis("Limit: " + limit);
 //            dbugThis("Current: " + botBase.odometer.getCurrentYPos());
@@ -1301,7 +1304,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && runtime.milliseconds() < limit  ) {
 
-            autonomousIdleTasks();
+            autonomousIdleTasks(false);
         }
     }
 
@@ -1364,12 +1367,14 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * Always insert this function inside a control loop as it checks the emergency situations related to limit switches and collisions and acts
      * consequently.
      */
-    protected void autonomousIdleTasks() {
+    protected void autonomousIdleTasks(Boolean bulkInputsOnly) {
         idle();
         botTop.checkAllLimitSwitches();
-        botBase.updateComponents();
-        if (searchableTarget != null) {
-            searchableTarget.find();
+        botBase.updateComponents(bulkInputsOnly);
+        if (!bulkInputsOnly) {
+            if (searchableTarget != null) {
+                searchableTarget.find();
+            }
         }
     }
 

@@ -190,7 +190,7 @@ public class BotBase {
     public Boolean hasBling() { return hasBling; }
 
 
-    public void updateComponents() {
+    public void updateComponents(Boolean bulkInputsOnly) {
 
         for (LynxModule module : allHubs) {
             module.clearBulkCache();
@@ -205,21 +205,22 @@ public class BotBase {
             odometer.globalCoordinatePositionUpdate();
         }
 
-        // Ic2 doesn't get refreshed with bulk read
-        if ( hasSensorPositioningFront() ) {
-            distanceFront.updateSensorPositioningDistance();
-        }
-        if ( hasSensorPositioningBack() ) {
-            distanceBack.updateSensorPositioningDistance();
-        }
-        if ( hasSensorPositioningLeft() ) {
-            distanceLeft.updateSensorPositioningDistance();
-        }
-        if ( hasSensorPositioningRight() ) {
-            distanceRight.updateSensorPositioningDistance();
+        if (!bulkInputsOnly) {
+            // Ic2 doesn't get refreshed with bulk read
+            if (hasSensorPositioningFront()) {
+                distanceFront.updateSensorPositioningDistance();
+            }
+            if (hasSensorPositioningBack()) {
+                distanceBack.updateSensorPositioningDistance();
+            }
+            if (hasSensorPositioningLeft()) {
+                distanceLeft.updateSensorPositioningDistance();
+            }
+            if (hasSensorPositioningRight()) {
+                distanceRight.updateSensorPositioningDistance();
+            }
         }
     }
-
 
     public void globalCoordinatePositionUpdate() {
         if (hasOdometry()) {
