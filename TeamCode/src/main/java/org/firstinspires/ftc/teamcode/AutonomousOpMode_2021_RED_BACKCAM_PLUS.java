@@ -65,7 +65,6 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         switch (ringLabel) {
             case "Quad":
                 moveForward(-32, DRIVE_TRAIN_TRAVELING_POWER);
-//                moveForward(-36, DRIVE_TRAIN_TRAVELING_POWER);
                 moveRight(-5.0, DRIVE_TRAIN_TRAVELING_POWER);
                 moveRightXInchesFromLeftObject(20.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER_QUAD);
@@ -78,8 +77,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
                 break;
             case "None":
             default:
-                moveRightXInchesFromLeftObject(20, 10000, DRIVE_TRAIN_TRAVELING_POWER);
-//                moveRight(-15, DRIVE_TRAIN_TRAVELING_POWER);
+                moveRightXInchesFromLeftObject(15, 10000, DRIVE_TRAIN_TRAVELING_POWER);
                 moveBackward(2, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER_NONE);
                 gotoHeading(178);
@@ -128,9 +126,10 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         autonomousIdleTasks(false);
         moveRight(4.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
         moveXInchesFromBackObject(8.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
-        moveXInchesFromBackObject(2.0, 10000, DRIVE_TRAIN_TRAVELING_POWER/2.0);
-        moveLeft(-29.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
-        gotoHeading(150);
+        moveXInchesFromBackObject(2.0, 10000, DRIVE_TRAIN_TRAVELING_POWER/3.0);
+        gotoHeading(180);
+        moveLeft(-34.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+        gotoHeading(145);
         moveForward(5, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         moveForward(51, DRIVE_TRAIN_TRAVELING_POWER/1.5);
         currentState = STATE_done;
@@ -142,16 +141,20 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         gotoHeading(0);
         botTop.lowerMagazine();
         moveRight(-2.0, DRIVE_TRAIN_TRAVELING_POWER/1.25);
-//        moveForward(-12.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveForward(-16.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         botTop.intakeMotorOn(INTAKE_MOTOR);
         moveForward(-4.0, DRIVE_TRAIN_TRAVELING_POWER);
+        // @todo added this next line to pick up 2 rings from the stack.  Does not work all the time
+        // ******************
+        moveForward(-1.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+        // **********************
         justWait(500);
-//        gotoHeading(200);
-        // counter clockwise from 180 is positive
         moveBackward(13.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveRight(-2.0, DRIVE_TRAIN_TRAVELING_POWER);
+        // counter clockwise from 180 is positive
+        //        gotoHeading(200);
+        // counter clockwise from 180 is positive
         gotoHeading(195);
         botTop.liftMagazine();
         justWait(450);
@@ -162,7 +165,6 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             botTop.retractArm();
             justWait(TIME_TO_RETRACT);
             gotoHeading(190);
-//            moveRight(5.0, DRIVE_TRAIN_TRAVELING_POWER/3.0);
             t--;
         }
     }

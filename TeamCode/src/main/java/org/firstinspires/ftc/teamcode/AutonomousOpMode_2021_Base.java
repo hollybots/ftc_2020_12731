@@ -22,8 +22,8 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected static final double LAUNCH_POWER_POWER_SHOT_FRONT         = 0.64;
     protected static final double INTAKE_MOTOR                          = 0.9;
 
-    protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.4; // lifting is negative, lowering is positive
-    protected static final double TIME_TO_DELIVER                       = 2600;
+    protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.48; // lifting is negative, lowering is positive
+    protected static final double TIME_TO_DELIVER                       = 2400;
 
     protected static final int TIME_TO_EXTEND                           = 300; //ms
     protected static final int TIME_TO_RETRACT                          = 350; //ms
@@ -203,12 +203,9 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     }
 
     protected void towerShot() {
-        int t = 5;
+        int t = 4;
         dbugThis("Entering towerShot()");
         while (t > 0) {
-//            if (t == 4 && ringLabel == "Quad") {
-//                botTop.launchMotorOn(LAUNCH_POWER);
-//            }
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);
             botTop.retractArm();

@@ -95,7 +95,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * PROPULSION CONSTANTS
      */
     static final double DRIVE_SPEED                     = 0.8;
-    static final double TURNING_SPEED                   = 0.5;
+    static final double TURNING_SPEED                   = 0.6;
 
     static final double     HEADING_THRESHOLD           = 0.4 ;
     /***  IMPORTANT NOTE IF YOU DONT WANT TO GET STUCK in an infinite loop while turning:
@@ -103,7 +103,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
      ************************************************************************* */
 //    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
 
-    protected double     P_TURN_COEFF                   = 0.05;     // Larger is more responsive, but also less stable
+    protected double     P_TURN_COEFF                   = 0.035;     // Larger is more responsive, but also less stable
     protected double     P_DRIVE_COEFF                  = 0.15;     // Larger is more responsive, but also less stable
 
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
@@ -286,7 +286,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
     protected void gotoHeading(double angle) {
 
         // This is a pathetic attempt to avoid infinite oscillation in our PID
-        double limit = runtime.milliseconds() + 5000;
+        double limit = runtime.milliseconds() + 4000;
 
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && !_onHeading(TURNING_SPEED, angle, P_TURN_COEFF) && runtime.milliseconds() < limit) {
@@ -1173,7 +1173,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             return true;
         }
         else {
-            double absValueOfSpeed = Range.clip(Math.abs(speed * error * PCoeff), 0.1, 1);
+            double absValueOfSpeed = Range.clip(Math.abs(speed * error * PCoeff), 0.15, 1);
             boolean isNegative = (speed * error * PCoeff) < 0;
             rightSpeed  = absValueOfSpeed * (isNegative ? -1 : 1);
             leftSpeed   = -rightSpeed;

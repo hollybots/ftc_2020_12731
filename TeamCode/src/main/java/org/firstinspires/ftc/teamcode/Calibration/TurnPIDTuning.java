@@ -14,8 +14,6 @@ import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 
 public class TurnPIDTuning extends AutonomousOpModesBase {
 
-    protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.2;
-
     double COMMAND_VALUE_BIG_INCREMENT                  = 0.01;
     double COMMAND_VALUE_SMALL_INCREMENT                = 0.001;
     double MAX_COMMAND_VALUE                            = 1.0;
@@ -28,7 +26,7 @@ public class TurnPIDTuning extends AutonomousOpModesBase {
     boolean wasPressedModeIMUButton                     = false;
     boolean wasPressedModeGyroButton                    = true;
 
-    double[] headings                                   = {90.0, 0.0, 180.0, 178.0, 180.0, 5.0, 10.0, 15.0, 20.0, 30.0, 90.0, 180.0, 256.0, 0.0};
+    double[] headings                                   = {0.0, 90.0, 0.0, 180.0, 178.0, 180.0, 5.0, 10.0, 15.0, 20.0, 30.0, 90.0, 180.0, 256.0, 0.0};
     int currentHeadingIndex                             = 0;
 
     @Override
