@@ -117,6 +117,8 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
             return;
         }
 
+        dbugThis("was here");
+
         List<Recognition> recognitions = tfod.getRecognitions();
         if (recognitions == null) {
             return;

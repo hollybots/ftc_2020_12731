@@ -6,13 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 
 import org.firstinspires.ftc.teamcode.AutonomousOpModesBase;
+import org.firstinspires.ftc.teamcode.Components.RevInputs;
 
 @Autonomous(name="Test Movements", group="1")
 //@Disabled
 
 public class TestMovements extends AutonomousOpModesBase {
 
-    protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.2;
+    protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.5;
 
     @Override
     public void initAutonomous() {
@@ -40,17 +41,44 @@ public class TestMovements extends AutonomousOpModesBase {
         /*********************************************
          * GAME IS ON !!
          * *******************************************/
-
+        autonomousIdleTasks(RevInputs.ALL);
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            autonomousIdleTasks(false);
+            moveForward(10, DRIVE_TRAIN_TRAVELING_POWER);
+            gotoHeading(180);
+            moveForward(10, DRIVE_TRAIN_TRAVELING_POWER);
+            gotoHeading(0);
+//
+            justWait(500);
+
+            moveBackward(10, DRIVE_TRAIN_TRAVELING_POWER);
+            gotoHeading(180);
+            moveBackward(10, DRIVE_TRAIN_TRAVELING_POWER);
+            gotoHeading(0);
+//
+            justWait(500);
+
+            moveRight(10, DRIVE_TRAIN_TRAVELING_POWER);
+            gotoHeading(180);
+            moveRight(10, DRIVE_TRAIN_TRAVELING_POWER);
+            gotoHeading(0);
+//
+            justWait(500);
+
+            moveLeft(10, DRIVE_TRAIN_TRAVELING_POWER);
+            gotoHeading(180);
+            moveLeft(10, DRIVE_TRAIN_TRAVELING_POWER);
+            gotoHeading(0);
+
+            moveSquare();
+            gotoHeading(45);
             moveSquare();
             gotoHeading(0);
-            moveSquare2();
-            gotoHeading(0);
-            moveTriangle();
-            gotoHeading(0);
+//            moveSquare2();
+//            gotoHeading(0);
+//            moveTriangle();
+//            gotoHeading(0);
             break;
         }
 

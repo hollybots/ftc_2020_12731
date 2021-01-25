@@ -6,6 +6,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.Components.RevInputs;
 
 import java.util.List;
 
@@ -147,6 +148,10 @@ public class BotBase {
 
     }
 
+    public  List<LynxModule> getAllHubs() {
+        return allHubs;
+    }
+
     public void stop() {
         frontLeftDrive.setPower(0.0);
         frontRightDrive.setPower(0.0);
@@ -190,33 +195,51 @@ public class BotBase {
     public Boolean hasBling() { return hasBling; }
 
 
-    public void updateComponents(Boolean bulkInputsOnly) {
+    private boolean checkThisInput(short thisInput, short amongThisInputs) {
+        return ((thisInput & amongThisInputs) != 0);
+    }
 
-        for (LynxModule module : allHubs) {
-            module.clearBulkCache();
-        }
-        if (hasCollisionFront()) {
-            collisionFront.updateLimitSwitchState();
-        }
-        if (hasCollisionBack()) {
-            collisionBack.updateLimitSwitchState();
-        }
-        if (hasOdometry()) {
-            odometer.globalCoordinatePositionUpdate();
+    public void updateComponents(short whichInputs) {
+
+        if (checkThisInput(RevInputs.BULK, whichInputs)) {
+            for (LynxModule module : allHubs) {
+                module.clearBulkCache();
+            }
+            if (hasCollisionFront()) {
+                collisionFront.updateLimitSwitchState();
+            }
+            if (hasCollisionBack()) {
+                collisionBack.updateLimitSwitchState();
+            }
+            if (hasOdometry()) {
+                odometer.globalCoordinatePositionUpdate();
+            }
         }
 
-        if (!bulkInputsOnly) {
-            // Ic2 doesn't get refreshed with bulk read
+        // Ic2 doesn't get refreshed with bulk read, so we limit them to what we need
+        if (checkThisInput(RevInputs.RANGE_FRONT, whichInputs)) {
             if (hasSensorPositioningFront()) {
                 distanceFront.updateSensorPositioningDistance();
             }
+        }
+
+        if (checkThisInput(RevInputs.RANGE_REAR, whichInputs)) {
             if (hasSensorPositioningBack()) {
+                dbugThis("Updating distance back");
                 distanceBack.updateSensorPositioningDistance();
             }
+        }
+
+        if (checkThisInput(RevInputs.RANGE_LEFT, whichInputs)) {
             if (hasSensorPositioningLeft()) {
+                dbugThis("Updating distance left");
                 distanceLeft.updateSensorPositioningDistance();
             }
+        }
+
+        if (checkThisInput(RevInputs.RANGE_RIGHT, whichInputs)) {
             if (hasSensorPositioningRight()) {
+                dbugThis("Updating distance right");
                 distanceRight.updateSensorPositioningDistance();
             }
         }
@@ -254,7 +277,7 @@ public class BotBase {
 
     private static void dbugThis(String s) {
         if (DEBUG == true) {
-            Log.d("BOTBASE: ", s);
+            Log.d("__BOTBASE: ", s);
         }
     }
 }

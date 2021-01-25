@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class CollisionAlert {
 
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
 
     /**

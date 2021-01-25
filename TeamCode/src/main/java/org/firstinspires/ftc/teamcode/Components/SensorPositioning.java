@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import android.annotation.SuppressLint;
+import android.util.Log;
+
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -12,10 +16,12 @@ import java.util.List;
 
 public class SensorPositioning {
 
-    private boolean DEBUG                       = false;
+    private static boolean DEBUG                       = false;
+    private static int INVALID_DISTANCE                = -1;
 
-    private double currentDistance              = DistanceSensor.distanceOutOfRange;
-    private double previousDistance             = DistanceSensor.distanceOutOfRange;
+    private double currentDistance              = INVALID_DISTANCE;
+    private double previousDistance             = INVALID_DISTANCE;
+    private String prefix                       = "";
 
     private List<ModernRoboticsI2cRangeSensor> distanceSensors = null;
 
@@ -27,6 +33,7 @@ public class SensorPositioning {
             try {
                 sensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, sensorPrefix + "_" + i);
             } catch (Exception e) {
+                dbugThis("Cannot initialize sensor " + sensorPrefix + " " + i);
                 continue;
             }
             distanceSensors.add(sensor);
@@ -34,7 +41,7 @@ public class SensorPositioning {
         if (distanceSensors.size() <= 0) {
             return null;
         }
-        return new SensorPositioning(distanceSensors);
+        return new SensorPositioning(distanceSensors, sensorPrefix);
     }
 
 
@@ -43,9 +50,11 @@ public class SensorPositioning {
      *
      * @param distanceSensors
      */
-    private SensorPositioning(List<ModernRoboticsI2cRangeSensor> distanceSensors)
+    private SensorPositioning(List<ModernRoboticsI2cRangeSensor> distanceSensors, String prefix)
     {
         this.distanceSensors         = distanceSensors;
+        this.prefix                  = prefix;
+
     }
 
 
@@ -54,51 +63,47 @@ public class SensorPositioning {
         return currentDistance;
     }
 
-    public Boolean isOutOfRange()
+    public Boolean isValidDistance()
     {
-        return (DistanceSensor.distanceOutOfRange == currentDistance);
+        return (currentDistance != INVALID_DISTANCE);
     }
 
     public void updateSensorPositioningDistance() {
 
         double average = 0.0;
-        double distanceRead = DistanceSensor.distanceOutOfRange;
+        double distanceRead = -1;
         Boolean distanceIsValid = false;
 
         if (distanceSensors.size() <= 0) {
             return;
         }
-
+        int n = 0;
         for (int i=0; i < distanceSensors.size(); i++) {
             distanceRead = distanceSensors.get(i).getDistance(DistanceUnit.INCH);
-            if (distanceRead != DistanceSensor.distanceOutOfRange) {
+            dbugThis(String.format("Distance for index %d: %.3f", i, distanceRead));
+            if (distanceRead != DistanceSensor.distanceOutOfRange && distanceRead > 0 && !Double.isNaN(distanceRead) && distanceRead < 144.0) {
+                dbugThis(String.format("Distance for %s_%d: %.3f", prefix, i, distanceRead));
                 distanceIsValid = true;
                 average += distanceRead;
+                n++;
+            } else {
+                dbugThis(String.format("Distance for %s_%d is invalid", prefix, i));
             }
         }
+
         if (distanceIsValid) {
-            average = average / distanceSensors.size();
+            average = average / n;
             previousDistance = currentDistance;
             currentDistance = average;
+            dbugThis(String.format("Average distance for %s: %.3f", prefix, average));
             return;
-        }  else {
-            currentDistance = DistanceSensor.distanceOutOfRange;
         }
+        currentDistance = INVALID_DISTANCE;
+    }
 
-//        if (sensor == null) {
-//            return 255;
-//        }
-
-//        double limit = runtime.milliseconds() + 1000;
-//        double validDistance = sensor.getDistance(DistanceUnit.INCH);
-//        while ( opModeIsActive() &&
-//                runtime.milliseconds() < limit &&
-//                ((validDistance = sensor.getDistance(DistanceUnit.INCH))) == DistanceSensor.distanceOutOfRange )  {
-//            autonomousIdleTasks(false);
-//        }
-//
-//        dbugThis("From get Valid distance" + validDistance);
-//
-//        return validDistance == DistanceSensor.distanceOutOfRange ? 255 : validDistance;
+    private static void dbugThis(String s) {
+        if (DEBUG == true) {
+            Log.d("SENSOR_POS: ", s);
+        }
     }
 }

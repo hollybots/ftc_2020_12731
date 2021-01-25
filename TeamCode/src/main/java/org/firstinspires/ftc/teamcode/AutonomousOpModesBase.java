@@ -52,6 +52,7 @@ import org.firstinspires.ftc.teamcode.Components.ObjectIdentificationInterface;
 import org.firstinspires.ftc.teamcode.Components.TensorFlowObjectIdentification;
 import org.firstinspires.ftc.teamcode.Components.TravelDirection;
 import org.firstinspires.ftc.teamcode.Components.VuMarkIdentification;
+import org.firstinspires.ftc.teamcode.Components.RevInputs;
 
 
 /**
@@ -64,6 +65,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
     protected static final double CLOSE_ENOUGH_X                = 1.0;
     protected static final double CLOSE_ENOUGH_Y                = 1.0;
+    protected static final double CLOSE_ENOUGH                  = 0.75;
 
 
     // the  can always be overriden in the extended class
@@ -104,7 +106,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
 //    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
 
     protected double     P_TURN_COEFF                   = 0.035;     // Larger is more responsive, but also less stable
-    protected double     P_DRIVE_COEFF                  = 0.15;     // Larger is more responsive, but also less stable
+    protected double     P_ODOMETER_POS_COEFF           = 0.09;     // Larger is more responsive, but also less stable
+    protected double     P_SENSOR_POS_COEFF             = 0.15;     // Larger is more responsive, but also less stable
 
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
 
@@ -224,6 +227,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         telemetry.addData("Status", "Robot Initialized");
         telemetry.update();
+        runtime.reset();
+
     }
 
 
@@ -257,7 +262,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && !_onHeading(TURNING_SPEED, finalTheta, P_TURN_COEFF) && runtime.milliseconds() < limit) {
 
-            autonomousIdleTasks(true);
+            autonomousIdleTasks(RevInputs.BULK);
         }
 
         justWait(0.5);
@@ -290,9 +295,9 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && !_onHeading(TURNING_SPEED, angle, P_TURN_COEFF) && runtime.milliseconds() < limit) {
-            autonomousIdleTasks(true);
+            autonomousIdleTasks(RevInputs.BULK);
         }
-        dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: 0", angle,  _getHeadingError(angle), P_TURN_COEFF));
+//        dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: 0", angle,  _getHeadingError(angle), P_TURN_COEFF));
         stopMoving();
         return;
     }
@@ -321,7 +326,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            autonomousIdleTasks(true);
+            autonomousIdleTasks(RevInputs.BULK);
             double x = botBase.odometer.getCurrentXPos();
             double y = botBase.odometer.getCurrentYPos();
             double deltaX = targetX - x;
@@ -485,7 +490,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (opModeIsActive() &&
             (now = runtime.milliseconds()) < limit) {
-            autonomousIdleTasks(true);
+            autonomousIdleTasks(RevInputs.BULK);
         }
         stopMoving();
         return;
@@ -555,10 +560,9 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.RIGHT) &&
             getValidColor(bottomColor) != color
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.BULK);
         }
 
         stopMoving();
@@ -582,10 +586,9 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.LEFT) &&
             getValidColor(bottomColor) != color
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.BULK);
         }
 
         stopMoving();
@@ -609,10 +612,9 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.FORWARD) &&
             getValidColor(bottomColor) != color
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.BULK);
         }
 
         stopMoving();
@@ -636,10 +638,9 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.BACKWARD) &&
             getValidColor(bottomColor) != color
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.BULK);
         }
 
         stopMoving();
@@ -648,17 +649,27 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
-     * Robot centric. Powers up the propulsion to move Left until it is x inches from an object
+     * Robot centric. Powers up the propulsion to move Left until it is x inches from a left object
      * Please NOTE that The Range Sensor combines ultrasonic and optical measuring elements to obtain a reading between
      * 1cm and 255cm.
-     * ANYTHING outside of that rance cannot be evaluated propaerly with this sensor
+     * ANYTHING outside of that range cannot be evaluated properly with this sensor
      * @param x
      * @param ms
      * @param power
      */
     public void moveLeftXInchesFromLeftObject(double x, double ms, double power) {
 
-        if (botBase.hasSensorPositioningLeft() && getDistance(TravelDirection.LEFT) < x ) {
+        if (!botBase.hasSensorPositioningLeft()) {
+            return;
+        }
+        autonomousIdleTasks(RevInputs.RANGE_LEFT);
+        while (
+            opModeIsActive() &&
+            !isValidDistance(TravelDirection.LEFT)
+        ) {
+            autonomousIdleTasks(RevInputs.RANGE_LEFT);
+        }
+        if  (getDistance(TravelDirection.LEFT) < x) {
             return;
         }
 
@@ -667,11 +678,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.LEFT) &&
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.LEFT) || isValidDistance(TravelDirection.LEFT) && getDistance(TravelDirection.LEFT) > x)
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.RANGE_LEFT);
         }
 
         stopMoving();
@@ -680,18 +690,29 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
-     * Robot centric. Powers up the propulsion to move Left until it is x inches from an object
+     * Robot centric. Powers up the propulsion to move right until it is x inches from object to the left
      * Please NOTE that The Range Sensor combines ultrasonic and optical measuring elements to obtain a reading between
      * 1cm and 255cm.
-     * ANYTHING outside of that rance cannot be evaluated propaerly with this sensor
+     * ANYTHING outside of that range cannot be evaluated properly with this sensor
      * @param x
      * @param ms
      * @param power
      */
     public void moveRightXInchesFromLeftObject(double x, double ms, double power) {
 
-        dbugThis("" + getDistance(TravelDirection.LEFT));
-        if (botBase.hasSensorPositioningLeft() && getDistance(TravelDirection.LEFT) > x ) {
+        if (!botBase.hasSensorPositioningLeft()) {
+            return;
+        }
+
+        autonomousIdleTasks(RevInputs.RANGE_LEFT);
+        while (
+            opModeIsActive() &&
+            !isValidDistance(TravelDirection.LEFT)
+        ) {
+            autonomousIdleTasks(RevInputs.RANGE_LEFT);
+        }
+
+        if  (getDistance(TravelDirection.LEFT) > x) {
             return;
         }
 
@@ -700,11 +721,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.RIGHT) &&
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.LEFT) || isValidDistance(TravelDirection.LEFT) && getDistance(TravelDirection.LEFT) < x)
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.RANGE_LEFT);
         }
 
         stopMoving();
@@ -713,17 +733,30 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
-     * Robot centric. Powers up the propulsion to move Right until it is x inches from an object
+     * @todo: Change this for MoveRelativeToRightObject that combines both versions
+     * Robot centric. Powers up the propulsion to move right until it is x inches from object to the right
      * Please NOTE that The Range Sensor combines ultrasonic and optical measuring elements to obtain a reading between
      * 1cm and 255cm.
-     * ANYTHING outside of that rance cannot be evaluated propaerly with this sensor
+     * ANYTHING outside of that rance cannot be evaluated properly with this sensor
      * @param x
      * @param ms
      * @param power
      */
     public void moveXInchesFromRightObject(double x, double ms, double power) {
 
-        if (botBase.hasSensorPositioningRight() && getDistance(TravelDirection.RIGHT) < x ) {
+        if (!botBase.hasSensorPositioningRight()) {
+            return;
+        }
+
+        autonomousIdleTasks(RevInputs.RANGE_RIGHT);
+        while (
+            opModeIsActive() &&
+            !isValidDistance(TravelDirection.RIGHT)
+        ) {
+            autonomousIdleTasks(RevInputs.RANGE_RIGHT);
+        }
+
+        if  (getDistance(TravelDirection.RIGHT) < x) {
             return;
         }
 
@@ -732,11 +765,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.RIGHT) &&
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.RIGHT) || isValidDistance(TravelDirection.RIGHT) && getDistance(TravelDirection.RIGHT) > x)
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.RANGE_RIGHT);
         }
 
         stopMoving();
@@ -744,7 +776,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
     }
 
     /**
-     * Robot centric. Powers up the propulsion to move Left until it is x inches from an object located to the right
+     * Robot centric. Powers up the propulsion to move Left until it is x inches from object to the right
      * Please NOTE that The Range Sensor combines ultrasonic and optical measuring elements to obtain a reading between
      * 1cm and 255cm.
      * ANYTHING outside of that rance cannot be evaluated properly with this sensor
@@ -754,7 +786,18 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     public void moveLeftXInchesFromRightObject(double x, double ms, double power) {
 
-        if (botBase.hasSensorPositioningRight() && getDistance(TravelDirection.RIGHT) > x ) {
+        if (!botBase.hasSensorPositioningRight()) {
+            return;
+        }
+        autonomousIdleTasks(RevInputs.RANGE_RIGHT);
+        while (
+            opModeIsActive() &&
+            !isValidDistance(TravelDirection.RIGHT)
+        ) {
+            autonomousIdleTasks(RevInputs.RANGE_RIGHT);
+        }
+
+        if (getDistance(TravelDirection.RIGHT) > x) {
             return;
         }
 
@@ -763,11 +806,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.RIGHT) &&
             runtime.milliseconds() < limit &&
-            (!isValidDistance(TravelDirection.RIGHT) || isValidDistance(TravelDirection.RIGHT) && getDistance(TravelDirection.RIGHT) > x)
+            (!isValidDistance(TravelDirection.RIGHT) || isValidDistance(TravelDirection.RIGHT) && getDistance(TravelDirection.RIGHT) < x)
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.RANGE_RIGHT);
         }
 
         stopMoving();
@@ -776,7 +818,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
-     * Robot centric. Powers up the propulsion to move Forward until it is x inches from an object
+     * Robot centric. Powers up the propulsion to move Forward until it is x inches from front object
      * Please NOTE that The Range Sensor combines ultrasonic and optical measuring elements to obtain a reading between
      * 1cm and 255cm.
      * ANYTHING outside of that rance cannot be evaluated propaerly with this sensor
@@ -787,7 +829,18 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     public void moveXInchesFromFrontObject(double x, double ms, double power) {
 
-        if (botBase.hasSensorPositioningFront() && getDistance(TravelDirection.FORWARD) < x ) {
+        if (!botBase.hasSensorPositioningFront()) {
+            return;
+        }
+        autonomousIdleTasks(RevInputs.RANGE_FRONT);
+        while (
+            opModeIsActive() &&
+            !isValidDistance(TravelDirection.FORWARD)
+        ) {
+            autonomousIdleTasks(RevInputs.RANGE_FRONT);
+        }
+
+        if (getDistance(TravelDirection.FORWARD) < x) {
             return;
         }
 
@@ -796,11 +849,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.FORWARD) &&
             runtime.milliseconds() < limit &&
             (!isValidDistance(TravelDirection.FORWARD) || isValidDistance(TravelDirection.FORWARD) && getDistance(TravelDirection.FORWARD) > x)
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.RANGE_FRONT);
         }
 
         stopMoving();
@@ -809,10 +861,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
-     * Powers up the propulsion to move Back until it is x inches from an object
+     * Powers up the propulsion to move Backward until x inches from object to the back
      * Please NOTE that The Range Sensor combines ultrasonic and optical measuring elements to obtain a reading between
      * 1cm and 255cm.
-     * ANYTHING outside of that rance cannot be evaluated propaerly with this sensor
+     * ANYTHING outside of that rance cannot be evaluated properly with this sensor
      *
      * @param x
      * @param ms
@@ -820,21 +872,36 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     public void moveXInchesFromBackObject(double x, double ms, double power) {
 
-        if (botBase.hasSensorPositioningBack() && getDistance(TravelDirection.BACKWARD) < x ) {
+        if (!botBase.hasSensorPositioningBack()) {
+            return;
+        }
+        autonomousIdleTasks(RevInputs.RANGE_REAR);
+        while (
+            opModeIsActive() &&
+            !isValidDistance(TravelDirection.BACKWARD)
+        ) {
+            autonomousIdleTasks(RevInputs.RANGE_REAR);
+        }
+
+        if (getDistance(TravelDirection.BACKWARD) < x) {
             return;
         }
 
         powerPropulsion(TravelDirection.BACKWARD, power);
         double limit = runtime.milliseconds() + ms;
+        double now = 0;
 
         while (
             opModeIsActive() &&
-            !isHittingSomething(TravelDirection.BACKWARD) &&
-            runtime.milliseconds() < limit &&
+            (now = runtime.milliseconds()) < limit &&
             (!isValidDistance(TravelDirection.BACKWARD) || isValidDistance(TravelDirection.BACKWARD) && getDistance(TravelDirection.BACKWARD) > x)
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.RANGE_REAR);
+            dbugThis("distance " + getDistance(TravelDirection.BACKWARD));
         }
+        dbugThis("now " + now);
+        dbugThis("limit " + limit);
+        dbugThis("distance " + getDistance(TravelDirection.BACKWARD));
 
         stopMoving();
         return;
@@ -843,6 +910,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
 
     /**
+     * @todo DEPRECATED
      *  Robot centric. Moves the robot in either 4 direction for ms amount of time OR until it hits an object whichever comes first
      *  if the useCollisionAlerts flag is set to true.  If useCollisionAlerts is set to false, motor will move according
      *  to time limit only.
@@ -900,7 +968,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 //                powerPropulsion(direction, power);
 //            }
 
-            autonomousIdleTasks(true);
+            autonomousIdleTasks(RevInputs.BULK);
         }
         stopMoving();
         return;
@@ -917,7 +985,89 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * @param useCollisionAlerts                : If true, he robot will move until it activates the limit switch for more than 1 second.
      *                                          NOTE:  don't use this unless you have a functional limit switch
      */
-    private void move(TravelDirection direction, double distance, double power, boolean useCollisionAlerts) {
+    protected void move(TravelDirection direction, double distance, double power, boolean useCollisionAlerts) {
+
+        dbugThis(String.format("direction: %s, distance: %.3f, power: %.3f", direction, distance, power));
+
+        // cannot use this function without Odometry.  see moveByTime instead
+        if (!botBase.hasOdometry()) {
+            return;
+        }
+
+        autonomousIdleTasks(RevInputs.BULK);
+        double target = 0;
+        switch (direction) {
+            case FORWARD:
+                target = botBase.odometer.getCurrentYPos() + distance;
+                break;
+            case BACKWARD:
+                target = botBase.odometer.getCurrentYPos() - distance;
+                break;
+            case RIGHT:
+                target = botBase.odometer.getCurrentXPos() + distance;
+                break;
+            case LEFT:
+                target = botBase.odometer.getCurrentXPos() - distance;
+                break;
+        }
+
+        dbugThis(String.format("current X: %.3f, current Y: %.3f, target: %.3f", botBase.odometer.getCurrentXPos(), botBase.odometer.getCurrentYPos(), target));
+        double error = getErrorOnPosition(direction, target);
+        dbugThis(String.format("error: %.3f", error));
+
+        if (Math.abs(error) <= CLOSE_ENOUGH) {
+            return;
+        }
+        double absValueOfPower = 0;
+        boolean isNegative = true;
+        double input  = 0;
+
+        while (opModeIsActive()) {
+            autonomousIdleTasks(RevInputs.BULK);
+            error = getErrorOnPosition(direction, target);
+            if (Math.abs(error) <= CLOSE_ENOUGH) {
+                break;
+            }
+
+            absValueOfPower = Range.clip(Math.abs(error * P_ODOMETER_POS_COEFF), 0.2, power);
+            isNegative = (error * P_ODOMETER_POS_COEFF) < 0;
+            input  = absValueOfPower * (isNegative ? -1 : 1);
+            dbugThis(String.format("error: %.3f, power: %.3f", error, input));
+            powerPropulsionNew(direction, input);
+        }
+        stopMoving();
+        return;
+    }
+
+    /**
+     * Gives the error on the actual position of the robot vs its target
+     * @param direction
+     * @param target
+     * @return
+     */
+    private double getErrorOnPosition(TravelDirection direction, double target) {
+        switch (direction) {
+            case FORWARD:
+            case BACKWARD:
+                return (target - botBase.odometer.getCurrentYPos());
+            case RIGHT:
+            case LEFT:
+                return (target - botBase.odometer.getCurrentXPos());
+        }
+        return 0;
+    }
+
+    /**
+     *  Robot centric. Moves the robot in either 4 direction until it reaches the given distance OR until it hits an object whichever comes first
+     *  if the useCollisionAlerts flag is set to true.  If useCollisionAlerts is set to false, it will ignore the limit switch
+     *
+     * @param direction                         : FORWARD,BACKWARD,LEFT,RIGHT
+     * @param distance                          : Distance to move
+     * @param power                             : Motor power
+     * @param useCollisionAlerts                : If true, he robot will move until it activates the limit switch for more than 1 second.
+     *                                          NOTE:  don't use this unless you have a functional limit switch
+     */
+    private void moveOld(TravelDirection direction, double distance, double power, boolean useCollisionAlerts) {
 
         // cannot use this function without Odometry.  see moveByTime instead
         if (!botBase.hasOdometry()) {
@@ -964,11 +1114,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
                 (direction == TravelDirection.LEFT && Math.abs(limit - botBase.odometer.getCurrentXPos()) > 1.0)
             )
         ) {
-            autonomousIdleTasks(true);
-
-//            dbugThis("Limit: " + limit);
-//            dbugThis("Current: " + botBase.odometer.getCurrentYPos());
-
+            autonomousIdleTasks(RevInputs.BULK);
             now = runtime.milliseconds();
             if (useCollisionAlerts) {
                 /**
@@ -1069,9 +1215,63 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     protected void powerPropulsion(TravelDirection direction, double power) {
 
-        if (power == 0) {
-            power = DRIVE_SPEED;
+        double multiplierFL = 0;
+        double multiplierFR = 0;
+        double multiplierRL = 0;
+        double multiplierRR = 0;
+
+        power = Math.abs(power);
+
+        switch (direction) {
+            case FORWARD:
+                multiplierFL = 1;
+                multiplierFR = 1;
+                multiplierRL = 0.95;
+                multiplierRR = 0.95;
+                propulsionDirection = TravelDirection.FORWARD;
+                break;
+            case BACKWARD:
+                multiplierFL = -1;
+                multiplierFR = -1;
+                multiplierRL = -0.95;
+                multiplierRR = -0.95;
+                propulsionDirection = TravelDirection.BACKWARD;
+                break;
+            case LEFT:
+                multiplierFL = -1;
+                multiplierFR = 1;
+                multiplierRL = 0.95;
+                multiplierRR = -0.95;
+                propulsionDirection = TravelDirection.LEFT;
+                break;
+            case RIGHT:
+                multiplierFL = 1;
+                multiplierFR = -1;
+                multiplierRL = -0.95;
+                multiplierRR = 0.95;
+                propulsionDirection = TravelDirection.RIGHT;
+                break;
+            default:
+                return;
+
         }
+        botBase.getFrontRightDrive().setPower(power * multiplierFR);
+        botBase.getRearRightDrive().setPower(power * multiplierRR);
+        botBase.getFrontLeftDrive().setPower(power * multiplierFL);
+        botBase.getRearLeftDrive().setPower(power * multiplierRL);
+    }
+
+
+    /**
+     * Powers the propulsion to go in either 4 directions
+     *
+     * @param direction
+     * @param power
+     *
+     * WARNING ***************  This method MUST be called INSIDE a control loop. ********************
+     *
+     */
+    protected void powerPropulsionNew(TravelDirection direction, double power) {
 
         double multiplierFL = 0;
         double multiplierFR = 0;
@@ -1080,32 +1280,47 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         switch (direction) {
             case FORWARD:
+                propulsionDirection = power > 0 ? TravelDirection.FORWARD : TravelDirection.BACKWARD;
+                break;
+            case BACKWARD:
+                propulsionDirection = power < 0 ? TravelDirection.BACKWARD : TravelDirection.FORWARD;
+                break;
+            case LEFT:
+                propulsionDirection = power < 0 ? TravelDirection.LEFT : TravelDirection.RIGHT;
+                break;
+            case RIGHT:
+                propulsionDirection = power > 0 ? TravelDirection.RIGHT : TravelDirection.LEFT;
+                break;
+            default:
+                return;
+        }
+
+        power = Math.abs(power);
+
+        switch (propulsionDirection) {
+            case FORWARD:
                 multiplierFL = 1;
                 multiplierFR = 1;
                 multiplierRL = 0.97;
                 multiplierRR = 0.97;
-                propulsionDirection = TravelDirection.FORWARD;
                 break;
             case BACKWARD:
                 multiplierFL = -1;
                 multiplierFR = -1;
                 multiplierRL = -0.97;
                 multiplierRR = -0.97;
-                propulsionDirection = TravelDirection.BACKWARD;
                 break;
             case LEFT:
                 multiplierFL = -1;
                 multiplierFR = 1;
                 multiplierRL = 0.97;
                 multiplierRR = -0.97;
-                propulsionDirection = TravelDirection.LEFT;
                 break;
             case RIGHT:
                 multiplierFL = 1;
                 multiplierFR = -1;
                 multiplierRL = -0.97;
                 multiplierRR = 0.97;
-                propulsionDirection = TravelDirection.RIGHT;
                 break;
             default:
                 return;
@@ -1117,7 +1332,6 @@ public class AutonomousOpModesBase extends LinearOpMode {
         botBase.getFrontLeftDrive().setPower(power * multiplierFL);
         botBase.getRearLeftDrive().setPower(power * multiplierRL);
     }
-
 
     /**
      * @TODO: implement this
@@ -1169,7 +1383,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
         if (Math.abs(error) <= HEADING_THRESHOLD) {
             stopMoving();
-            dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: 0", angle,  error, PCoeff));
+//            dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: 0", angle,  error, PCoeff));
             return true;
         }
         else {
@@ -1179,7 +1393,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
             leftSpeed   = -rightSpeed;
         }
 
-        dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: %.3f", angle,  error, PCoeff, rightSpeed));
+//        dbugThis(String.format("Target: %.3f, Error: %.3f P: %.3f, Speed: %.3f", angle,  error, PCoeff, rightSpeed));
 
         // Send desired speeds to motors.
         botBase.getFrontLeftDrive().setPower(leftSpeed);
@@ -1257,7 +1471,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         while (robotError > 180)  robotError -= 360.0;
         while (robotError <= -180) robotError += 360.0;
 
-        dbugThis(String.format("%.3f", actualAngle));
+//        dbugThis(String.format("%.3f", actualAngle));
 
         return robotError;
     }
@@ -1304,7 +1518,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && runtime.milliseconds() < limit  ) {
 
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.ALL);
         }
     }
 
@@ -1316,8 +1530,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
      */
     void dbugThis(String s) {
 
-        if ( DEBUG == true ) {
-            Log.d("AUTONOMOUS: ", s);
+        if ( DEBUG == true) {
+            Log.d("__AUTONOMOUS: ", s);
         }
     }
 
@@ -1367,11 +1581,11 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * Always insert this function inside a control loop as it checks the emergency situations related to limit switches and collisions and acts
      * consequently.
      */
-    protected void autonomousIdleTasks(Boolean bulkInputsOnly) {
+    protected void autonomousIdleTasks(short whichInputs) {
         idle();
         botTop.checkAllLimitSwitches();
-        botBase.updateComponents(bulkInputsOnly);
-        if (!bulkInputsOnly) {
+        botBase.updateComponents(whichInputs);
+        if ((whichInputs & RevInputs.OBJECT_RECON) != 0) {
             if (searchableTarget != null) {
                 searchableTarget.find();
             }
@@ -1498,22 +1712,22 @@ public class AutonomousOpModesBase extends LinearOpMode {
         switch (direction) {
             case FORWARD:
                 if (botBase.hasSensorPositioningFront()) {
-                    return !botBase.distanceFront.isOutOfRange();
+                    return botBase.distanceFront.isValidDistance();
                 }
                 break;
             case BACKWARD:
                 if (botBase.hasSensorPositioningBack()) {
-                    return !botBase.distanceBack.isOutOfRange();
+                    return botBase.distanceBack.isValidDistance();
                 }
                 break;
             case LEFT:
                 if (botBase.hasSensorPositioningLeft()) {
-                    return !botBase.distanceLeft.isOutOfRange();
+                    return botBase.distanceLeft.isValidDistance();
                 }
                 break;
             case RIGHT:
                 if (botBase.hasSensorPositioningRight()) {
-                    return !botBase.distanceRight.isOutOfRange();
+                    return botBase.distanceRight.isValidDistance();
                 }
                 break;
         }

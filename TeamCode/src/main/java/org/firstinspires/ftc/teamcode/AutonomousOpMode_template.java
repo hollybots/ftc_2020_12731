@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import org.firstinspires.ftc.teamcode.Components.RevInputs;
 
 @Autonomous(name="Autonomous Rename please", group="none")
 @Disabled
@@ -54,7 +55,7 @@ public class AutonomousOpMode_template extends AutonomousOpModesBase {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.ALL);
 
             if (currentState == STATE_done) {
                 break;

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
@@ -13,10 +14,14 @@ import java.io.File;
 
 public class Odometer {
 
-    static final boolean DEBUG = false;
+    static final boolean DEBUG                          = false;
 
     // defined by manufacturer
-    static final double COUNTS_PER_INCH              = 307.699557;
+    static final double COUNTS_PER_INCH                 = 307.699557;
+    static final double INTERVAL_READ                   = 10.0; // in ms
+
+    // if ROBOT_CENTRIC is true, we do not care about orientation
+    static final boolean ROBOT_CENTRIC                  = true;
 
     /**
      * HARDWARE
@@ -42,6 +47,8 @@ public class Odometer {
     private double previousVerticalRightEncoderWheelPosition    = 0;
     private double previousVerticalLeftEncoderWheelPosition     = 0;
     private double prevHorizontalEncoderWheelPosition           = 0;
+
+    private ElapsedTime timer                       = new ElapsedTime();
 
 
     /**
@@ -113,10 +120,11 @@ public class Odometer {
     {
         this.robotEncoderWheelDistance = robotEncoderWheelDistance;
         // if something goes wrong, comment this line
-//        this.horizontalEncoderTickPerDegreeOffset = horizontalEncoderTickPerDegreeOffset;
+        this.horizontalEncoderTickPerDegreeOffset = horizontalEncoderTickPerDegreeOffset;
         this.verticalEncoderLeft = verticalEncoderLeft;
         this.verticalEncoderRight = verticalEncoderRight;
         this.horizontalEncoder = horizontalEncoder;
+        timer.reset();
     }
 
 
@@ -128,6 +136,10 @@ public class Odometer {
         double leftChange = 0;
         double rightChange = 0;
 
+//        if (timer.milliseconds() < INTERVAL_READ ) {
+//            return;
+//        }
+
         // Get Current Positions
         if (verticalEncoderLeft != null) {
             verticalLeftEncoderWheelPosition = (verticalEncoderLeft.getCurrentPosition() * verticalLeftEncoderPositionMultiplier);
@@ -138,16 +150,19 @@ public class Odometer {
             verticalRightEncoderWheelPosition = (verticalEncoderRight.getCurrentPosition() * verticalRightEncoderPositionMultiplier);
             rightChange = verticalRightEncoderWheelPosition - previousVerticalRightEncoderWheelPosition;
         }
-        dbugThis("verticalLeftEncoderWheelPosition: " + verticalLeftEncoderWheelPosition);
-        dbugThis("verticalRightEncoderWheelPosition: " + verticalRightEncoderWheelPosition);
-        dbugThis("leftChange: " + leftChange);
-        dbugThis("rightChange: " + rightChange);
 
-        // Calculate Angle if we have 2 encoders, if not don't
-        if ((verticalEncoderLeft != null) && (verticalEncoderRight != null)) {
-            changeInRobotOrientation = (leftChange - rightChange) / (robotEncoderWheelDistance);
-            robotOrientationRadians = ((robotOrientationRadians + changeInRobotOrientation));
+
+        if (ROBOT_CENTRIC) {
+            robotOrientationRadians = 0;
+        } else {
+            // Calculate Angle if we have 2 encoders, if not don't
+            if ((verticalEncoderLeft != null) && (verticalEncoderRight != null)) {
+                changeInRobotOrientation = (leftChange - rightChange) / (robotEncoderWheelDistance);
+                robotOrientationRadians = ((robotOrientationRadians + changeInRobotOrientation));
+            }
         }
+
+
 
         // Get the components of the motion
         horizontalEncoderWheelPosition = (horizontalEncoder.getCurrentPosition()*normalEncoderPositionMultiplier);
@@ -171,6 +186,10 @@ public class Odometer {
             verticalDisplacement /= verticalComponents;
         }
 
+        dbugThis("verticalLeftEncoderWheelPosition: " + verticalLeftEncoderWheelPosition);
+        dbugThis("verticalRightEncoderWheelPosition: " + verticalRightEncoderWheelPosition);
+        dbugThis("horizontalEncoderWheelPosition: " + horizontalEncoderWheelPosition);
+
         // Calculate and update the actual position values
         robotGlobalXCoordinatePosition = robotGlobalXCoordinatePosition + (verticalDisplacement*Math.sin(robotOrientationRadians) + horizontalDisplacement*Math.cos(robotOrientationRadians));
         robotGlobalYCoordinatePosition = robotGlobalYCoordinatePosition + (verticalDisplacement*Math.cos(robotOrientationRadians) - horizontalDisplacement*Math.sin(robotOrientationRadians));
@@ -179,25 +198,33 @@ public class Odometer {
         previousVerticalLeftEncoderWheelPosition        = verticalLeftEncoderWheelPosition;
         previousVerticalRightEncoderWheelPosition       = verticalRightEncoderWheelPosition;
         prevHorizontalEncoderWheelPosition              = horizontalEncoderWheelPosition;
+
+
     }
 
     /**
      * Returns the robot's global x coordinate
      * @return global x coordinate
      */
-    public double getCurrentXPos(){ return robotGlobalXCoordinatePosition / COUNTS_PER_INCH; }
+    public double getCurrentXPos(){
+        return robotGlobalXCoordinatePosition / COUNTS_PER_INCH;
+    }
 
     /**
      * Returns the robot's global y coordinate
      * @return global y coordinate
      */
-    public double getCurrentYPos(){ return robotGlobalYCoordinatePosition / COUNTS_PER_INCH; }
+    public double getCurrentYPos() {
+        return robotGlobalYCoordinatePosition / COUNTS_PER_INCH;
+    }
 
     /**
      * Returns the robot's global orientation
      * @return global orientation, in degrees
      */
-    public double getHeading(){ return Math.toDegrees(robotOrientationRadians) % 360; }
+    public double getHeading() {
+        return Math.toDegrees(robotOrientationRadians) % 360;
+    }
 
     public void reset(double x, double y) {
         robotGlobalXCoordinatePosition   = x * COUNTS_PER_INCH;
@@ -241,7 +268,7 @@ public class Odometer {
 
     static void dbugThis(String s) {
         if (DEBUG == true) {
-            Log.d("ODOMETER: ", s);
+            Log.d("__ODOMETER: ", s);
         }
     }
 }

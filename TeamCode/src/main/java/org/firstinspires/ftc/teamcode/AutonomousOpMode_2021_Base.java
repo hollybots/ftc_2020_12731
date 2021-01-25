@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Components.FieldPlacement;
 import org.firstinspires.ftc.teamcode.Components.LedPatterns;
+import org.firstinspires.ftc.teamcode.Components.RevInputs;
 
 @Autonomous(name="Autonomous 2021", group="none")
 @Disabled
@@ -20,10 +21,10 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected static final double LAUNCH_POWER_SINGLE                   = LAUNCH_POWER;
     protected static final double LAUNCH_POWER_QUAD                     = LAUNCH_POWER;
     protected static final double LAUNCH_POWER_POWER_SHOT_FRONT         = 0.64;
-    protected static final double INTAKE_MOTOR                          = 0.9;
+    protected static final double INTAKE_MOTOR                          = 0.8;
 
-    protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.48; // lifting is negative, lowering is positive
-    protected static final double TIME_TO_DELIVER                       = 2400;
+    protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.6; // lifting is negative, lowering is positive
+    protected static final double TIME_TO_DELIVER                       = 1800;
 
     protected static final int TIME_TO_EXTEND                           = 300; //ms
     protected static final int TIME_TO_RETRACT                          = 350; //ms
@@ -33,6 +34,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     protected static final double LAUNCHER_X                            = 24.0;  // position in inches from the robot
     protected static final double LAUNCHER_Y                            = 0.5;
+
 
     /**
      * All possible states
@@ -68,8 +70,6 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     @Override
     public void initAutonomous() {
-
-        DEBUG = false;
         super.initAutonomous();
 
         botTop.liftMagazine();
@@ -107,7 +107,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.ALL);
             switch (currentState) {
 
                 case STATE_done:
@@ -157,8 +157,6 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
                     moveExtraWobbleGoal();
                     break;
             }
-//            telemetry.addData("Actual Rings", "" + ringPosition);
-            telemetry.update();
         }
     }
 
@@ -170,7 +168,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
                 opModeIsActive() &&
                 runtime.milliseconds() < limit  && ringPlacement == null
         ) {
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.OBJECT_RECON);
             if (searchableTarget != null) {
                 ringPlacement = searchableTarget.getTargetRelativePosition();
                 ringLabel = searchableTarget.getTargetLabel();
@@ -204,7 +202,6 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
     protected void towerShot() {
         int t = 4;
-        dbugThis("Entering towerShot()");
         while (t > 0) {
             botTop.extendArm();
             justWait(TIME_TO_EXTEND);

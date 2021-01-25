@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.AutonomousOpModesBase;
+import org.firstinspires.ftc.teamcode.Components.RevInputs;
 
 @Autonomous(name="Test Sensors", group="1")
 //@Disabled
@@ -45,7 +46,7 @@ public class TestSensors extends AutonomousOpModesBase {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            autonomousIdleTasks(false);
+            autonomousIdleTasks(RevInputs.ALL);
             displayTelemetry();
             telemetry.update();
         }
@@ -61,10 +62,10 @@ public class TestSensors extends AutonomousOpModesBase {
 
         // Distance sensor
         telemetry.addLine("Positioning")
-                .addData("Left", botBase.hasSensorPositioningLeft() && !botBase.distanceLeft.isOutOfRange() ? String.format("%.3f", botBase.distanceLeft.getDistance()) : "n/a")
-                .addData("Right", botBase.hasSensorPositioningRight() && !botBase.distanceRight.isOutOfRange() ? String.format("%.3f", botBase.distanceRight.getDistance()) : "n/a")
-                .addData("Front", botBase.hasSensorPositioningFront() && !botBase.distanceFront.isOutOfRange() ? String.format("%.3f", botBase.distanceFront.getDistance()): "n/a")
-                .addData("Back", botBase.hasSensorPositioningBack() && !botBase.distanceBack.isOutOfRange() ? String.format("%.3f", botBase.distanceBack.getDistance()) : "n/a");
+                .addData("Left", botBase.hasSensorPositioningLeft() && botBase.distanceLeft.isValidDistance() ? String.format("%.3f", botBase.distanceLeft.getDistance()) : "n/a")
+                .addData("Right", botBase.hasSensorPositioningRight() && botBase.distanceRight.isValidDistance() ? String.format("%.3f", botBase.distanceRight.getDistance()) : "n/a")
+                .addData("Front", botBase.hasSensorPositioningFront() && botBase.distanceFront.isValidDistance() ? String.format("%.3f", botBase.distanceFront.getDistance()): "n/a")
+                .addData("Back", botBase.hasSensorPositioningBack() && botBase.distanceBack.isValidDistance() ? String.format("%.3f", botBase.distanceBack.getDistance()) : "n/a");
 
         // Collision switches
         telemetry.addLine("Collision")
