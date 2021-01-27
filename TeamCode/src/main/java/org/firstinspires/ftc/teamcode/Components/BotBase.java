@@ -194,6 +194,25 @@ public class BotBase {
     public Boolean hasSensorPositioningRight() { return hasSensorPositioningRight; }
     public Boolean hasBling() { return hasBling; }
 
+    /**
+     * Just a quicker way to cjeck if sensor position is present
+     * @param robotSide
+     * @return
+     */
+    public boolean hasSensorPositioning(TravelDirection robotSide) {
+        switch (robotSide) {
+            case FORWARD:
+                return hasSensorPositioningFront;
+            case BACKWARD:
+                return hasSensorPositioningBack;
+            case RIGHT:
+                return hasSensorPositioningRight;
+            case LEFT:
+                return hasSensorPositioningLeft;
+        }
+        return false;
+    }
+
 
     private boolean checkThisInput(short thisInput, short amongThisInputs) {
         return ((thisInput & amongThisInputs) != 0);

@@ -65,7 +65,8 @@ public class AutonomousOpModesBase extends LinearOpMode {
 
     protected static final double CLOSE_ENOUGH_X                = 1.0;
     protected static final double CLOSE_ENOUGH_Y                = 1.0;
-    protected static final double CLOSE_ENOUGH                  = 0.75;
+    protected static final double CLOSE_ENOUGH_ODO                  = 0.75;
+    protected static final double CLOSE_ENOUGH_SENSOR               = 1;
 
 
     // the  can always be overriden in the extended class
@@ -100,14 +101,11 @@ public class AutonomousOpModesBase extends LinearOpMode {
     static final double TURNING_SPEED                   = 0.6;
 
     static final double     HEADING_THRESHOLD           = 0.4 ;
-    /***  IMPORTANT NOTE IF YOU DONT WANT TO GET STUCK in an infinite loop while turning:
-     P_TURN_COEFF * TURNING_SPEED must be > 0.1
-     ************************************************************************* */
-//    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
 
-    protected double     P_TURN_COEFF                   = 0.035;     // Larger is more responsive, but also less stable
-    protected double     P_ODOMETER_POS_COEFF           = 0.09;     // Larger is more responsive, but also less stable
-    protected double     P_SENSOR_POS_COEFF             = 0.15;     // Larger is more responsive, but also less stable
+    // NOTE for coeffs.  Larger is more responsive, but also less stable
+    protected double     P_TURN_COEFF                   = 0.035;
+    protected double     P_ODOMETER_POS_COEFF           = 0.09;
+    protected double     P_SENSOR_POS_COEFF             = 0.06;
 
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
 
@@ -731,6 +729,72 @@ public class AutonomousOpModesBase extends LinearOpMode {
         return;
     }
 
+    /**
+     * Robot centric.  Move until range sensor on the side of the robot given by 'direction' reads the distance given
+     * @param direction
+     * @param distance in inches
+     * @param power
+     */
+    public void moveDistanceFromObject(TravelDirection direction, double distance, double power) {
+        if (!botBase.hasSensorPositioning(direction)) {
+            return;
+        }
+        short readInputMask = 0;
+
+        switch (direction) {
+            case FORWARD:
+                readInputMask |= RevInputs.RANGE_FRONT;
+                break;
+            case BACKWARD:
+                readInputMask |= RevInputs.RANGE_REAR;
+                break;
+            case RIGHT:
+                readInputMask |= RevInputs.RANGE_RIGHT;
+                break;
+            case LEFT:
+                readInputMask |= RevInputs.RANGE_LEFT;
+                break;
+        }
+
+        dbugThis("moveDistanceFromObject");
+
+        while (opModeIsActive()) {
+            autonomousIdleTasks(readInputMask);
+            if (isValidDistance(direction)) {
+                break;
+            }
+        }
+
+        dbugThis(String.format("current: %.3f, target: %.3f", getDistance(direction), distance));
+        double error = getErrorOnSensorPosition(direction, distance);
+        dbugThis(String.format("error: %.3f", error));
+
+        if (Math.abs(error) <= CLOSE_ENOUGH_SENSOR) {
+            return;
+        }
+        double absValueOfPower = 0;
+        boolean isNegative = true;
+        double input  = 0;
+
+        while (opModeIsActive()) {
+            autonomousIdleTasks(readInputMask);
+            if (!isValidDistance(direction)) {
+                continue;
+            }
+            error = getErrorOnSensorPosition(direction, distance);
+            if (Math.abs(error) <= CLOSE_ENOUGH_SENSOR) {
+                break;
+            }
+            absValueOfPower = Range.clip(Math.abs(error * P_SENSOR_POS_COEFF), 0.2, power);
+            isNegative = (error * P_SENSOR_POS_COEFF) < 0;
+            input  = absValueOfPower * (isNegative ? 1 : -1);
+            dbugThis(String.format("error: %.3f, power: %.3f", error, input));
+            powerPropulsionSensor(direction, input);
+        }
+        stopMoving();
+        return;
+    }
+
 
     /**
      * @todo: Change this for MoveRelativeToRightObject that combines both versions
@@ -1015,7 +1079,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         double error = getErrorOnPosition(direction, target);
         dbugThis(String.format("error: %.3f", error));
 
-        if (Math.abs(error) <= CLOSE_ENOUGH) {
+        if (Math.abs(error) <= CLOSE_ENOUGH_ODO) {
             return;
         }
         double absValueOfPower = 0;
@@ -1025,7 +1089,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
         while (opModeIsActive()) {
             autonomousIdleTasks(RevInputs.BULK);
             error = getErrorOnPosition(direction, target);
-            if (Math.abs(error) <= CLOSE_ENOUGH) {
+            if (Math.abs(error) <= CLOSE_ENOUGH_ODO) {
                 break;
             }
 
@@ -1033,11 +1097,22 @@ public class AutonomousOpModesBase extends LinearOpMode {
             isNegative = (error * P_ODOMETER_POS_COEFF) < 0;
             input  = absValueOfPower * (isNegative ? -1 : 1);
             dbugThis(String.format("error: %.3f, power: %.3f", error, input));
-            powerPropulsionNew(direction, input);
+            powerPropulsionOdometer(direction, input);
         }
         stopMoving();
         return;
     }
+
+    /**
+     * Gives the error on the actual position of the robot vs its target using sensor positioning
+     * @param direction
+     * @param target
+     * @return
+     */
+    private double getErrorOnSensorPosition(TravelDirection direction, double target) {
+        return (target - getDistance(direction));
+    }
+
 
     /**
      * Gives the error on the actual position of the robot vs its target
@@ -1268,10 +1343,10 @@ public class AutonomousOpModesBase extends LinearOpMode {
      * @param direction
      * @param power
      *
-     * WARNING ***************  This method MUST be called INSIDE a control loop. ********************
+     * WARNING ***************  This method MUST be called INSIDE a PID loop ********************
      *
      */
-    protected void powerPropulsionNew(TravelDirection direction, double power) {
+    protected void powerPropulsionOdometer(TravelDirection direction, double power) {
 
         double multiplierFL = 0;
         double multiplierFR = 0;
@@ -1290,6 +1365,74 @@ public class AutonomousOpModesBase extends LinearOpMode {
                 break;
             case RIGHT:
                 propulsionDirection = power > 0 ? TravelDirection.RIGHT : TravelDirection.LEFT;
+                break;
+            default:
+                return;
+        }
+
+        power = Math.abs(power);
+
+        switch (propulsionDirection) {
+            case FORWARD:
+                multiplierFL = 1;
+                multiplierFR = 1;
+                multiplierRL = 0.97;
+                multiplierRR = 0.97;
+                break;
+            case BACKWARD:
+                multiplierFL = -1;
+                multiplierFR = -1;
+                multiplierRL = -0.97;
+                multiplierRR = -0.97;
+                break;
+            case LEFT:
+                multiplierFL = -1;
+                multiplierFR = 1;
+                multiplierRL = 0.97;
+                multiplierRR = -0.97;
+                break;
+            case RIGHT:
+                multiplierFL = 1;
+                multiplierFR = -1;
+                multiplierRL = -0.97;
+                multiplierRR = 0.97;
+                break;
+            default:
+                return;
+
+        }
+
+        botBase.getFrontRightDrive().setPower(power * multiplierFR);
+        botBase.getRearRightDrive().setPower(power * multiplierRR);
+        botBase.getFrontLeftDrive().setPower(power * multiplierFL);
+        botBase.getRearLeftDrive().setPower(power * multiplierRL);
+    }
+
+
+    /**
+     *
+     * @param direction
+     * @param power: power negative means away from
+     */
+    protected void powerPropulsionSensor(TravelDirection direction, double power) {
+
+        double multiplierFL = 0;
+        double multiplierFR = 0;
+        double multiplierRL = 0;
+        double multiplierRR = 0;
+
+        switch (direction) {
+            case FORWARD:
+                propulsionDirection = power < 0 ? TravelDirection.BACKWARD : TravelDirection.FORWARD;
+                break;
+            case BACKWARD:
+                propulsionDirection = power < 0 ? TravelDirection.FORWARD : TravelDirection.BACKWARD;
+                break;
+            case LEFT:
+                propulsionDirection = power < 0 ? TravelDirection.RIGHT : TravelDirection.LEFT;
+                break;
+            case RIGHT:
+                propulsionDirection = power < 0 ? TravelDirection.LEFT : TravelDirection.RIGHT;
                 break;
             default:
                 return;

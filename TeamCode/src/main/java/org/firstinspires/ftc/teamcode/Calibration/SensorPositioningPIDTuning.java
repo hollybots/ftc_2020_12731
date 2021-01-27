@@ -2,19 +2,15 @@ package org.firstinspires.ftc.teamcode.Calibration;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.AutonomousOpModesBase;
 import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 import org.firstinspires.ftc.teamcode.Components.RevInputs;
 import org.firstinspires.ftc.teamcode.Components.TravelDirection;
 
-@Autonomous(name="PID Tuning - Position ODO", group="1")
+@Autonomous(name="PID Tuning - Position Sensor", group="1")
 //@Disabled
 
-public class OdometerPositioningPIDTuning extends AutonomousOpModesBase {
+public class SensorPositioningPIDTuning extends AutonomousOpModesBase {
 
     double COMMAND_VALUE_BIG_INCREMENT                  = 0.01;
     double COMMAND_VALUE_SMALL_INCREMENT                = 0.001;
@@ -31,29 +27,26 @@ public class OdometerPositioningPIDTuning extends AutonomousOpModesBase {
     boolean wasPressedBackward                          = false;
     boolean wasPressedLeft                              = false;
 
-    double[] positions                                   = {0.0, 45.0, -35.0, -10.0, 3.5, 10.5, 20.0, -34.0, 5.0, -2.0, -3.0};
+    double[] positions                                   = {10.00, 20.00, 24.0, 4.0};
     int currentPositionIndex                             = 0;
 
     double DRIVE_TRAIN_TRAVELING_POWER                   = 0.7;
-
-    double lastPositionX                                = 0;
-    double lastPositionY                                = 0;
 
     TravelDirection currentDirection                    = TravelDirection.FORWARD;
 
     @Override
     public void initAutonomous() {
         IDENTIFICATION_SYSTEM = "NONE";
-        DEBUG = true;
         super.initAutonomous();
         botBase.setBling(LedPatterns.LED_OFF); //off
+        DEBUG = true;
     }
 
     @Override
     public void runOpMode() {
 
         initAutonomous();
-        telemetry.addLine("Tuning Kp for Odometer position PID:");
+        telemetry.addLine("Tuning Kp for Sensor position PID:");
         telemetry.addLine("---------------------------");
         telemetry.addLine("Use Dpad Up/Right    + Big/Small increments Kp");
         telemetry.addLine("Use Dpad Down/Left   - Big/Small increments Kp");
@@ -76,29 +69,25 @@ public class OdometerPositioningPIDTuning extends AutonomousOpModesBase {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            P_ODOMETER_POS_COEFF = tuningCommands(P_ODOMETER_POS_COEFF);
+
+
+            P_SENSOR_POS_COEFF = tuningCommands(P_SENSOR_POS_COEFF);
             currentDirection = selectTravelDirection(currentDirection);
             boolean isPressedStartButton          = gamepad1.x;
-
-            autonomousIdleTasks(RevInputs.ALL);
 
             if (isPressedStartButton) {
                 wasPressedStartButton = true;
             }
             else if (wasPressedStartButton) {
                 wasPressedStartButton = false;
-                lastPositionX = botBase.odometer.getCurrentXPos();
-                lastPositionY = botBase.odometer.getCurrentYPos();
                 gotoHeadings(positions);
-//                moveForwardByTime(500, 0.5);
             }
 
             telemetry.addLine("PID")
-            .addData("Kp", String.format("%.3f", P_ODOMETER_POS_COEFF));
-            telemetry.addLine("Direction " + currentDirection + " ")
+            .addData("Kp", String.format("%.3f", P_SENSOR_POS_COEFF));
+            telemetry.addLine("Sensor " + currentDirection + " ")
             .addData("Commanded", String.format("%.3f", positions[currentPositionIndex]))
-            .addData("Odometry X", String.format("%.3f", botBase.odometer.getCurrentXPos() - lastPositionX))
-            .addData("Odometry Y", String.format("%.3f", botBase.odometer.getCurrentYPos() - lastPositionY));
+            .addData("Distance", String.format("%.3f", getDistance(currentDirection)));
             telemetry.addLine("Press X to move to next position...");
             telemetry.update();
 
@@ -111,7 +100,7 @@ public class OdometerPositioningPIDTuning extends AutonomousOpModesBase {
         if (currentPositionIndex >= headings.length) {
             currentPositionIndex = 0;
         }
-        move(currentDirection, positions[currentPositionIndex], DRIVE_TRAIN_TRAVELING_POWER, false);
+        moveDistanceFromObject(currentDirection, positions[currentPositionIndex], DRIVE_TRAIN_TRAVELING_POWER);
         justWait(800);
     }
 

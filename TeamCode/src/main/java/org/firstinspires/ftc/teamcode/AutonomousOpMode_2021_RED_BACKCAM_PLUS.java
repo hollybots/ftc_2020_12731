@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Components.TravelDirection;
+
 
 /**
  * This Opmode is extended from the Season's Autonomous main Opmode
@@ -29,13 +31,15 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         if (ringLabel == null) {ringLabel = "None";}
         moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER);
         gotoHeading(0);
-        moveLeftXInchesFromLeftObject(10.0, 5000, DRIVE_TRAIN_TRAVELING_POWER/1.25);
+//        moveLeftXInchesFromLeftObject(10.0, 5000, DRIVE_TRAIN_TRAVELING_POWER/1.25);
+        moveDistanceFromObject(TravelDirection.LEFT, 10.0, DRIVE_TRAIN_TRAVELING_POWER);
         switch (ringLabel) {
             case "Quad":
                 moveBackward(45, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
                 moveBackward(45, DRIVE_TRAIN_TRAVELING_POWER);
-                moveXInchesFromBackObject(26.0, 20000, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+//                moveXInchesFromBackObject(26.0, 20000, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+                moveDistanceFromObject(TravelDirection.BACKWARD,26.0, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
                 break;
             case "Single":
@@ -48,7 +52,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             case "None":
             default:
                 moveBackward(54, DRIVE_TRAIN_TRAVELING_POWER);
-                moveLeftXInchesFromLeftObject(5.0, 5000, DRIVE_TRAIN_TRAVELING_POWER/1.25);
+//                moveLeftXInchesFromLeftObject(5.0, 5000, DRIVE_TRAIN_TRAVELING_POWER/1.25);
+                moveDistanceFromObject(TravelDirection.LEFT,5.0, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
                 break;
         }
@@ -62,7 +67,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             case "Quad":
                 moveForward(32, DRIVE_TRAIN_TRAVELING_POWER);
                 moveRight(5.0, DRIVE_TRAIN_TRAVELING_POWER);
-                moveRightXInchesFromLeftObject(20.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+//                moveRightXInchesFromLeftObject(20.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+                moveDistanceFromObject(TravelDirection.LEFT, 20.0, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER_QUAD);
                 gotoHeading(176);
                 break;
@@ -73,7 +79,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
                 break;
             case "None":
             default:
-                moveRightXInchesFromLeftObject(15, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+//                moveRightXInchesFromLeftObject(15, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+                moveDistanceFromObject(TravelDirection.LEFT,15.0, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER_NONE);
                 gotoHeading(178);
                 moveForward(5.0, DRIVE_TRAIN_TRAVELING_POWER);
@@ -98,7 +105,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         botTop.launchMotorOn(LAUNCH_POWER_POWER_SHOT_FRONT);
         gotoHeading(0);
         botTop.lowerMagazine();
-        moveRightXInchesFromLeftObject(28.0, 5.0, DRIVE_TRAIN_TRAVELING_POWER);
+//        moveRightXInchesFromLeftObject(28.0, 5.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveDistanceFromObject(TravelDirection.LEFT, 28.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveForward(25.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveBackward(10.0, DRIVE_TRAIN_TRAVELING_POWER);
         botTop.liftMagazine();
@@ -125,10 +133,12 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         justWait(TIME_TO_DELIVER/2.5);
         botTop.clawMotorOff();
         moveRight(4.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
-        moveXInchesFromBackObject(10.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
-        moveXInchesFromBackObject(2.0, 10000, DRIVE_TRAIN_TRAVELING_POWER/3.0);
+//        moveXInchesFromBackObject(10.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+//        moveXInchesFromBackObject(2.0, 10000, DRIVE_TRAIN_TRAVELING_POWER/3.0);
+        moveDistanceFromObject(TravelDirection.BACKWARD,2.0, DRIVE_TRAIN_TRAVELING_POWER);
         gotoHeading(180);
-        moveLeftXInchesFromRightObject(24.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+//        moveLeftXInchesFromRightObject(24.0, 10000, DRIVE_TRAIN_TRAVELING_POWER);
+        moveDistanceFromObject(TravelDirection.RIGHT,24.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveLeft(20.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
         gotoHeading(145);
         moveForward(5, DRIVE_TRAIN_TRAVELING_POWER/2.0);
