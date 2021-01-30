@@ -15,6 +15,11 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+import android.content.res.Configuration;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+
 public class DisplayImage {
 
     private int monitorViewId = 0;
@@ -27,7 +32,28 @@ public class DisplayImage {
     }
 
     public void loadFromResource(String name) {
-        Mat img = Utils.loadResource(hardwareMap.appContext.getPackageName(), refrenceimgID, Highgui.CV_LOAD_IMAGE_COLOR);
+//
+//        ImageView image = (ImageView) findViewById(monitorViewId);
+//        Bitmap bMap = BitmapFactory.decodeFile("/sdcard/test2.png");
+//        image.setImageBitmap(bMap);
+//        Mat img = Utils.loadResource(hardwareMap.appContext.getPackageName(), refrenceimgID, Highgui.CV_LOAD_IMAGE_COLOR);
+
+//        LinearLayout monitorContainer = (LinearLayout) findViewById(com.qualcomm.ftcrobotcontroller.R.id.monitorContainer);
+//        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            // When the phone is landscape, lay out the monitor views horizontally.
+//            monitorContainer.setOrientation(LinearLayout.HORIZONTAL);
+//            for (int i = 0; i < monitorContainer.getChildCount(); i++) {
+//                View view = monitorContainer.getChildAt(i);
+//                view.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1 /* weight */));
+//            }
+//        } else {
+//            // When the phone is portrait, lay out the monitor views vertically.
+//            monitorContainer.setOrientation(LinearLayout.VERTICAL);
+//            for (int i = 0; i < monitorContainer.getChildCount(); i++) {
+//                View view = monitorContainer.getChildAt(i);
+//                view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1 /* weight */));
+//            }
+//        }
     }
 
 }
