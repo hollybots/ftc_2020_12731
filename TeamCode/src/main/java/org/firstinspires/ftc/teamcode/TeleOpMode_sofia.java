@@ -53,6 +53,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     static final double LAUNCH_POWER_TOWER_RING         = 0.7;
     static final double INTAKE_POWER                    = 0.9;
     static final int SERVO_TIMEOUT                      = 220;     // ms before the arms retracts.  Should be the interval defined by the servo manufacturer for 60 degrees
+    static final int PIVOTING_TIMEOUT                    = 200;
 
     static final int INITIATE_COLLECTING_STATE          = 1;
     static final int LOAD_STATE                         = 2;
@@ -81,6 +82,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     double servoTimeout                                 = 0.0;
     boolean wasPressedResetButton                       = false;
     boolean wasPressedPivotButton                       = false;
+    double pivotingTimeout                               = 0;
 
     // Defining launch power
     double launchPower                                  = LAUNCH_POWER_TOWER_RING;
@@ -298,14 +300,18 @@ public class TeleOpMode_sofia extends TeleOpModesBase
                 wasPressedPivotButton = true;
             }
             else if (wasPressedPivotButton) {
+                clockwise = 0.5;
                 wasPressedPivotButton = false;
+                pivotingTimeout = runtime.milliseconds() + PIVOTING_TIMEOUT;
                 currentState = TURNING_STATE;
             }
         }
 
         else if (currentState == TURNING_STATE) {
-            isReverseMode = true;
-            botBase.setBling(LedPatterns.LED_SOLID_COLOR_GREEN);
+            if (runtime.milliseconds() > pivotingTimeout) {
+                clockwise = 0;
+                currentState = LAUNCHING_STATE;
+            }
         }
 
         else if (currentState == ENDGAME_STATE) {
@@ -355,17 +361,17 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             }
         }
 
-        /**
-         * Updates from Odometer
-         */
-        if (botBase.hasOdometry()) {
-            botBase.odometer.globalCoordinatePositionUpdate();
-        }
-
-        /**
-         * Updates from  critical limit switches
-         */
-        botTop.checkAllLimitSwitches();
+//        /**
+//         * Updates from Odometer - WE DO NOT USE ODOMETRY IN TELE OP. LET'S SAVE SOME TIME
+//         */
+//        if (botBase.hasOdometry()) {
+//            botBase.odometer.globalCoordinatePositionUpdate();
+//        }
+//
+//        /**
+//         * Updates from  critical limit switches
+//         */
+//        botTop.checkAllLimitSwitches();
 
 
         /*******************************
@@ -428,9 +434,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         /**
          * Output Telemetry
          */
-        telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
-                .addData("OdometerY", botBase.odometer.getCurrentYPos())
-                .addData("Launch Power", botTop.getLaunchMotor().getPower());
+        telemetry.addData("Launch Power", botTop.getLaunchMotor().getPower());
         telemetry.addData("Launching Mode", (launchPowerMode == LAUNCH_POWER_TOWER_RING) ? "Tower Goal" : (launchPowerMode == POWER_MODE_BACK_SHOT) ? "Back Power Shot" : (launchPowerMode == POWER_MODE_FRONT_SHOT)  ? "Front Power Shot" : "Unknown");
         telemetry.update();
     }
