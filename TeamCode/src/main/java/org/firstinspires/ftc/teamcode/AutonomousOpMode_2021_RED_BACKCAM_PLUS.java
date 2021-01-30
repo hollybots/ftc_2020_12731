@@ -152,16 +152,23 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         gotoHeading(0);
         botTop.lowerMagazine();
         moveRight(2.0, DRIVE_TRAIN_TRAVELING_POWER/1.25);
+
+        // Knock off the stack
         moveForward(16.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         botTop.intakeMotorOn(INTAKE_MOTOR);
+
+        // pick up one ring
         moveForward(4.0, DRIVE_TRAIN_TRAVELING_POWER);
+
         // @todo added this next line to pick up 2 rings from the stack.  Does not work all the time
         // ******************
         moveForward(1.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         // **********************
         justWait(500);
         moveForward(2.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+
+        // move toward the lounch line
         moveBackward(15.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveRight(2.0, DRIVE_TRAIN_TRAVELING_POWER);
         // counter clockwise from 180 is positive
