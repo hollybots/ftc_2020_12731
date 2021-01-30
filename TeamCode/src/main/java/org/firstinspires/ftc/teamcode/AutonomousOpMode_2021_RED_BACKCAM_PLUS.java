@@ -104,6 +104,41 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         gotoHeading(0);
         botTop.lowerMagazine();
         moveDistanceFromObject(TravelDirection.LEFT, 28.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(25.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
+
+        // pick up goal and push forward
+        moveDistanceFromObject(TravelDirection.LEFT, 22.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveDistanceFromObject(TravelDirection.FORWARD, 2.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveRight(17.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+        gotoHeading(-8);
+        moveBackward(84.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+
+        // shoot the ring
+        moveForward(30.0, DRIVE_TRAIN_TRAVELING_POWER);
+        botTop.liftMagazine();
+        // counter clockwise from 180 is positive
+        //        gotoHeading(200);
+        // counter clockwise from 180 is positive
+//        gotoHeading(198);
+        gotoHeading(195);
+        // hits the middle one
+        int t = 2;
+        while (t > 0) {
+            botTop.extendArm();
+            justWait(TIME_TO_EXTEND);
+            botTop.retractArm();
+            justWait(TIME_TO_RETRACT);
+            t--;
+        }
+    }
+
+
+    protected void pickupExtraOneRingOld() {
+        botTop.intakeMotorOn(INTAKE_MOTOR);
+        botTop.launchMotorOn(LAUNCH_POWER_POWER_SHOT_FRONT);
+        gotoHeading(0);
+        botTop.lowerMagazine();
+        moveDistanceFromObject(TravelDirection.LEFT, 28.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveForward(25.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveBackward(10.0, DRIVE_TRAIN_TRAVELING_POWER);
         justWait(500);
