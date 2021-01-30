@@ -105,7 +105,7 @@ public class AutonomousOpModesBase extends LinearOpMode {
     // NOTE for coeffs.  Larger is more responsive, but also less stable
     protected double     P_TURN_COEFF                   = 0.035;
     protected double     P_ODOMETER_POS_COEFF           = 0.09;
-    protected double     P_SENSOR_POS_COEFF             = 0.06;
+    protected double     P_SENSOR_POS_COEFF             = 0.1;
 
     static final double K                               = 1.17396293; // constant that maps change in voltage to change in RPM
 
@@ -1388,14 +1388,14 @@ public class AutonomousOpModesBase extends LinearOpMode {
             case LEFT:
                 multiplierFL = -1;
                 multiplierFR = 1;
-                multiplierRL = 0.97;
-                multiplierRR = -0.97;
+                multiplierRL = 0.8;
+                multiplierRR = -0.8;
                 break;
             case RIGHT:
                 multiplierFL = 1;
                 multiplierFR = -1;
-                multiplierRL = -0.97;
-                multiplierRR = 0.97;
+                multiplierRL = -0.8;
+                multiplierRR = 0.8;
                 break;
             default:
                 return;
@@ -1456,14 +1456,14 @@ public class AutonomousOpModesBase extends LinearOpMode {
             case LEFT:
                 multiplierFL = -1;
                 multiplierFR = 1;
-                multiplierRL = 0.97;
-                multiplierRR = -0.97;
+                multiplierRL = 0.8;
+                multiplierRR = -0.8;
                 break;
             case RIGHT:
                 multiplierFL = 1;
                 multiplierFR = -1;
-                multiplierRL = -0.97;
-                multiplierRR = 0.97;
+                multiplierRL = -0.8;
+                multiplierRR = 0.8;
                 break;
             default:
                 return;

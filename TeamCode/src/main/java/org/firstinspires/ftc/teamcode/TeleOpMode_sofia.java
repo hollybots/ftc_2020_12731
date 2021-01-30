@@ -51,7 +51,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     static final double LAUNCH_POWER_POWER_SHOT_BACK    = 0.74;
     static final double LAUNCH_POWER_POWER_SHOT_FRONT   = 0.62;
     static final double LAUNCH_POWER_TOWER_RING         = 0.7;
-    static final double INTAKE_POWER                    = 1.0;
+    static final double INTAKE_POWER                    = 0.9;
     static final int SERVO_TIMEOUT                      = 220;     // ms before the arms retracts.  Should be the interval defined by the servo manufacturer for 60 degrees
 
     static final int INITIATE_COLLECTING_STATE          = 1;
@@ -61,6 +61,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     static final int REJECTING_STATE                    = 5;
     static final int ENDGAME_STATE                      = 6;
     static final int LOAD_STATE_2                       = 7;
+    static final int TURNING_STATE                      = 8;
 
     static final int POWER_MODE_TOWER                   = 1;
     static final int POWER_MODE_FRONT_SHOT              = 2;
@@ -79,6 +80,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     boolean wasPressedLaunchingButton                   = false;
     double servoTimeout                                 = 0.0;
     boolean wasPressedResetButton                       = false;
+    boolean wasPressedPivotButton                       = false;
 
     // Defining launch power
     double launchPower                                  = LAUNCH_POWER_TOWER_RING;
@@ -189,6 +191,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         boolean isPressedLaunchPowerPowerShot  = gamepad1.dpad_left;
         // To launch power tower ring
         boolean isPressedLaunchPowerBackPowerShot  = gamepad1.dpad_up;
+        // To turn auto
+        boolean isPressedPivotButton  = gamepad1.left_trigger > 0.2;
 
 
         /*******************************
@@ -220,6 +224,17 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             }
             if (isPressedEndGameButton){
                 currentState = ENDGAME_STATE;
+            }
+
+            else if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
+                botTop.extendArm();
+                wasPressedLaunchingButton = true;
+                servoTimeout = runtime.milliseconds() + SERVO_TIMEOUT;
+            }
+            // the button is being released after servoTimeout
+            else if (runtime.milliseconds() > servoTimeout && wasPressedLaunchingButton) {
+                botTop.retractArm();
+                wasPressedLaunchingButton = false;
             }
         }
 
@@ -279,6 +294,18 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             if (isPressedEndGameButton){
                 currentState = ENDGAME_STATE;
             }
+            if (isPressedPivotButton) {
+                wasPressedPivotButton = true;
+            }
+            else if (wasPressedPivotButton) {
+                wasPressedPivotButton = false;
+                currentState = TURNING_STATE;
+            }
+        }
+
+        else if (currentState == TURNING_STATE) {
+            isReverseMode = true;
+            botBase.setBling(LedPatterns.LED_SOLID_COLOR_GREEN);
         }
 
         else if (currentState == ENDGAME_STATE) {
@@ -403,7 +430,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
          */
         telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
                 .addData("OdometerY", botBase.odometer.getCurrentYPos())
-                .addData("Orientation", botBase.odometer.getHeading());
+                .addData("Launch Power", botTop.getLaunchMotor().getPower());
         telemetry.addData("Launching Mode", (launchPowerMode == LAUNCH_POWER_TOWER_RING) ? "Tower Goal" : (launchPowerMode == POWER_MODE_BACK_SHOT) ? "Back Power Shot" : (launchPowerMode == POWER_MODE_FRONT_SHOT)  ? "Front Power Shot" : "Unknown");
         telemetry.update();
     }
