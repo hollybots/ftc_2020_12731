@@ -126,36 +126,40 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       android:layout_below="@+id/textOpMode"
       android:layout_above="@+id/textGamepad1">
 
+      <!-- When visible, the error message will overlay and thus partially
+           obscure part of the camera monitor. We make this trade off so as to
+           allow for a bigger camera monitor view in the common case when the
+           error is not in fact present
+        -->
       <LinearLayout
           android:id="@+id/monitorContainer"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:orientation="vertical">
 
+        <ImageView
+            android:id="@+id/logoId"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/tfodMonitorViewId"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/cameraMonitorViewId"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical"
-            />
-        <FrameLayout
-            android:id="@+id/tfodMonitorViewId"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            />
+            android:visibility="gone" />
 
-        </LinearLayout>
+      </LinearLayout>
 
-      <!-- When visible, the error message will overlay and thus partially
-           obscure part of the camera monitor. We make this trade off so as to
-           allow for a bigger camera monitor view in the common case when the
-           error is not in fact present
-        -->
-        <TextView style="@style/FtcTextViewStyleBold"
+      <TextView style="@style/FtcTextViewStyleBold"
             android:id="@+id/textErrorMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
