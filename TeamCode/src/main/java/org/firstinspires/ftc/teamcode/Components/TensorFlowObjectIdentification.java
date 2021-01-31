@@ -143,7 +143,7 @@ public class TensorFlowObjectIdentification implements ObjectIdentificationInter
     public void stop()
     {
         if (tfod != null) {
-            tfod.deactivate();
+            tfod.shutdown();
         }
         isActive = false;
     }

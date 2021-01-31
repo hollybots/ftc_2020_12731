@@ -35,7 +35,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 
 import org.firstinspires.ftc.teamcode.Components.WheelPower;
-import org.firstinspires.ftc.teamcode.OpenCV.Advertise;
+import org.firstinspires.ftc.teamcode.Components.AdWidget;
 
 
 /**
@@ -103,7 +103,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 
         // Turn off the LEDs
         botBase.setBling(LedPatterns.LED_OFF);
-        Advertise.displayLogo(hardwareMap);
+        AdWidget.displayLogo(hardwareMap);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
