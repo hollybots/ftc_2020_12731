@@ -35,9 +35,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         moveDistanceFromObject(TravelDirection.LEFT, 10.0, DRIVE_TRAIN_TRAVELING_POWER);
         switch (ringLabel) {
             case "Quad":
-                moveBackward(45, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
-                moveBackward(45, DRIVE_TRAIN_TRAVELING_POWER);
+                moveBackward(80, DRIVE_TRAIN_TRAVELING_POWER);
                 moveDistanceFromObject(TravelDirection.BACKWARD,24.0, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
                 break;
@@ -182,11 +181,11 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         botTop.launchMotorOn(LAUNCH_POWER_POWER_SHOT_FRONT);
         gotoHeading(0);
         botTop.lowerMagazine();
-        moveRight(2.0, DRIVE_TRAIN_TRAVELING_POWER/1.25);
+        moveRight(2.0, DRIVE_TRAIN_TRAVELING_POWER);
 
         // Knock off the stack
         moveForward(16.0, DRIVE_TRAIN_TRAVELING_POWER);
-        moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+        moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER);
         botTop.intakeMotorOn(INTAKE_MOTOR);
 
         // pick up one ring
