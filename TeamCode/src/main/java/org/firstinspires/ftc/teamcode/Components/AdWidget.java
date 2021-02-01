@@ -1,21 +1,7 @@
 package org.firstinspires.ftc.teamcode.Components;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
-import org.openftc.easyopencv.OpenCvPipeline;
-
 import android.app.Activity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,20 +23,4 @@ public class AdWidget {
             }
         });
     }
-//    protected void setMonitorViewParent(@IdRes int resourceId)
-//    {
-//        View view = this.activity.findViewById(resourceId); // may return null if resourceId is, e.g., zero
-//        setMonitorViewParent((ViewGroup)view);
-//    }
-//
-//    protected void setMonitorViewParent(@Nullable ViewGroup viewParent)
-//    {
-//        this.glSurfaceParent = viewParent;
-//        if (glSurfaceParent != null)
-//        {
-//            glSurfaceParentPreviousVisibility = glSurfaceParent.getVisibility();
-//        }
-//    }
-
-
 }

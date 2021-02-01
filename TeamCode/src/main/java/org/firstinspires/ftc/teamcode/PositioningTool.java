@@ -39,6 +39,7 @@ import org.firstinspires.ftc.teamcode.Components.WheelPower;
 import org.firstinspires.ftc.teamcode.OpenCV.RingDetector;
 import org.firstinspires.ftc.teamcode.Components.LedPatterns;
 import org.firstinspires.ftc.teamcode.OpenCV.RingPosition;
+import org.firstinspires.ftc.teamcode.Components.AdWidget;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -125,6 +126,7 @@ public class PositioningTool extends TeleOpModesBase
 
         // Turn off the LEDs
         botBase.setBling(LedPatterns.LED_OFF);
+        AdWidget.displayLogo(hardwareMap);
 
         TFOD_MODEL_ASSET                            = "UltimateGoal.tflite";
         TFOD_MODEL_ASSETS_LABEL                     = new String[] {"Quad", "Single"};
@@ -432,6 +434,9 @@ public class PositioningTool extends TeleOpModesBase
     @Override
     public void stop() {
         super.stop();
+        if (searchableTarget != null) {
+            searchableTarget.stop();
+        }
         botBase.setBling(LedPatterns.LED_OFF);
     }
 }
