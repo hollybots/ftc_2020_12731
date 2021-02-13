@@ -41,10 +41,12 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
                 gotoHeading(0);
                 break;
             case "Single":
-                moveBackward(74.0, DRIVE_TRAIN_TRAVELING_POWER);
+                moveBackward(76.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
+//                moveBackward(74.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
                 gotoHeading(0);
 //                moveRight(17, DRIVE_TRAIN_TRAVELING_POWER);
-                moveRight(22, DRIVE_TRAIN_TRAVELING_POWER);
+                moveDistanceFromObject(TravelDirection.LEFT,25.0, DRIVE_TRAIN_TRAVELING_POWER);
+//                moveRight(22, DRIVE_TRAIN_TRAVELING_POWER);
                 gotoHeading(0);
                 break;
             case "None":
@@ -71,13 +73,20 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 //                gotoHeading(180);
                 break;
             case "Single":
-                moveForward(14, DRIVE_TRAIN_TRAVELING_POWER);
+                moveForward(17, DRIVE_TRAIN_TRAVELING_POWER*1.1);
+//                moveForward(18, DRIVE_TRAIN_TRAVELING_POWER*1.1);
+//                moveForward(16, DRIVE_TRAIN_TRAVELING_POWER*1.1);
+//                moveForward(14, DRIVE_TRAIN_TRAVELING_POWER*1.1);
                 botTop.launchMotorOn(LAUNCH_POWER_SINGLE);
-                gotoHeading(173);
+//                gotoHeading(173);
+//                moveDistanceFromObject(TravelDirection.LEFT, 26.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
+                moveDistanceFromObject(TravelDirection.LEFT, 27.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
+                gotoHeading(181);
+
                 break;
             case "None":
             default:
-                moveDistanceFromObject(TravelDirection.LEFT,26.0, DRIVE_TRAIN_TRAVELING_POWER);
+                moveDistanceFromObject(TravelDirection.LEFT,27.0, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_POWER_NONE);
                 gotoHeading(181);
                 moveForward(3.5, DRIVE_TRAIN_TRAVELING_POWER);
@@ -108,18 +117,24 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         // pick up goal and push forward
         moveDistanceFromObject(TravelDirection.LEFT, 22.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveDistanceFromObject(TravelDirection.FORWARD, 2.0, DRIVE_TRAIN_TRAVELING_POWER);
-        moveRight(17.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
-        gotoHeading(-8);
-        moveBackward(84.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+        botTop.intakeMotorOff();
+        moveRight(14.0, DRIVE_TRAIN_TRAVELING_POWER);
+//        gotoHeading(-8);
+        gotoHeading(-5);
+//        gotoHeading(-3);
+//        moveBackward(84.0, DRIVE_TRAIN_TRAVELING_POWER/1.5);
+        moveBackward(83.0, DRIVE_TRAIN_TRAVELING_POWER/1.2);
 
         // shoot the ring
-        moveForward(30.0, DRIVE_TRAIN_TRAVELING_POWER);
+//        moveForward(30.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveForward(32.0, DRIVE_TRAIN_TRAVELING_POWER);
         botTop.liftMagazine();
         // counter clockwise from 180 is positive
         //        gotoHeading(200);
         // counter clockwise from 180 is positive
 //        gotoHeading(198);
-        gotoHeading(195);
+        gotoHeading(198);
+//        gotoHeading(195);
         // hits the middle one
         int t = 2;
         while (t > 0) {
@@ -193,13 +208,14 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 
         // @todo added this next line to pick up 2 rings from the stack.  Does not work all the time
         // ******************
-        moveForward(1.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
+//        moveForward(1.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
         // **********************
         justWait(500);
         moveForward(2.0, DRIVE_TRAIN_TRAVELING_POWER/2.0);
 
-        // move toward the lounch line
-        moveBackward(15.0, DRIVE_TRAIN_TRAVELING_POWER);
+        // move toward the launch line
+        moveBackward(12.0, DRIVE_TRAIN_TRAVELING_POWER);
+//        moveBackward(15.0, DRIVE_TRAIN_TRAVELING_POWER);
         moveRight(12.0, DRIVE_TRAIN_TRAVELING_POWER);
         // counter clockwise from 180 is positive
         //        gotoHeading(200);

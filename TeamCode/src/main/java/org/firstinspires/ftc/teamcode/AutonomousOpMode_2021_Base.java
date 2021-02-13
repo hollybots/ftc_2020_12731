@@ -21,7 +21,7 @@ public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
     protected static final double LAUNCH_POWER_SINGLE                   = LAUNCH_POWER;
     protected static final double LAUNCH_POWER_QUAD                     = LAUNCH_POWER;
     protected static final double LAUNCH_POWER_POWER_SHOT_FRONT         = 0.64;
-    protected static final double INTAKE_MOTOR                          = 0.8;
+    protected static final double INTAKE_MOTOR                          = 0.9;
 
     protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.6; // lifting is negative, lowering is positive
     protected static final double TIME_TO_DELIVER                       = 1800;
