@@ -68,10 +68,13 @@ public class PositioningTool extends TeleOpModesBase
     protected String CAMERA_SYSTEM                 = "WEBCAM";  // can be PHONE or WEBCAM
 
     static final double CLAW_POWER                      = 0.4;
-    static final double MIN_LAUNCH_POWER                = 0.3;
-    static final double MAX_LAUNCH_POWER                = 1.0;
-    static final double LAUNCH_POWER_BIG_INCREMENT      = 0.05;
-    static final double LAUNCH_POWER_SMALL_INCREMENT    = 0.01;
+
+    static final double MIN_LAUNCH_VELOCITY                = 1600;
+    static final double MAX_LAUNCH_VELOCITY                = 5000;  // Max for this motor 5400
+
+    static final double LAUNCH_VELOCITY_BIG_INCREMENT      = 100;
+    static final double LAUNCH_VELOCITY_SMALL_INCREMENT    = 10;
+
     static final int SERVO_TIMEOUT                      = 220;     // ms before the arms retracts.  Should be the interval defined by the servo manufacturer for 60 degrees
     static final int RPM_CALC_DURATION                  = 500; // in ms
     static final double COUNTS_PER_MOTOR_REV            = 28.0;
@@ -86,9 +89,9 @@ public class PositioningTool extends TeleOpModesBase
     boolean isReverseMode                               = true;
 
     // State variables
-    RingPosition ringPosition               = RingPosition.UNKNOWN;
-    protected String ringLabel              = "";
-    double launchPower                      = MIN_LAUNCH_POWER;
+    RingPosition ringPosition                           = RingPosition.UNKNOWN;
+    protected String ringLabel                          = "";
+    double launchVelocity                               = MIN_LAUNCH_VELOCITY;
 
     boolean wasPressedPowerBigIncrement                 = false;
     boolean wasPressedPowerSmallIncrement               = false;
@@ -295,38 +298,38 @@ public class PositioningTool extends TeleOpModesBase
 
             } else if (wasPressedPowerBigIncrement) {
                 wasPressedPowerBigIncrement = false;
-                launchPower += LAUNCH_POWER_BIG_INCREMENT;
-                launchPower = Math.min(MAX_LAUNCH_POWER, launchPower);
+                launchVelocity += LAUNCH_VELOCITY_BIG_INCREMENT;
+                launchVelocity = Math.min(MAX_LAUNCH_VELOCITY, launchVelocity);
 
             } else if (isPressedPowerSmallIncrement) {
                 wasPressedPowerSmallIncrement = true;
 
             } else if (wasPressedPowerSmallIncrement) {
                 wasPressedPowerSmallIncrement = false;
-                launchPower += LAUNCH_POWER_SMALL_INCREMENT;
-                launchPower = Math.min(MAX_LAUNCH_POWER, launchPower);
+                launchVelocity += LAUNCH_VELOCITY_SMALL_INCREMENT;
+                launchVelocity = Math.min(MAX_LAUNCH_VELOCITY, launchVelocity);
 
             } else if (isPressedPowerBigReduction) {
                 wasPressedPowerBigReduction = true;
 
             } else if (wasPressedPowerBigReduction) {
                 wasPressedPowerBigReduction = false;
-                launchPower -= LAUNCH_POWER_BIG_INCREMENT;
-                launchPower = Math.max(MIN_LAUNCH_POWER, launchPower);
+                launchVelocity -= LAUNCH_VELOCITY_BIG_INCREMENT;
+                launchVelocity = Math.max(MIN_LAUNCH_VELOCITY, launchVelocity);
 
             } else if (isPressedPowerSmallReduction) {
                 wasPressedPowerSmallReduction = true;
 
             } else if (wasPressedPowerSmallReduction) {
                 wasPressedPowerSmallReduction = false;
-                launchPower -= LAUNCH_POWER_SMALL_INCREMENT;
-                launchPower = Math.max(MIN_LAUNCH_POWER, launchPower);
+                launchVelocity -= LAUNCH_VELOCITY_SMALL_INCREMENT;
+                launchVelocity = Math.max(MIN_LAUNCH_VELOCITY, launchVelocity);
             }
 
             /**
              * Calc RPM for telemetry
              */
-            rpm = getRPMs(rpm);
+            rpm =  botTop.getLaunchMotor().getVelocity();
 
             /**
              * Go back to chilling
@@ -339,7 +342,9 @@ public class PositioningTool extends TeleOpModesBase
                 currentState = JUST_CHILLING;
             }
 
-            botTop.launchMotorOn(launchPower);
+
+
+            botTop.getLaunchMotor().setVelocity(launchVelocity);
         }
 
         /**
@@ -393,8 +398,8 @@ public class PositioningTool extends TeleOpModesBase
         /**
          * Output Telemetry
          */
-        telemetry.addData("RPMs", String.format("%.3f", rpm))
-        .addData("Power",  String.format("%.3f", launchPower));
+        telemetry.addData("Current RPM", String.format("%.3f", rpm))
+        .addData("target RPM", launchVelocity);
 
         telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
         .addData("OdometerY", botBase.odometer.getCurrentYPos());
@@ -413,20 +418,20 @@ public class PositioningTool extends TeleOpModesBase
         telemetry.update();
     }
 
-
-    private double getRPMs(double rpm) {
-        double now;
-        double counts;
-        now = runtime.milliseconds();
-        // waiting for rmp calculations
-        if ((now - startSampling) > RPM_CALC_DURATION) {
-            counts = Math.abs(botTop.getLaunchMotor().getCurrentPosition() - startPosition);
-            rpm = counts * RPM_CALC_DURATION * 60 / COUNTS_PER_MOTOR_REV / (now - startSampling);
-            startSampling = now;
-            startPosition = botTop.getLaunchMotor().getCurrentPosition();
-        }
-        return rpm;
-    }
+//
+//    private double getRPMs(double rpm) {
+//        double now;
+//        double counts;
+//        now = runtime.milliseconds();
+//        // waiting for rmp calculations
+//        if ((now - startSampling) > RPM_CALC_DURATION) {
+//            counts = Math.abs(botTop.getLaunchMotor().getCurrentPosition() - startPosition);
+//            rpm = counts * RPM_CALC_DURATION * 60 / COUNTS_PER_MOTOR_REV / (now - startSampling);
+//            startSampling = now;
+//            startPosition = botTop.getLaunchMotor().getCurrentPosition();
+//        }
+//        return rpm;
+//    }
 
     /*
      * Code to run ONCE after the driver hits STOP
