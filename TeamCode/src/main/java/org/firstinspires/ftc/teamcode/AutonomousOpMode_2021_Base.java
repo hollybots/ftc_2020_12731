@@ -15,12 +15,12 @@ import org.firstinspires.ftc.teamcode.Components.RevInputs;
 public class AutonomousOpMode_2021_Base extends AutonomousOpModesBase {
 
 
-    protected static final double DRIVE_TRAIN_TRAVELING_POWER           = 0.7;
-    protected static final double LAUNCH_VELOCITY                          = 0.7;
+    protected static final double DRIVE_TRAIN_TRAVELING_POWER              = 0.7;
+    protected static final double LAUNCH_VELOCITY                          = 1700;
     protected static final double LAUNCH_VELOCITY_NONE                     = LAUNCH_VELOCITY;
     protected static final double LAUNCH_VELOCITY_SINGLE                   = LAUNCH_VELOCITY;
     protected static final double LAUNCH_VELOCITY_QUAD                     = LAUNCH_VELOCITY;
-    protected static final double LAUNCH_VELOCITY_POWER_SHOT_FRONT         = 0.64;
+    protected static final double LAUNCH_VELOCITY_POWER_SHOT_FRONT         = 1550;
     protected static final double INTAKE_MOTOR                          = 0.9;
 
     protected static final double WOBBLE_GOAL_DELIVERY_POWER            = 0.6; // lifting is negative, lowering is positive

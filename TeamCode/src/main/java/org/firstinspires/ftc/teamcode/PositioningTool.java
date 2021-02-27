@@ -69,7 +69,7 @@ public class PositioningTool extends TeleOpModesBase
 
     static final double CLAW_POWER                      = 0.4;
 
-    static final double MIN_LAUNCH_VELOCITY                = 1600;
+    static final double MIN_LAUNCH_VELOCITY                = 1400;
     static final double MAX_LAUNCH_VELOCITY                = 5000;  // Max for this motor 5400
 
     static final double LAUNCH_VELOCITY_BIG_INCREMENT      = 100;
@@ -359,6 +359,8 @@ public class PositioningTool extends TeleOpModesBase
          *
          */
 
+        double rpm = botTop.getLaunchMotor().getVelocity();
+
         /**
          * Power calculation for drivetrain
          */
@@ -398,11 +400,13 @@ public class PositioningTool extends TeleOpModesBase
         /**
          * Output Telemetry
          */
-        telemetry.addData("Current RPM", String.format("%.3f", rpm))
+        telemetry.addLine("Launcher")
+        .addData("Current RPM", String.format("%.3f", rpm))
         .addData("target RPM", launchVelocity);
 
-        telemetry.addData("OdometerX", botBase.odometer.getCurrentXPos())
-        .addData("OdometerY", botBase.odometer.getCurrentYPos());
+        telemetry.addLine("Odometry")
+        .addData("x", botBase.odometer.getCurrentXPos())
+        .addData("y", botBase.odometer.getCurrentYPos());
 
         // Power
         telemetry.addLine("Power")

@@ -38,7 +38,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
                 gotoHeading(0);
                 moveBackward(80, DRIVE_TRAIN_TRAVELING_POWER);
                 moveDistanceFromObject(TravelDirection.BACKWARD,24.0, DRIVE_TRAIN_TRAVELING_POWER);
-                gotoHeading(0);
+                gotoHeading(-5);
                 break;
             case "Single":
                 moveBackward(76.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
@@ -65,8 +65,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         if (ringLabel == null) {ringLabel = "None";}
         switch (ringLabel) {
             case "Quad":
-                moveForward(33, DRIVE_TRAIN_TRAVELING_POWER);
-//                moveForward(34, DRIVE_TRAIN_TRAVELING_POWER);
+                gotoHeading(0);
+                moveForward(35, DRIVE_TRAIN_TRAVELING_POWER);
                 moveDistanceFromObject(TravelDirection.LEFT, 26.0, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_VELOCITY_QUAD);
                 gotoHeading(181);
@@ -88,8 +88,8 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             default:
                 moveDistanceFromObject(TravelDirection.LEFT,27.0, DRIVE_TRAIN_TRAVELING_POWER);
                 botTop.launchMotorOn(LAUNCH_VELOCITY_NONE);
-                gotoHeading(181);
-                moveForward(3.5, DRIVE_TRAIN_TRAVELING_POWER);
+                gotoHeading(182);
+                moveForward(1.0, DRIVE_TRAIN_TRAVELING_POWER);
                 break;
 
         }

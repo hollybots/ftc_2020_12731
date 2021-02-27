@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.util.Log;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -107,8 +109,16 @@ public class BotTop {
         try {
             launchMotor = hardwareMap.get(DcMotorEx.class, "launch_motor");
             launchMotor.setDirection(DcMotorEx.Direction.REVERSE);
-            launchMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            launchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+            for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
+                module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            }
+
+            MotorConfigurationType motorConfigurationType = launchMotor.getMotorType().clone();
+            motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+            launchMotor.setMotorType(motorConfigurationType);
+
+            launchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             dbugThis("Cannot initialize launchMotor");
             launchMotor = null;
@@ -166,8 +176,6 @@ public class BotTop {
             dbugThis("Cannot initialize limitDirection2");
             limitDirection2 = null;
         }
-
-
     }
 
     /**
