@@ -143,7 +143,7 @@ public class BotBase {
          */
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
-            module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
     }
@@ -221,9 +221,9 @@ public class BotBase {
     public void updateComponents(short whichInputs) {
 
         if (checkThisInput(RevInputs.BULK, whichInputs)) {
-            for (LynxModule module : allHubs) {
-                module.clearBulkCache();
-            }
+//            for (LynxModule module : allHubs) {
+//                module.clearBulkCache();
+//            }
             if (hasCollisionFront()) {
                 collisionFront.updateLimitSwitchState();
             }

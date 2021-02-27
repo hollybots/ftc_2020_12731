@@ -47,11 +47,11 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 {
 
     static final double CLAW_POWER                      = 0.4;
-    static final double LAUNCH_POWER                    = 0.75;
+//    static final double LAUNCH_VELOCITY                    = 0.75;
 
-    static final double LAUNCH_POWER_POWER_SHOT_BACK    = 0.74;
-    static final double LAUNCH_POWER_POWER_SHOT_FRONT   = 0.62;
-    static final double LAUNCH_POWER_TOWER_RING         = 0.7;
+    static final double LAUNCH_VELOCITY_POWER_SHOT_BACK    = 1700;
+    static final double LAUNCH_VELOCITY_POWER_SHOT_FRONT   = 1550;
+    static final double LAUNCH_VELOCITY_TOWER_RING         = 1700;
     static final double INTAKE_POWER                    = 0.9;
     static final int SERVO_TIMEOUT                      = 220;     // ms before the arms retracts.  Should be the interval defined by the servo manufacturer for 60 degrees
     static final int PIVOTING_TIMEOUT                   = 90;
@@ -86,8 +86,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     double pivotingTimeout                               = 0;
 
     // Defining launch power
-    double launchPower                                  = LAUNCH_POWER_TOWER_RING;
-    int launchPowerMode                                 = POWER_MODE_TOWER;
+    double launchVelocity                                  = LAUNCH_VELOCITY_TOWER_RING;
+    int launchVelocityMode                                 = POWER_MODE_TOWER;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -256,7 +256,7 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         }
 
         else if (currentState == LOAD_STATE_2) {
-            botTop.launchMotorOn(LAUNCH_POWER/1.04);
+            botTop.launchMotorOn(LAUNCH_VELOCITY_POWER_SHOT_BACK);
             // same as following but with a slower lau
             botBase.setBling(LedPatterns.LED_SOLID_COLOR_RED);
             isReverseMode = false;
@@ -269,13 +269,14 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
             isReverseMode = false;
             botTop.intakeMotorOff();
-            botTop.launchMotorOn(launchPower);
+            botTop.launchMotorOn(launchVelocity);
             botTop.liftMagazine();
             currentState = LAUNCHING_STATE;
         }
 
         else if (currentState == LAUNCHING_STATE) {
             isReverseMode = false;
+            botTop.launchMotorOn(launchVelocity);
 //            botBase.setBling(LedPatterns.LED_SOLID_COLOR_BLUE);
             // The launch button is being pressed
             if (isPressedLaunchingButton && !wasPressedLaunchingButton) {
@@ -385,16 +386,16 @@ public class TeleOpMode_sofia extends TeleOpModesBase
 
 
         if (isPressedLaunchPowerTowerRing){
-            launchPower = LAUNCH_POWER_TOWER_RING;
-            launchPowerMode = POWER_MODE_TOWER;
+            launchVelocity = LAUNCH_VELOCITY_TOWER_RING;
+            launchVelocityMode = POWER_MODE_TOWER;
         }
         else if (isPressedLaunchPowerPowerShot){
-            launchPower = LAUNCH_POWER_POWER_SHOT_FRONT;
-            launchPowerMode = POWER_MODE_FRONT_SHOT;
+            launchVelocity = LAUNCH_VELOCITY_POWER_SHOT_FRONT;
+            launchVelocityMode = POWER_MODE_FRONT_SHOT;
         }
         else if (isPressedLaunchPowerBackPowerShot){
-            launchPower = LAUNCH_POWER_POWER_SHOT_BACK;
-            launchPowerMode = POWER_MODE_BACK_SHOT;
+            launchVelocity = LAUNCH_VELOCITY_POWER_SHOT_BACK;
+            launchVelocityMode = POWER_MODE_BACK_SHOT;
         }
 
         /**
@@ -438,8 +439,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         /**
          * Output Telemetry
          */
-        telemetry.addData("Launch Power", botTop.getLaunchMotor().getPower());
-        telemetry.addData("Launching Mode", (launchPowerMode == POWER_MODE_TOWER) ? "Tower Goal" : (launchPowerMode == POWER_MODE_BACK_SHOT) ? "Back Power Shot" : (launchPowerMode == POWER_MODE_FRONT_SHOT)  ? "Front Power Shot" : "Unknown");
+        telemetry.addLine("Launcher")
+        .addData("velocity", botTop.getLaunchMotor().getVelocity())
+        .addData("target", launchVelocity)
+        .addData("Mode", (launchVelocityMode == POWER_MODE_TOWER) ? "Tower" : (launchVelocityMode == POWER_MODE_BACK_SHOT) ? "Back Power" : (launchVelocityMode == POWER_MODE_FRONT_SHOT)  ? "Front Power" : "Unknown");
         telemetry.update();
     }
 

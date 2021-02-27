@@ -2,11 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 import android.util.Log;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -17,7 +22,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class BotTop {
 
     static final double STACKING        = 0.25;
-//    static final double LAUNCHING       = 0.59;
     static final double LAUNCHING       = 0.6;
 
     static final double RETRACTED       = 1.0;
@@ -26,11 +30,20 @@ public class BotTop {
     static final boolean DEBUG          = false;
 
 
+    /* ****************************************
+        LAUNCHER Volocity PID values
+     */
+    static final double KP_LAUNCHER     = 60;
+    static final double KI_LAUNCHER     = 0;
+    static final double KD_LAUNCHER     = 50;
+    static final double KF_LAUNCHER     = 14;
+    public PIDFCoefficients launcherVelocityPID = null;
+
     /* ************************************
         DC Motors
     */
     private DcMotor intakeMotor = null;
-    private DcMotor launchMotor = null;
+    private DcMotorEx launchMotor = null;
     private DcMotor clawMotor = null;
 
 
@@ -52,6 +65,11 @@ public class BotTop {
     */
     DigitalChannel limitDirection1 = null;
     DigitalChannel limitDirection2 = null;
+
+    /* ************************************
+        BATTERY VOLTAGE
+    */
+    private VoltageSensor batteryVoltageSensor;
 
 
     /**
@@ -89,14 +107,27 @@ public class BotTop {
         }
 
         try {
-            launchMotor = hardwareMap.get(DcMotor.class, "launch_motor");
-            launchMotor.setDirection(DcMotor.Direction.REVERSE);
-            launchMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            launchMotor = hardwareMap.get(DcMotorEx.class, "launch_motor");
+            launchMotor.setDirection(DcMotorEx.Direction.REVERSE);
+
+            for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
+                module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            }
+
+            MotorConfigurationType motorConfigurationType = launchMotor.getMotorType().clone();
+            motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+            launchMotor.setMotorType(motorConfigurationType);
+
             launchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             dbugThis("Cannot initialize launchMotor");
             launchMotor = null;
         }
+
+
+        launcherVelocityPID = new PIDFCoefficients(KP_LAUNCHER, KI_LAUNCHER, KD_LAUNCHER, KF_LAUNCHER);
+        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+        setPIDFCoefficients(launchMotor, launcherVelocityPID, batteryVoltageSensor);
 
         /**
          * CR SERVOS
@@ -182,15 +213,15 @@ public class BotTop {
         hookCrServo.setPower(0);
     }
 
-    public void launchMotorOn(double power) {
-        launchMotor.setPower(power);
+    public void launchMotorOn(double velocity) {
+        launchMotor.setVelocity(velocity);
     }
 
     public void launchMotorOff() {
-        launchMotor.setPower(0);
+        launchMotor.setVelocity(0);
     }
 
-    public DcMotor getLaunchMotor() {
+    public DcMotorEx getLaunchMotor() {
         return launchMotor;
     }
 
@@ -249,6 +280,14 @@ public class BotTop {
         intakeMotorOff();
         clawMotorOff();
     }
+
+
+    private void setPIDFCoefficients(DcMotorEx motor, PIDFCoefficients coefficients, VoltageSensor batteryVoltageSensor) {
+        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+                coefficients.p, coefficients.i, coefficients.d, coefficients.f * 12 / batteryVoltageSensor.getVoltage()
+        ));
+    }
+
 
     /**
      * This method should be completed and called during the idle part of autonomous mode

@@ -32,14 +32,13 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         moveBackward(2.0, DRIVE_TRAIN_TRAVELING_POWER);
         gotoHeading(0);
 //        moveLeftXInchesFromLeftObject(10.0, 5000, DRIVE_TRAIN_TRAVELING_POWER/1.25);
-        moveDistanceFromObject(TravelDirection.LEFT, 8.0, DRIVE_TRAIN_TRAVELING_POWER);
-//        moveDistanceFromObject(TravelDirection.LEFT, 10.0, DRIVE_TRAIN_TRAVELING_POWER);
+        moveDistanceFromObject(TravelDirection.LEFT, 10.0, DRIVE_TRAIN_TRAVELING_POWER);
         switch (ringLabel) {
             case "Quad":
                 gotoHeading(0);
                 moveBackward(80, DRIVE_TRAIN_TRAVELING_POWER);
                 moveDistanceFromObject(TravelDirection.BACKWARD,24.0, DRIVE_TRAIN_TRAVELING_POWER);
-                gotoHeading(0);
+                gotoHeading(-5);
                 break;
             case "Single":
                 moveBackward(76.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
@@ -66,11 +65,10 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
         if (ringLabel == null) {ringLabel = "None";}
         switch (ringLabel) {
             case "Quad":
-//                moveForward(33, DRIVE_TRAIN_TRAVELING_POWER);
-//                moveForward(34, DRIVE_TRAIN_TRAVELING_POWER);
-                moveForward(36, DRIVE_TRAIN_TRAVELING_POWER);
+                gotoHeading(0);
+                moveForward(35, DRIVE_TRAIN_TRAVELING_POWER);
                 moveDistanceFromObject(TravelDirection.LEFT, 26.0, DRIVE_TRAIN_TRAVELING_POWER);
-                botTop.launchMotorOn(LAUNCH_POWER_QUAD);
+                botTop.launchMotorOn(LAUNCH_VELOCITY_QUAD);
                 gotoHeading(181);
 //                gotoHeading(180);
                 break;
@@ -79,7 +77,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 //                moveForward(18, DRIVE_TRAIN_TRAVELING_POWER*1.1);
 //                moveForward(16, DRIVE_TRAIN_TRAVELING_POWER*1.1);
 //                moveForward(14, DRIVE_TRAIN_TRAVELING_POWER*1.1);
-                botTop.launchMotorOn(LAUNCH_POWER_SINGLE);
+                botTop.launchMotorOn(LAUNCH_VELOCITY_SINGLE);
 //                gotoHeading(173);
 //                moveDistanceFromObject(TravelDirection.LEFT, 26.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
                 moveDistanceFromObject(TravelDirection.LEFT, 27.0, DRIVE_TRAIN_TRAVELING_POWER*1.1);
@@ -89,9 +87,9 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
             case "None":
             default:
                 moveDistanceFromObject(TravelDirection.LEFT,27.0, DRIVE_TRAIN_TRAVELING_POWER);
-                botTop.launchMotorOn(LAUNCH_POWER_NONE);
-                gotoHeading(181);
-                moveForward(3.5, DRIVE_TRAIN_TRAVELING_POWER);
+                botTop.launchMotorOn(LAUNCH_VELOCITY_NONE);
+                gotoHeading(182);
+                moveForward(1.0, DRIVE_TRAIN_TRAVELING_POWER);
                 break;
 
         }
@@ -110,7 +108,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 
     protected void pickupExtraOneRing() {
         botTop.intakeMotorOn(INTAKE_MOTOR);
-        botTop.launchMotorOn(LAUNCH_POWER_POWER_SHOT_FRONT);
+        botTop.launchMotorOn(LAUNCH_VELOCITY_POWER_SHOT_FRONT);
         gotoHeading(0);
         botTop.lowerMagazine();
         moveDistanceFromObject(TravelDirection.LEFT, 28.0, DRIVE_TRAIN_TRAVELING_POWER);
@@ -151,7 +149,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 
     protected void pickupExtraOneRingOld() {
         botTop.intakeMotorOn(INTAKE_MOTOR);
-        botTop.launchMotorOn(LAUNCH_POWER_POWER_SHOT_FRONT);
+        botTop.launchMotorOn(LAUNCH_VELOCITY_POWER_SHOT_FRONT);
         gotoHeading(0);
         botTop.lowerMagazine();
         moveDistanceFromObject(TravelDirection.LEFT, 28.0, DRIVE_TRAIN_TRAVELING_POWER);
@@ -195,7 +193,7 @@ public class AutonomousOpMode_2021_RED_BACKCAM_PLUS extends AutonomousOpMode_202
 
 
     protected void pickupExtraFourRings() {
-        botTop.launchMotorOn(LAUNCH_POWER_POWER_SHOT_FRONT);
+        botTop.launchMotorOn(LAUNCH_VELOCITY_POWER_SHOT_FRONT);
         gotoHeading(0);
         botTop.lowerMagazine();
         moveRight(2.0, DRIVE_TRAIN_TRAVELING_POWER);
