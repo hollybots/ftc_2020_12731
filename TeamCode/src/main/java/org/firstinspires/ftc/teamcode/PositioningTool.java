@@ -64,6 +64,9 @@ public class PositioningTool extends TeleOpModesBase
     protected String [] TFOD_MODEL_ASSETS_LABEL                 = {"Stone", "Skystone"};
     protected String TFOD_TARGET_LABEL                          = "Skystone";
 
+    static final int COLLECTORIN                                = 0;
+    static final int COLLECTOROUT                               = 1;
+
     protected String IDENTIFICATION_SYSTEM         = "TSF"; // can be VUFORIA, TSF, or NONE
     protected String CAMERA_SYSTEM                 = "WEBCAM";  // can be PHONE or WEBCAM
 
@@ -97,6 +100,7 @@ public class PositioningTool extends TeleOpModesBase
     boolean wasPressedPowerSmallIncrement               = false;
     boolean wasPressedPowerBigReduction                 = false;
     boolean wasPressedPowerSmallReduction               = false;
+    boolean wasPressedCollectWobbleGoalButton           = false;
 
     boolean wasPressedLaunchingButton                   = false;
     double servoTimeout                                 = 0.0;
@@ -104,6 +108,9 @@ public class PositioningTool extends TeleOpModesBase
     double rpm                                          = 0;
     double startSampling                                = 0;
     double startPosition                                = 0;
+
+    int collectorPosition                                   = COLLECTOROUT;
+
 
     static final int JUST_CHILLING                      = 1;
     static final int LAUNCHING_STATE                    = 2;
@@ -146,6 +153,9 @@ public class PositioningTool extends TeleOpModesBase
                 CAMERA_SYSTEM,
                 true
         );
+
+        // Set the collector position to out
+        botTop.collectOut();
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -229,6 +239,8 @@ public class PositioningTool extends TeleOpModesBase
         boolean isPressedHookWobbleGoalButton   = gamepad1.right_bumper;
         // To unhook wobble goal
         boolean isPressedUnhookWobbleGoalButton = gamepad1.left_bumper;
+        // To Collect wobble goal
+        boolean isPressedCollectWobbleGoalButton   = gamepad1.right_bumper;
         // To lift wobble goal
         boolean isPressedLiftWobbleGoalButton   = gamepad1.right_trigger > 0.2;
         // To lower wobble goal
@@ -244,17 +256,36 @@ public class PositioningTool extends TeleOpModesBase
         if (currentState == JUST_CHILLING) {
 
             botTop.launchMotorOff();
+//            /**
+//             * Enable Wobble Goal hook through bumpers
+//             */
+//            if (isPressedHookWobbleGoalButton) {
+//                botTop.wobbleGoalHookMotorOn(0.5);
+//            } else if (isPressedUnhookWobbleGoalButton) {
+//                botTop.wobbleGoalHookMotorOn(-0.5);
+//            }
+//            if (!isPressedHookWobbleGoalButton && !isPressedUnhookWobbleGoalButton) {
+//                botTop.wobbleGoalHookMotorOff();
+//            }
+
             /**
-             * Enable Wobble Goal hook through bumpers
+             * Control wobble goal collector
              */
-            if (isPressedHookWobbleGoalButton) {
-                botTop.wobbleGoalHookMotorOn(0.5);
-            } else if (isPressedUnhookWobbleGoalButton) {
-                botTop.wobbleGoalHookMotorOn(-0.5);
+            if (isPressedCollectWobbleGoalButton) {
+                wasPressedCollectWobbleGoalButton = true;
             }
-            if (!isPressedHookWobbleGoalButton && !isPressedUnhookWobbleGoalButton) {
-                botTop.wobbleGoalHookMotorOff();
+            else if (wasPressedCollectWobbleGoalButton) {
+                if (collectorPosition == COLLECTOROUT) {
+                    botTop.collectIn();
+                    collectorPosition = COLLECTORIN;
+                }
+                else if (collectorPosition == COLLECTORIN) {
+                    botTop.collectOut();
+                    collectorPosition = COLLECTOROUT;
+                }
+                wasPressedCollectWobbleGoalButton = false;
             }
+
             /**
              * Enable Wobble Goal Lift through trigger
              */

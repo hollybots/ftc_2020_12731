@@ -27,6 +27,9 @@ public class BotTop {
     static final double RETRACTED       = 1.0;
     static final double EXTENDED        = 0.8;
 
+    static final double CLOSED          = 0.0;
+    static final double OPEN            = 1.0;
+
     static final boolean DEBUG          = false;
 
 
@@ -58,6 +61,7 @@ public class BotTop {
     */
     private Servo armServo = null;
     private Servo magazineServo = null;
+    private Servo collectServo = null;
 
 
     /* ************************************
@@ -146,6 +150,13 @@ public class BotTop {
          */
 
         try {
+            collectServo = hardwareMap.get(Servo.class, "collect_servo");
+        } catch (Exception e) {
+            dbugThis("Cannot initialize collectServo");
+            collectServo = null;
+        }
+
+        try {
             armServo = hardwareMap.get(Servo.class, "arm_servo");
         } catch (Exception e) {
             dbugThis("Cannot initialize armServo");
@@ -210,7 +221,7 @@ public class BotTop {
     }
 
     public void wobbleGoalHookMotorOff() {
-        hookCrServo.setPower(0);
+        hookCrServo.setPower(0.0);
     }
 
     public void launchMotorOn(double velocity) {
@@ -256,6 +267,20 @@ public class BotTop {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Set collector position so it closes in on the wobble goal
+     */
+    public void collectIn() {
+        collectServo.setPosition(CLOSED);
+    }
+
+    /**
+     * Set collector position so it opens up
+     */
+    public void collectOut() {
+        collectServo.setPosition(OPEN);
     }
 
     /**

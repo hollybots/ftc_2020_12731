@@ -55,6 +55,8 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     static final double INTAKE_POWER                    = 0.9;
     static final int SERVO_TIMEOUT                      = 220;     // ms before the arms retracts.  Should be the interval defined by the servo manufacturer for 60 degrees
     static final int PIVOTING_TIMEOUT                   = 90;
+    static final int COLLECTOROUT                       = 0;
+    static final int COLLECTORIN                        = 1;
 
     static final int INITIATE_COLLECTING_STATE          = 1;
     static final int LOAD_STATE                         = 2;
@@ -80,10 +82,12 @@ public class TeleOpMode_sofia extends TeleOpModesBase
     boolean isReverseMode                               = false;
 
     boolean wasPressedLaunchingButton                   = false;
+    boolean wasPressedCollectWobbleGoalButton           = false;
     double servoTimeout                                 = 0.0;
     boolean wasPressedResetButton                       = false;
     boolean wasPressedPivotButton                       = false;
-    double pivotingTimeout                               = 0;
+    double pivotingTimeout                              = 0;
+    int collectorPosition                            = COLLECTOROUT;
 
     // Defining launch power
     double launchVelocity                                  = LAUNCH_VELOCITY_TOWER_RING;
@@ -108,6 +112,9 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+        // Set the collector position to out
+        botTop.collectOut();
     }
 
 
@@ -181,8 +188,10 @@ public class TeleOpMode_sofia extends TeleOpModesBase
         boolean isPressedSecondEndGameButton    = gamepad1.b;
         // To launch rings
         boolean isPressedLaunchingButton        = gamepad1.right_bumper;
-        // To Hook wobble goal
-        boolean isPressedHookWobbleGoalButton   = gamepad1.right_bumper;
+        // To Collect wobble goal
+        boolean isPressedCollectWobbleGoalButton   = gamepad1.right_bumper;
+        // To unhook wobble goal
+        boolean isPressedHookWobbleGoalButton = gamepad1.right_bumper;
         // To unhook wobble goal
         boolean isPressedUnhookWobbleGoalButton = gamepad1.left_bumper;
         // To lift wobble goal
@@ -325,17 +334,35 @@ public class TeleOpMode_sofia extends TeleOpModesBase
             botTop.intakeMotorOff();
             botTop.launchMotorOff();
             /**
-             * Enable Wobble Goal hook through bumpers
+             * Control wobble goal collector
              */
-            if (isPressedHookWobbleGoalButton) {
-                botTop.wobbleGoalHookMotorOn(0.5);
+            if (isPressedCollectWobbleGoalButton) {
+                wasPressedCollectWobbleGoalButton = true;
             }
-            else if (isPressedUnhookWobbleGoalButton) {
-                botTop.wobbleGoalHookMotorOn(-0.5);
+            else if (wasPressedCollectWobbleGoalButton) {
+                if (collectorPosition == COLLECTOROUT) {
+                    botTop.collectIn();
+                    collectorPosition = COLLECTORIN;
+                }
+                else if (collectorPosition == COLLECTORIN) {
+                    botTop.collectOut();
+                    collectorPosition = COLLECTOROUT;
+                }
+                wasPressedCollectWobbleGoalButton = false;
             }
-            if (!isPressedHookWobbleGoalButton && !isPressedUnhookWobbleGoalButton) {
-                botTop.wobbleGoalHookMotorOff();
-            }
+
+//            /**
+//             * Enable Wobble Goal hook through bumpers
+//             */
+//            if (isPressedHookWobbleGoalButton) {
+//                botTop.wobbleGoalHookMotorOn(0.5);
+//            }
+//            else if (isPressedUnhookWobbleGoalButton) {
+//                botTop.wobbleGoalHookMotorOn(-0.5);
+//            }
+//            if (!isPressedHookWobbleGoalButton && !isPressedUnhookWobbleGoalButton) {
+//                botTop.wobbleGoalHookMotorOff();
+//            }
             /**
              * Enable Wobble Goal Lift through trigger
              */
